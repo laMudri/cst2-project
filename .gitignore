@@ -1,0 +1,10 @@
+jalc.ps
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.bbl
+*.blg
+*.pdf
+*.agdai
+.#*

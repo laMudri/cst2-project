@@ -1,0 +1,217 @@
+\title{{\large Computer Science Tripos Part II Project Proposal} \\ Formalising a semiring framework for shortest-distance problems}
+\thispagestyle{empty}
+
+\rightline{\large J. D. Wood}
+\medskip
+\rightline{\large Robinson College}
+\medskip
+\rightline{\large jdw74}
+
+\vfil
+
+%\centerline{\large Diploma in Computer Science Project Proposal}
+%\vspace{0.4in}
+%\centerline{\Large\bf Formalising a semiring framework for shortest-distance problems}
+%\vspace{0.3in}
+%\centerline{\large \today}
+
+%\maketitle
+
+{\let\newpage\relax\maketitle}
+
+\vfil
+
+{\bf Project Originator:} Dr D. P. Mulligan
+
+\vspace{0.1in}
+
+{\bf Resources Required:} See the Resources section.
+
+\vspace{0.5in}
+
+{\bf Project Supervisors:} Dr D. P. Mulligan and M. L. Daggitt
+
+\vspace{0.2in}
+
+{\bf Signatures:}
+
+\vspace{0.5in}
+
+{\bf Director of Studies:} Dr A. R. Beresford
+
+\vspace{0.2in}
+
+{\bf Signature:}
+
+\vspace{0.5in}
+
+{\bf Overseers:} Dr H. Gunes and Dr R. N. M. Watson
+
+\vspace{0.2in}
+
+{\bf Signatures:}
+
+\vfil
+\eject
+
+% Main document
+
+\section*{Introduction}
+Dijkstra's algorithm and the Bellman-Ford algorithm are two solutions to the single-source shortest-distance problem.
+It has been long understood that classical single-source shortest-distance algorithms based on the \emph{relaxation} technique can be generalised so that edge weights are elements of an arbitrary semiring with some restrictions\cite{ahl74}.
+Mohri, in \cite{Mohri02}, shows that the restrictions can be weakened to \emph{$k$-closedness on the graph} on which the algorithm will be run.
+Intuitively, this allows for negative edge weights as long as the graph contains no negative-weight cycles.
+Mohri puts the generality of the semiring used to use in solving the $k$-shortest-distance and $k$-distinct-shortest-distance problems, which would be challenging to solve otherwise.
+The algorithm presented in Mohri's paper is also generic in the discipline of the queue of new vertices to be explored, with shortest-first queueing giving Dijkstra's algorithm and first-in first-out queueing giving the Bellman-Ford algorithm.
+
+Formal verification is a subfield of computer science that has been researched since the 1970s\cite{DBLP:conf/aisc/2008}, starting with the Mizar proof assistant\cite{Naumowicz2009}.
+There have been several important results in recent years, including proofs of the four colour theorem\cite{4-colour} and Kepler conjecture\cite{Hales-Kepler}, and verification of a C compiler\cite{Leroy-Compcert-CACM} and an ML compiler\cite{CakeML}.
+The basic idea of a proof assistant is that the user writes, in some formal language(s), a mathematical statement and a proposed proof of that statement.
+The proof assistant will then check whether the proof is well-formed, and if so, the statement is considered proven.
+We usually want this checking process to be at least semi-decidable (all well-formed proofs get accepted by the checker), if not decidable.
+In reality, practical proof assistants offer some level of interactivity, allowing the user to check small fragments of a proof rather than giving a whole proof in one go.
+This means that the terms \emph{proof assistant} and \emph{interactive theorem prover} are mostly synonymous.
+
+Agda is a dependently typed programming language and proof assistant, with the current version, Agda 2, first appearing in 2007\cite{Norell07}.
+It aims to offer a single language for writing both programs and proofs, as justified by the Curry-Howard correspondence\cite{curry1980h}.
+This distinguishes it from tactics-driven proof assistants, such as HOL and Coq, where programs are written in a functional programming style, but proofs are in the form of scripts comprising instructions to manipulate a proof state (tactics).
+Agda is somewhat experimental, and it is often used for prototyping new ideas for dependently typed functional programming.
+
+In this project, I will formalise some of the paper by Mohri, at least up to and including theorem 1, which states that the first single-source shortest-distance algorithm presented is correct.
+The work will be done in Agda.
+
+\section*{Work that has to be done}
+
+\begin{enumerate}
+  \item
+    Learn and practise enough Agda to complete the project.
+  \item
+    Read and thoroughly understand Mohri's paper.
+    The remaining objectives pertain to this paper, and are broken down by section.
+  \item
+    Prove the required lemmas about semirings from section 1.
+    Agda's standard library\cite{stdlib} contains a definition of \emph{semiring} and \emph{commutative semiring} which match those in Mohri's paper, except that the standard library definition makes explicit reference to the equivalence relation being used.
+    I will stick to the standard library definition to make my code work better with other people's and be more idiomatic.
+  \item
+    Make further definitions specific to shortest-distance problems.
+    Some of these (like a definition of graph) are assumed by the paper, whilst others are given explicit definitions.
+    These are the following.
+    \begin{enumerate}
+      \item
+        Create a suitable definition of a weighted graph which is both easy to reason about and efficient to compute with.
+      \item
+        Define a \emph{path} on such a graph.
+      \item
+        Define the weight of a path, and the weight of a finite set of paths.
+      \item
+        Define shortest distance between two points.
+      \item
+        Define the notion of \emph{cycle} in a graph.
+      \item
+        Define $k$-closedness with respect to a graph.
+      \item
+        Define abstractly how a queue should behave.
+    \end{enumerate}
+  \item
+    Reproduce the \textsc{Generic-Single-Source-Shortest-Distance} algorithm and proofs about it in section 3.
+    The algorithm needs to be translated from an imperative-iterative style to a functional-recursive style.
+    In Agda, this definition will require a proof of termination, and so this step will require doing the work of later lemmas earlier than given in the paper.
+  \item
+    Test the performance of the implementation (with the executable extracted using the compiler back-end MAlonzo) on some real-world data, such as a street map.
+    This will require having an example semiring and several example queue structures.
+    I will also produce an unverified version in Haskell to test against.
+    I choose Haskell here because MAlonzo produces Haskell code, so the comparison is reasonable.
+\end{enumerate}
+
+\section*{Starting Point}
+I have some experience with Agda, having used it for the past year.
+I have also had an initial read through of Mohri's paper.
+Having taken the IA Algorithms course, I know the problem being solved and two classical solutions to it.
+My understanding of mathematical conventions for algebraic structures and proofs comes from a combination of my interests and having taken the IA Mathematical courses Vectors and Matrices and Analysis I.
+
+Agda has a standard library\cite{stdlib}, containing definitions for semirings, commutative semirings, and partial orders, which I will be using.
+I will also use other things from the standard library, such as lists and lemmas about them.
+
+\section*{Success Criteria}
+\begin{enumerate}
+  \item
+    Read thoroughly the paper by Mohri, and understand the proofs.
+  \item
+    Learn and practise using Agda well enough to complete the project.
+  \item
+    Formalise and prove all of the lemmas about semirings from section 1 of the paper.
+  \item
+    Do all of the preparatory work from section 2, linking semirings with weighted graphs.
+  \item
+    Translate the algorithm given in the paper from imperative to functional style, proving termination in the process.
+  \item
+    Prove the correctness of the translated algorithm.
+  \item
+    Produce example semirings and queueing disciplines.
+  \item
+    Find example dataset (a real-world road map, for example) and manipulate it so that the algorithm can be run on it.
+  \item
+    Write an unverified implementation of the algorithm and run it on the example data.
+\end{enumerate}
+
+\section*{Potential Extensions}
+\begin{enumerate}
+  \item
+    Formalise the \textsc{SCC-Single-Source-Shortest-Distance} algorithm from section 4.
+  \item
+    Investigate whether the complexity results in the paper are achieved by the translated algorithm.
+  \item
+    Prove theorems 3 and 4 about the $k$-shortest-distance and $k$-distinct-shortest-distance problems.
+\end{enumerate}
+
+\section*{Resources}
+I will need a lab computer on which to run the Agda compiler and its associated Emacs mode. This is required because of Agda's memory usage and slow speed for compiling large projects.
+
+\section*{Work Plan}
+The planned starting date is 2016-10-17.
+
+% Preparation
+\subsection*{Weeks 1 and 2} % 10-17 - 10-28
+Understand the proofs in the paper. Set up the lab machine. Do further Agda practice. Review functional graph implementations in preparation for formalising section 2.
+
+% Implementation
+\subsection*{Weeks 3 and 4} % 10-31 - 11-11
+Make all of the definitions and proofs from section 1 except definition 7, developing semiring theory.
+
+\subsection*{Weeks 5, 6 and 7 (plus Christmas)} % 11-14 - 12-02
+Make definition 7.
+The difficulty with this definition is that it requires a notion of infinite sums not defined in the paper.
+Though this definition (closedness of a semiring) is not used directly, infinite sums are used soon, so this gives a good opportunity to develop infinite sums without worrying about paths in graphs.
+It will also be helpful to have when producing an example semiring to use in the evaluation phase of the project.
+
+Make the definitions in section 2, as described in \emph{Work that has to be done} point 4.
+
+Use the vacation to start on reproducing the algorithm and proving that it terminates.
+
+\subsection*{Weeks 8, 9 and 10} % 01-16 - 02-03
+Finish the algorithm and work through the remaining lemmmas before theorem 1.
+
+\subsection*{Weeks 11 and 12} % 02-06 - 02-17
+Prove the correctness part of theorem 1, that the distances computed by the \textsc{Generic-Single-Source-Shortest-Distance} algorithm are correct.
+
+\subsection*{Weeks 13 and 14} % 02-20 - 03-03
+Find data to be used for the evaluation.
+Simplify the dataset, and present it in formats suitable for Agda and Haskell programs.
+Write the input and output code allowing data to be read from a file and the result to be printed to stdout.
+Write an unverified implementation of the program in Haskell which does the same things.
+
+% Writing
+\subsection*{Weeks 15 and 16 (plus Easter)} % 03-06 - 03-17
+Start writing the dissertation.
+Make a skeleton document containing the required sections.
+Finish the preparation section and most of the implementation section before leaving, and finish off the implementation and evaluation sections over the vacation.
+Start either the introduction or conclusions section before the new term.
+Act upon feedback to draft sections as they come.
+
+\subsection*{Weeks 17 and 18} % 04-24 - 05-05
+Finish the introduction and conclusions sections.
+Keep acting upon feedback.
+Produce a full draft.
+
+\subsection*{Weeks 19 and 20} % 05-08 - 05-19
+Edit the draft based on feedback, and submit the dissertation.

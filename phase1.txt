@@ -1,0 +1,24 @@
+Subject: Phase 1 - Wood: Formalising a semiring framework for shortest-distance problems
+
+Phase 1 Project Selection Status Report
+
+Name: James Wood
+
+College: Robinson
+
+User Identifier: jdw74
+
+Director of Studies: Dr Alastair Beresford (arb33)
+
+Project area: Formal verification
+
+Project title: Formalising a semiring framework for shortest-distance problems
+
+Outline: I will be using the proof assistant Agda[2] to formalise a proof of correctness of a generic single-source-shortest-distance algorithm presented by Mohri[1]. The algorithm is generic both in the semiring used to give the distances and in the queueing discipline by which vertices in the fringe are explored. Using shortest-first queueing gives Dijkstra's algorithm, and first-in first-out gives the Bellman-Ford algorithm. The generality in the distance semiring is used to give solutions to the k-shortest-distance and k-distinct-shortest-distance problems. I will evaluate the project by finding a real-world shortest-distance problem and observing the algorithm's performance with different queueing disciplines, as well as testing against an unverified implementation of a similar algorithm.
+
+Potential supervisors: Dr Dominic Mulligan has already agreed to be a project supervisor, and Matthew Daggitt a co-supervisor.
+
+Resources: I will need a lab computer on which to run the Agda compiler and its associated Emacs mode. This is required because of Agda's memory usage and slow speed for compiling large projects.
+
+[1]: Mehryar Mohri. Semiring frameworks and algorithms for shortest-distance problems. J. Autom. Lang. Comb., 7(3):321–350, January 2002.
+[2]: Ulf Norell. Towards a practical programming language based on dependent type theory, 2007.
