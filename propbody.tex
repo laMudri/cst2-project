@@ -1,61 +1,3 @@
-\title{{\large Computer Science Tripos Part II Project Proposal} \\ Formalising a semiring framework for shortest-distance problems}
-\thispagestyle{empty}
-
-\rightline{\large J. D. Wood}
-\medskip
-\rightline{\large Robinson College}
-\medskip
-\rightline{\large jdw74}
-
-\vfil
-
-%\centerline{\large Diploma in Computer Science Project Proposal}
-%\vspace{0.4in}
-%\centerline{\Large\bf Formalising a semiring framework for shortest-distance problems}
-%\vspace{0.3in}
-%\centerline{\large \today}
-
-%\maketitle
-
-{\let\newpage\relax\maketitle}
-
-\vfil
-
-{\bf Project Originator:} Dr D. P. Mulligan
-
-\vspace{0.1in}
-
-{\bf Resources Required:} See the Resources section.
-
-\vspace{0.5in}
-
-{\bf Project Supervisors:} Dr D. P. Mulligan and M. L. Daggitt
-
-\vspace{0.2in}
-
-{\bf Signatures:}
-
-\vspace{0.5in}
-
-{\bf Director of Studies:} Dr A. R. Beresford
-
-\vspace{0.2in}
-
-{\bf Signature:}
-
-\vspace{0.5in}
-
-{\bf Overseers:} Dr H. Gunes and Dr R. N. M. Watson
-
-\vspace{0.2in}
-
-{\bf Signatures:}
-
-\vfil
-\eject
-
-% Main document
-
 \section*{Introduction}
 Dijkstra's algorithm and the Bellman-Ford algorithm are two solutions to the single-source shortest-distance problem.
 It has been long understood that classical single-source shortest-distance algorithms based on the \emph{relaxation} technique can be generalised so that edge weights are elements of an arbitrary semiring with some restrictions\cite{ahl74}.
@@ -75,7 +17,7 @@ This means that the terms \emph{proof assistant} and \emph{interactive theorem p
 Agda is a dependently typed programming language and proof assistant, with the current version, Agda 2, first appearing in 2007\cite{Norell07}.
 It aims to offer a single language for writing both programs and proofs, as justified by the Curry-Howard correspondence\cite{curry1980h}.
 This distinguishes it from tactics-driven proof assistants, such as HOL and Coq, where programs are written in a functional programming style, but proofs are in the form of scripts comprising instructions to manipulate a proof state (tactics).
-Agda is somewhat experimental, and it is often used for prototyping new ideas for dependently typed functional programming.
+Agda is somewhat experimental, and it is often used for prototyping new ideas for dependently typed functional programming -- such as coinduction and static reflection.
 
 In this project, I will formalise some of the paper by Mohri, at least up to and including theorem 1, which states that the first single-source shortest-distance algorithm presented is correct.
 The work will be done in Agda.
@@ -90,7 +32,7 @@ The work will be done in Agda.
     The remaining objectives pertain to this paper, and are broken down by section.
   \item
     Prove the required lemmas about semirings from section 1.
-    Agda's standard library\cite{stdlib} contains a definition of \emph{semiring} and \emph{commutative semiring} which match those in Mohri's paper, except that the standard library definition makes explicit reference to the equivalence relation being used.
+    Agda's standard library\footnote{\url{https://github.com/agda/agda-stdlib}} contains a definition of \emph{semiring} and \emph{commutative semiring} which match those in Mohri's paper, except that the standard library definition makes explicit reference to the equivalence relation being used.
     I will stick to the standard library definition to make my code work better with other people's and be more idiomatic.
   \item
     Make further definitions specific to shortest-distance problems.
@@ -157,7 +99,7 @@ I will also use other things from the standard library, such as lists and lemmas
 \section*{Potential Extensions}
 \begin{enumerate}
   \item
-    Formalise the \textsc{SCC-Single-Source-Shortest-Distance} algorithm from section 4.
+    Formalise the \textsc{Generic-Topological-Single-Source-Shortest-Distance} algorithm from section 4.
   \item
     Investigate whether the complexity results in the paper are achieved by the translated algorithm.
   \item
@@ -165,20 +107,24 @@ I will also use other things from the standard library, such as lists and lemmas
 \end{enumerate}
 
 \section*{Resources}
-I will need a lab computer on which to run the Agda compiler and its associated Emacs mode. This is required because of Agda's memory usage and slow speed for compiling large projects.
+I will need a lab computer on which to run the Agda compiler and its associated Emacs mode.
+This is required because of Agda's memory usage and slow speed for compiling large projects.
+
+I will store all source code and writing in a Git-controlled repository.
+This will be shared between my personal laptop and the lab machine via GitHub, which also serves as a back-up.
 
 \section*{Work Plan}
 The planned starting date is 2016-10-17.
 
 % Preparation
-\subsection*{Weeks 1 and 2} % 10-17 - 10-28
+\subsection*{Weeks 1 and 2 (2016-10-17 to 10-28)}
 Understand the proofs in the paper. Set up the lab machine. Do further Agda practice. Review functional graph implementations in preparation for formalising section 2.
 
 % Implementation
-\subsection*{Weeks 3 and 4} % 10-31 - 11-11
+\subsection*{Weeks 3 and 4 (10-31 to 11-11)}
 Make all of the definitions and proofs from section 1 except definition 7, developing semiring theory.
 
-\subsection*{Weeks 5, 6 and 7 (plus Christmas)} % 11-14 - 12-02
+\subsection*{Weeks 5 and 6 (11-14 to 11-25)}
 Make definition 7.
 The difficulty with this definition is that it requires a notion of infinite sums not defined in the paper.
 Though this definition (closedness of a semiring) is not used directly, infinite sums are used soon, so this gives a good opportunity to develop infinite sums without worrying about paths in graphs.
@@ -186,32 +132,42 @@ It will also be helpful to have when producing an example semiring to use in the
 
 Make the definitions in section 2, as described in \emph{Work that has to be done} point 4.
 
-Use the vacation to start on reproducing the algorithm and proving that it terminates.
+\subsection*{Weeks 7 and 8 (11-28 to 12-09)}
+Reproduce the algorithm.
+At first, I will produce a function which computes a single step of the outer \textbf{while} loop.
+Then, I will start proving some of the lemmas required to prove the termination of the whole algorithm.
 
-\subsection*{Weeks 8, 9 and 10} % 01-16 - 02-03
+\subsection*{Weeks 9 and 10 (12-12 to 2017-01-06, including 2 weeks' break)}
 Finish the algorithm and work through the remaining lemmmas before theorem 1.
 
-\subsection*{Weeks 11 and 12} % 02-06 - 02-17
+\subsection*{Weeks 11 and 12 (01-09 to 01-19)}
 Prove the correctness part of theorem 1, that the distances computed by the \textsc{Generic-Single-Source-Shortest-Distance} algorithm are correct.
 
-\subsection*{Weeks 13 and 14} % 02-20 - 03-03
+\subsection*{Weeks 13 and 14 (01-23 to 02-03)}
 Find data to be used for the evaluation.
 Simplify the dataset, and present it in formats suitable for Agda and Haskell programs.
 Write the input and output code allowing data to be read from a file and the result to be printed to stdout.
 Write an unverified implementation of the program in Haskell which does the same things.
 
+\subsection*{Weeks 15 and 16 (02-06 to 02-17)}
+Do any of the potential extensions, depending on the amount of time left.
+Extension 2, concerning the complexity results, would probably be the quickest, given that it would not be formalised.
+Both of the other extensions involve a moderate amount of extra work.
+Extension 1, about the \textsc{Generic-Topological-Single-Source-Shortest-Distance} algorithm is more algorithmic and extension 3, about $k$-shortest-distances is more algebraic.
+I will be able to judge between these better after having done the main part of the project.
+
 % Writing
-\subsection*{Weeks 15 and 16 (plus Easter)} % 03-06 - 03-17
+\subsection*{Weeks 17 and 18 (02-20 to 03-03)}
 Start writing the dissertation.
 Make a skeleton document containing the required sections.
-Finish the preparation section and most of the implementation section before leaving, and finish off the implementation and evaluation sections over the vacation.
-Start either the introduction or conclusions section before the new term.
+Finish the preparation section and most of the implementation section.
+
+\subsection*{Weeks 19 and 20 (03-06 to 03-17)}
+Finish off the implementation section.
+Write the evaluation section.
 Act upon feedback to draft sections as they come.
 
-\subsection*{Weeks 17 and 18} % 04-24 - 05-05
-Finish the introduction and conclusions sections.
-Keep acting upon feedback.
+\subsection*{Easter break (03-20 to 04-21)}
+Write the introduction and conclusions sections.
 Produce a full draft.
-
-\subsection*{Weeks 19 and 20} % 05-08 - 05-19
-Edit the draft based on feedback, and submit the dissertation.
+Iteratively get feedback and edit the draft to get it ready for submission.
