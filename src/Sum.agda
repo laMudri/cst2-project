@@ -4,12 +4,15 @@ module Sum {c ℓ} (K : Semiring c ℓ) where
 open Semiring K renaming (Carrier to C; zero to *-0#)
 open import Algebra.Operations K using (_^_)
 
-open import Stream using (Stream; _∷_; take)
+--open import Stream using (Stream; _∷_; take)
 
 open import Algebra using (Monoid)
 
 open import Coinduction
 
+open import Data.BoundedVec.Inefficient using (toList)
+open import Data.Colist
+  using (Colist; []; _∷_) renaming (take to take-BoundedVec)
 open import Data.List using (List; []; _∷_; _++_; [_]; monoid)
 open import Data.Nat as ℕ using (ℕ; zero; suc; _≤″_)
 open import Data.Nat.Properties.Simple using (+-suc; +-right-identity)
@@ -27,7 +30,10 @@ open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
 ∑ [] = 0#
 ∑ (a ∷ as) = a + ∑ as
 
-record ∑∞ (as : Stream C) (∑as : C) : Set (c ⊔ ℓ) where
+take : ∀ {a} {A : Set a} (n : ℕ) → Colist A → List A
+take n = toList ∘ take-BoundedVec n
+
+record ∑∞ (as : Colist C) (∑as : C) : Set (c ⊔ ℓ) where
   field
     N : ℕ
     converges : ∀ k → ∑ (take (k ℕ.+ N) as) ≈ ∑as
@@ -69,18 +75,18 @@ tabulate-from from (suc length) f = f from ∷ tabulate-from (suc from) length f
 tabulate : ∀ {a} {A : Set a} → ℕ → (ℕ → A) → List A
 tabulate = tabulate-from zero
 
-tabulate∞ : ∀ {a} {A : Set a} → (ℕ → A) → Stream A
+tabulate∞ : ∀ {a} {A : Set a} → (ℕ → A) → Colist A
 tabulate∞ {A = A} f = go zero
   where
-  go : ℕ → Stream A
+  go : ℕ → Colist A
   go n = f n ∷ ♯ go (suc n)
 
 -- geo-∑ k a = ∑_{n=0}^{k-1} aⁿ
 geo-∑ : ℕ → C → C
 geo-∑ k a = ∑ (tabulate k (λ n → a ^ n))
 
-geo-∑∞ : C → Set (c ⊔ ℓ)
-geo-∑∞ a = ∃ (∑∞ (tabulate∞ (λ n → a ^ n)))
+geo-∑∞ : C → C → Set (c ⊔ ℓ)
+geo-∑∞ a = ∑∞ (tabulate∞ (λ n → a ^ n))
 
 tabulate-from-++ :
   ∀ {a} {A : Set a} j k l (f : ℕ → A) →
