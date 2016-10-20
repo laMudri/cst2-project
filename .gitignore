@@ -5,6 +5,7 @@ jalc.ps
 *.log
 *.bbl
 *.blg
+*.out
 *.pdf
 *.agdai
 .#*
