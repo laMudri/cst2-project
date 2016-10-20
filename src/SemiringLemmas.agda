@@ -135,3 +135,14 @@ natural-order-monotonic idempotent =
     1# * c ≤⟨ *-preserves-≤ neg (≤-refl {c}) ⟩
     0# * c ≈⟨ proj₁ zero c ⟩
     0# ∎
+
+-- Lemma 3: bounded implies idempotent
+bounded→idempotent : Bounded → Idempotent
+bounded→idempotent bounded a = begin
+  a + a            ≈⟨ (let p = sym (proj₂ *-identity a) in +-cong p p) ⟩
+  a * 1# + a * 1#  ≈⟨ {!sym (proj₁ distrib a 1# 1#)!} ⟩
+  a * (1# + 1#)    ≈⟨ *-cong refl (proj₁ bounded 1#) ⟩
+  a * 1#           ≈⟨ proj₂ *-identity a ⟩
+  a                ∎
+  where
+  open EqReasoning setoid
