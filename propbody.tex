@@ -71,7 +71,7 @@ I have also had an initial read through of Mohri's paper.
 Having taken the IA Algorithms course, I know the problem being solved and two classical solutions to it.
 My understanding of mathematical conventions for algebraic structures and proofs comes from a combination of my interests and having taken the IA Mathematical courses Vectors and Matrices and Analysis I.
 
-Agda has a standard library\cite{stdlib}, containing definitions for semirings, commutative semirings, and partial orders, which I will be using.
+Agda has a standard library, containing definitions for semirings, commutative semirings, and partial orders, which I will be using.
 I will also use other things from the standard library, such as lists and lemmas about them.
 
 \section*{Success Criteria}
@@ -107,8 +107,11 @@ I will also use other things from the standard library, such as lists and lemmas
 \end{enumerate}
 
 \section*{Resources}
-I will need a lab computer on which to run the Agda compiler and its associated Emacs mode.
+I will need a lab computer with on which to run the Agda compiler and its associated Emacs mode.
+It will need plenty of RAM and a good processor.
 This is required because of Agda's memory usage and slow speed for compiling large projects.
+Compilation time is important because the standard workflow in using Agda relies heavily on the compiler.
+Typically, the vast majority of expressions entered will be checked by the type checker before becoming part of the source code proper.
 
 I will store all source code and writing in a Git-controlled repository.
 This will be shared between my personal laptop and the lab machine via GitHub, which also serves as a back-up.
@@ -146,7 +149,7 @@ Prove the correctness part of theorem 1, that the distances computed by the \tex
 \subsection*{Weeks 13 and 14 (01-23 to 02-03)}
 Find data to be used for the evaluation.
 Simplify the dataset, and present it in formats suitable for Agda and Haskell programs.
-Write the input and output code allowing data to be read from a file and the result to be printed to stdout.
+Make a way of reading the data in Agda.
 Write an unverified implementation of the program in Haskell which does the same things.
 
 \subsection*{Weeks 15 and 16 (02-06 to 02-17)}
