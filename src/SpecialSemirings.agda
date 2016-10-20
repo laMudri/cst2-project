@@ -4,22 +4,34 @@ module SpecialSemirings {c ℓ} (K : Semiring c ℓ) where
 open Semiring K renaming (Carrier to C)
 
 open import Algebra.FunctionProperties _≈_ as FP hiding (Idempotent)
-open import Algebra.Operations K
+open import Algebra.Operations K using (_^_)
 open import Sum K
 
 open import Data.List using (List; []; _∷_)
 open import Data.Nat as ℕ using (ℕ)
 open import Data.Nat.Properties.Simple using (+-suc)
-open import Data.Product using (proj₁; proj₂)
+open import Data.Product using (_×_; proj₁; proj₂)
 
 open import Level
 
+open import Relation.Binary using (Rel; _Preserves_⟶_; _Preserves₂_⟶_⟶_)
 import Relation.Binary.EqReasoning as EqReasoning
 open import Relation.Binary.PropositionalEquality as PEq using (cong)
 
 -- Definition 2: idempotent
 Idempotent : Set _
 Idempotent = FP.Idempotent _+_
+
+-- Definition 3: positive/negative
+Negative : ∀ {ℓ₂} → Rel C ℓ₂ → Set ℓ₂
+Negative _≤_ = 1# ≤ 0#
+
+Positive : ∀ {ℓ₂} → Rel C ℓ₂ → Set ℓ₂
+Positive _≤_ = 0# ≤ 1#
+
+-- Definition 4: monotonic
+Monotonic : ∀ {ℓ₂} → Rel C ℓ₂ → Set (c ⊔ ℓ₂)
+Monotonic ≤ = (∀ c → (λ a → a + c) Preserves ≤ ⟶ ≤) × (_*_ Preserves₂ ≤ ⟶ ≤ ⟶ ≤)
 
 -- Definition 5: bounded
 Bounded : Set _
