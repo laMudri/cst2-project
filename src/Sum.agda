@@ -1,4 +1,4 @@
-open import Algebra using (Semiring)
+open import Semiring as S using (Semiring)
 
 module Sum {c ℓ} (K : Semiring c ℓ) where
   open Semiring K renaming (Carrier to C; zero to *-0#)

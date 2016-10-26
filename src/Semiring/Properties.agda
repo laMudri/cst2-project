@@ -1,8 +1,8 @@
-open import Algebra using (Semiring)
+open import Semiring as S using (Semiring)
 
-module SemiringLemmas {c ℓ} (K : Semiring c ℓ) where
+module Semiring.Properties {c ℓ} (K : Semiring c ℓ) where
   open Semiring K renaming (Carrier to C)
-  open import SpecialSemirings K
+  open import Semiring.Definitions K
 
   open import Data.Product using (_,_; proj₁; proj₂)
   open import Relation.Binary

@@ -1,6 +1,6 @@
-open import Algebra using (Semiring)
+open import Semiring as S using (Semiring)
 
-module SpecialSemirings {c ℓ} (K : Semiring c ℓ) where
+module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
   open Semiring K renaming (Carrier to C)
 
   open import Algebra.FunctionProperties _≈_ as FP hiding (Idempotent)
