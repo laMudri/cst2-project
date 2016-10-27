@@ -39,29 +39,35 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
   Bounded = Zero 1# _+_
 
   -- Definition 6: k-closed
-  record KClosed : Set (c ⊔ ℓ) where
+  record _ClosedAt_ (k : ℕ) (a : C) : Set (c ⊔ ℓ) where
     field
-      k : ℕ
-      closed : ∀ a → geo-∑ (ℕ.suc k) a ≈ geo-∑ k a
+      closed : geo-∑ (ℕ.suc k) a ≈ geo-∑ k a
 
     -- Lemma 4: the closure property extends to furter sums
-    closed+ : ∀ l a → geo-∑ (l ℕ.+ k) a ≈ geo-∑ k a
-    closed+ ℕ.zero a = refl
-    closed+ (ℕ.suc l) a =
+    closed+ : ∀ l → geo-∑ (l ℕ.+ k) a ≈ geo-∑ k a
+    closed+ ℕ.zero = refl
+    closed+ (ℕ.suc l) =
       begin
         geo-∑ (ℕ.suc l ℕ.+ k) a
       ≡⟨ cong (λ x → geo-∑ x a) (PEq.sym (+-suc l k)) ⟩
         geo-∑ (l ℕ.+ ℕ.suc k) a
       ≈⟨ split-geo-∑ l (ℕ.suc k) a ⟩
         geo-∑ l a + a ^ l * geo-∑ (ℕ.suc k) a
-      ≈⟨ +-cong refl (*-cong refl (closed a)) ⟩
+      ≈⟨ +-cong refl (*-cong refl closed) ⟩
         geo-∑ l a + a ^ l * geo-∑ k a
       ≈⟨ sym (split-geo-∑ l k a) ⟩
         geo-∑ (l ℕ.+ k) a
-      ≈⟨ closed+ l a ⟩
+      ≈⟨ closed+ l ⟩
         geo-∑ k a
       ∎
       where open EqReasoning setoid
+
+  record _Closed (k : ℕ) : Set (c ⊔ ℓ) where
+    field
+      closed : ∀ a → k ClosedAt a
+
+    closed+ : ∀ l a → geo-∑ (l ℕ.+ k) a ≈ geo-∑ k a
+    closed+ l a = _ClosedAt_.closed+ (closed a) l
 
   -- Definition 7: closed
   -- I don't think this ever gets used, and it's rather tricky, so I'm leaving
