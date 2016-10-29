@@ -8,18 +8,21 @@ module Finite where
   open import Data.Unit using (⊤; tt)
 
   open import Function
+  open import Function.Equality as E using (Π; _⟶_)
   open import Function.Related using (Kind; bijection; _∼[_]_; ⇒→; ⇒←)
+  open import Function.Inverse as I using (Inverse)
 
-  import Level
+  import Level as L
 
+  open import Relation.Binary using (Setoid)
   open import Relation.Binary.PropositionalEquality as PEq
     using (_≡_; _≢_; refl; sym; trans; cong; subst; setoid; inspect; [_])
   open import Relation.Binary.SetoidReasoning
 
-  Finite : ∀ {a} (A : Set a) → Set a
-  Finite A = ∃ λ n → A ∼[ bijection ] Fin n
+  Finite : ∀ {c ℓ} (A : Setoid c ℓ) → Set (c L.⊔ ℓ)
+  Finite A = ∃ λ n → Inverse A (setoid (Fin n))
 
-  [] : Finite ⊥
+  [] : Finite (setoid ⊥)
   [] = zero , record
     { to   = record { _⟨$⟩_ = λ () ; cong = λ {} }
     ; from = record { _⟨$⟩_ = λ () ; cong = λ {} }
@@ -172,64 +175,117 @@ module Finite where
   join-split (suc m) n (Fin.suc x) | inj₂ y | [ eq ] =
     cong Fin.suc (raise-split m n x y eq)
 
-  infixr 5 _++_
-  _++_ :
-    ∀ {a b} {A : Set a} {B : Set b} → Finite A → Finite B → Finite (A ⊎ B)
-  _++_ {A = A} {B} (na , ia) (nb , ib) = na + nb , record
-    { to = record { _⟨$⟩_ = f ; cong = cong _ }
-    ; from = record { _⟨$⟩_ = g ; cong = cong _ }
-    ; inverse-of = record { left-inverse-of = g-f ; right-inverse-of = f-g }
+  _S⊎_ : ∀ {c c′ ℓ ℓ′} → Setoid c ℓ → Setoid c′ ℓ′ → Setoid (c L.⊔ c′) (ℓ L.⊔ ℓ′)
+  _S⊎_ {c} {c′} {ℓ} {ℓ′} A B = record
+    { Carrier = AC ⊎ BC
+    ; _≈_ = λ { (inj₁ i) (inj₁ j) → L.Lift {ℓ} {ℓ L.⊔ ℓ′} (i ≈A j)
+              ; (inj₁ _) (inj₂ _) → L.Lift ⊥
+              ; (inj₂ _) (inj₁ _) → L.Lift ⊥
+              ; (inj₂ i) (inj₂ j) → L.Lift {ℓ′} {ℓ L.⊔ ℓ′} (i ≈B j)
+              }
+    ; isEquivalence = record
+      { refl = λ { {inj₁ x} → L.lift reflA ; {inj₂ y} → L.lift reflB }
+      ; sym = λ { {inj₁ i} {inj₁ j} (L.lift eq) → L.lift (symA eq)
+                ; {inj₁ _} {inj₂ _} (L.lift ())
+                ; {inj₂ _} {inj₁ _} (L.lift ())
+                ; {inj₂ i} {inj₂ j} (L.lift eq) → L.lift (symB eq)
+                }
+      ; trans = λ { {inj₁ i} {inj₁ j} {inj₁ k} (L.lift i≈j) (L.lift j≈k) →
+                    L.lift (transA i≈j j≈k)
+                  ; {inj₁ _} {inj₁ _} {inj₂ _} eql (L.lift ())
+                  ; {inj₁ _} {inj₂ _} (L.lift ()) eqr
+                  ; {inj₂ _} {inj₁ _} (L.lift ()) eqr
+                  ; {inj₂ _} {inj₂ _} {inj₁ _} eql (L.lift ())
+                  ; {inj₂ i} {inj₂ j} {inj₂ k} (L.lift i≈j) (L.lift j≈k) →
+                    L.lift (transB i≈j j≈k)
+                  }
+      }
     }
     where
-    open import Function.Inverse using (Inverse)
+    open Setoid A renaming
+      ( Carrier to AC; _≈_ to _≈A_; isEquivalence to isEquivalenceA
+      ; refl to reflA; sym to symA; trans to transA
+      )
+    open Setoid B renaming
+      ( Carrier to BC; _≈_ to _≈B_; isEquivalence to isEquivalenceB
+      ; refl to reflB; sym to symB; trans to transB
+      )
 
-    f : A ⊎ B → Fin (na + nb)
-    f = join na nb ∘′ map (⇒→ ia) (⇒→ ib)
+  Sinj₁ : ∀ {ca cb ℓa ℓb} {A : Setoid ca ℓa} {B : Setoid cb ℓb} → A ⟶ A S⊎ B
+  Sinj₁ = record { _⟨$⟩_ = inj₁ ; cong = L.lift }
 
-    g : Fin (na + nb) → A ⊎ B
-    g = map (⇒← ia) (⇒← ib) ∘′ split na nb
+  Sinj₂ : ∀ {ca cb ℓa ℓb} {A : Setoid ca ℓa} {B : Setoid cb ℓb} → B ⟶ A S⊎ B
+  Sinj₂ = record { _⟨$⟩_ = inj₂ ; cong = L.lift }
 
-    g-f : ∀ x → g (f x) ≡ x
-    g-f (inj₁ a) =
-      let open Inverse ia in
-      begin⟨ setoid (A ⊎ B) ⟩
-        map (⇒← ia) (⇒← ib) (split na nb (inject+ nb (⇒→ ia a)))
-      ≡⟨ cong (map (⇒← ia) (⇒← ib)) (split-inject+ na nb (⇒→ ia a)) ⟩
-        map (⇒← ia) (⇒← ib) (inj₁ (⇒→ ia a))
-      ≡⟨ refl ⟩
-        inj₁ (⇒← ia (⇒→ ia a))
-      ≡⟨ cong inj₁ (left-inverse-of a) ⟩
-        inj₁ a
-      ∎
-    g-f (inj₂ b) =
-      let open Inverse ib in
-      begin⟨ setoid (A ⊎ B) ⟩
-        map (⇒← ia) (⇒← ib) (split na nb (raise na (⇒→ ib b)))
-      ≡⟨ cong (map (⇒← ia) (⇒← ib)) (split-raise na nb (⇒→ ib b)) ⟩
-        map (⇒← ia) (⇒← ib) (inj₂ (⇒→ ib b))
-      ≡⟨ refl ⟩
-        inj₂ (⇒← ib (⇒→ ib b))
-      ≡⟨ cong inj₂ (left-inverse-of b) ⟩
-        inj₂ b
-      ∎
+  S[_,_] :
+    ∀ {ca cb cc ℓa ℓb ℓc}
+    {A : Setoid ca ℓa} {B : Setoid cb ℓb} {C : Setoid cc ℓc} →
+    (A ⟶ C) → (B ⟶ C) → (A S⊎ B ⟶ C)
+  S[ f , g ] = record
+    { _⟨$⟩_ = [ ⟨f⟩ , ⟨g⟩ ]′
+    ; cong = λ { {inj₁ i} {inj₁ j} (L.lift i≈j) → congf i≈j
+               ; {inj₁ _} {inj₂ _} (L.lift ())
+               ; {inj₂ _} {inj₁ _} (L.lift ())
+               ; {inj₂ i} {inj₂ j} (L.lift i≈j) → congg i≈j
+               }
+    }
+    where
+    open Π f renaming (_⟨$⟩_ to ⟨f⟩; cong to congf)
+    open Π g renaming (_⟨$⟩_ to ⟨g⟩; cong to congg)
 
-    f-g : ∀ x → f (g x) ≡ x
-    f-g x with split na nb x | inspect (split na nb) x
-    f-g x | inj₁ y | [ eq ] =
-      let open Inverse ia in
-      begin⟨ setoid (Fin (na + nb)) ⟩
-        inject+ nb (⇒→ ia (⇒← ia y))
-      ≡⟨ cong (inject+ nb) (right-inverse-of y) ⟩
-        inject+ nb y
-      ≡⟨ inject+-split na nb x y eq ⟩
-        x
-      ∎
-    f-g x | inj₂ y | [ eq ] =
-      let open Inverse ib in
-      begin⟨ setoid (Fin (na + nb)) ⟩
-        raise na (⇒→ ib (⇒← ib y))
-      ≡⟨ cong (raise na) (right-inverse-of y) ⟩
-        raise na y
-      ≡⟨ raise-split na nb x y eq ⟩
-        x
-      ∎
+  S⊎-inverse :
+    ∀ {ca ca′ cb cb′ ℓa ℓa′ ℓb ℓb′}
+    {A : Setoid ca ℓa} {A′ : Setoid ca′ ℓa′}
+    {B : Setoid cb ℓb} {B′ : Setoid cb′ ℓb′} →
+    Inverse A A′ → Inverse B B′ → Inverse (A S⊎ B) (A′ S⊎ B′)
+  S⊎-inverse {A = A} {A′} {B} {B′} ia ib = record
+    { to = S[ Sinj₁ E.∘ toa , Sinj₂ E.∘ tob ]
+    ; from = S[ Sinj₁ E.∘ froma , Sinj₂ E.∘ fromb ]
+    ; inverse-of = record
+      { left-inverse-of = λ { (inj₁ a) → L.lift (left-inverse-ofa a)
+                            ; (inj₂ b) → L.lift (left-inverse-ofb b)
+                            }
+      ; right-inverse-of = λ { (inj₁ a) → L.lift (right-inverse-ofa a)
+                             ; (inj₂ b) → L.lift (right-inverse-ofb b)
+                             }
+      }
+    }
+    where
+    open Inverse ia renaming
+      ( to to toa; from to froma; left-inverse-of to left-inverse-ofa
+      ; right-inverse-of to right-inverse-ofa
+      )
+    open Inverse ib renaming
+      ( to to tob; from to fromb; left-inverse-of to left-inverse-ofb
+      ; right-inverse-of to right-inverse-ofb
+      )
+
+  split-inverse :
+    ∀ {m n} → Inverse (setoid (Fin (m + n))) (setoid (Fin m) S⊎ setoid (Fin n))
+  split-inverse {m} {n} = record
+    { to = record
+      { _⟨$⟩_ = split m n
+      ; cong = λ { {i} {.i} refl → Setoid.refl m⊎n {split m n i} }
+      }
+    ; from = record
+      { _⟨$⟩_ = join m n
+      ; cong = λ { {inj₁ i} {inj₁ .i} (L.lift refl) → refl
+                 ; {inj₁ _} {inj₂ _} (L.lift ())
+                 ; {inj₂ _} {inj₁ _} (L.lift ())
+                 ; {inj₂ i} {inj₂ .i} (L.lift refl) → refl
+                 }
+      }
+    ; inverse-of = record
+      { left-inverse-of = join-split m n
+      ; right-inverse-of = λ x → Setoid.reflexive m⊎n (split-join m n x)
+      }
+    }
+    where
+    m⊎n = setoid (Fin m) S⊎ setoid (Fin n)
+
+  infixr 5 _++_
+  _++_ :
+    ∀ {c c′ ℓ ℓ′} {A : Setoid c ℓ} {B : Setoid c′ ℓ′} →
+    Finite A → Finite B → Finite (A S⊎ B)
+  _++_ {A = A} {B} (na , ia) (nb , ib) =
+    na + nb , I.sym split-inverse I.∘ S⊎-inverse ia ib

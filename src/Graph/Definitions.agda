@@ -12,12 +12,14 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.List.Any using (Any; here; there; module Membership)
   open import Data.Nat as ℕ using (ℕ)
   open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_)
-  open import Data.Star using (Star; ε; _◅_)
+  open import Data.Star using (Star; ε; _◅_; _◅◅_)
   open import Data.Unit using (⊤)
+
+  open import Function
 
   open import Level
 
-  open import Relation.Binary using (Rel)
+  open import Relation.Binary using (Rel; Setoid)
   open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
 
   open Membership (PEq.setoid (Fin n)) using (_∈_; _∉_)
@@ -56,12 +58,30 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
 
   -- Paths with only a fixed number of cycles. This fits the “at most k”
   -- reading, because we can add zero-length cycles without problem.
-  P : ℕ → Rel (Fin n) _
-  P ℕ.zero q q′ = Σ (Path q q′) Cycle-free
-  P (ℕ.suc l) q q″ =
-    ∃ λ q′ → Σ (Path q q′) Cycle-free × Σ (Cycle q′) Cycle-free × P l q′ q″
+  Path-with-l-cycles : ℕ → Rel (Fin n) _
+  Path-with-l-cycles ℕ.zero q q′ = Σ (Path q q′) Cycle-free
+  Path-with-l-cycles (ℕ.suc l) q q″ =
+    ∃ λ q′ → Σ (Path q q′) Cycle-free
+           × Σ (Cycle q′) Cycle-free
+           × Path-with-l-cycles l q′ q″
+
+  Path-with-l-cycles→Path : ∀ {l q q′} → Path-with-l-cycles l q q′ → Path q q′
+  Path-with-l-cycles→Path {ℕ.zero} (π , _) = π
+  Path-with-l-cycles→Path {ℕ.suc l} (_ , (π , _) , (c , _) , p) =
+    π ◅◅ c ◅◅ Path-with-l-cycles→Path {l} p
+
+  -- Ignore the Cycle-free proofs for the sake of path equality
+  P-setoid : ℕ → Fin n → Fin n → Setoid _ _
+  P-setoid l q q′ = record
+    { Carrier = Path-with-l-cycles l q q′
+    ; _≈_ = _≡_ on Path-with-l-cycles→Path {l} {q} {q′}
+    ; isEquivalence = record { refl = PEq.refl
+                             ; sym = PEq.sym
+                             ; trans = PEq.trans
+                             }
+    }
 
   -- Definition 8: k-closed on a graph
   record _ClosedOnG (k : ℕ) : Set (c ⊔ ℓ) where
     field
-      closed : ∀ {q} (π : Path q q) → k ClosedAt (path-weight π)
+      closed : ∀ {q} (π : Cycle q) → k ClosedAt (path-weight π)
