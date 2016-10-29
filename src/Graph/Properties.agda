@@ -1,15 +1,14 @@
 open import Semiring as S
 open import Graph as G
 
-module Graph.Properties {c ℓ q e} {K : Semiring c ℓ} (G : Graph K q e) where
+module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open Semiring K renaming (Carrier to C)
   open import Semiring.Definitions K
-  open Graph G
-  open import Graph.Definitions G
+  open import Graph.Definitions {K = K} G
 
-  open import Listing
+  open import Finite
 
   open import Data.Product using (∃; _,_)
 
-  P-listing : ∀ l q q′ → IsFiniteGraph K Q E w → Listing (P l q q′)
-  P-listing l q q′ record { qs = qs ; es = es } = {!!}
+  P-finite : ∀ l q q′ → Finite (P l q q′)
+  P-finite l q q′ = {!!}
