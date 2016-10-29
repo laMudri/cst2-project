@@ -12,4 +12,4 @@ module Graph.Properties {c ℓ q e} {K : Semiring c ℓ} (G : Graph K q e) where
   open import Data.Product using (∃; _,_)
 
   P-listing : ∀ l q q′ → IsFiniteGraph K Q E w → Listing (P l q q′)
-  P-listing l q q′ = {!!}
+  P-listing l q q′ record { qs = qs ; es = es } = {!!}
