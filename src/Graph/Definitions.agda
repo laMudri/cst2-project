@@ -6,21 +6,31 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Sum K
   open import Semiring.Definitions K
 
-  open import Data.Empty using (⊥)
+  open import Category.Monad using (module RawMonad)
+
+  open import Coinduction
+
+  open import Data.Colist as Colist using (Colist; []; _∷_)
+  open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin using (Fin)
-  open import Data.List using (List; []; _∷_)
+  open import Data.Fin.Properties using (_≟_)
+  open import Data.List as List using (List; []; _∷_)
   open import Data.List.Any using (Any; here; there; module Membership)
-  open import Data.Nat as ℕ using (ℕ)
-  open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_)
+  open import Data.List.NonEmpty as List⁺ using (List⁺; _∷_)
+  open import Data.Nat as ℕ using (ℕ; zero; suc)
+  open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_; proj₁; proj₂)
   open import Data.Star using (Star; ε; _◅_; _◅◅_)
   open import Data.Unit using (⊤)
+  open import Data.Vec as Vec using (Vec)
 
   open import Function
 
   open import Level
 
   open import Relation.Binary using (Rel; Setoid)
-  open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
+  open import Relation.Binary.PropositionalEquality as PEq
+    using (_≡_; _≢_; inspect; [_]; subst)
+  open import Relation.Nullary using (Dec; yes; no)
 
   open Membership (PEq.setoid (Fin n)) using (_∈_; _∉_)
 
@@ -59,15 +69,15 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   -- Paths with only a fixed number of cycles. This fits the “at most k”
   -- reading, because we can add zero-length cycles without problem.
   Path-with-l-cycles : ℕ → Rel (Fin n) _
-  Path-with-l-cycles ℕ.zero q q′ = Σ (Path q q′) Cycle-free
-  Path-with-l-cycles (ℕ.suc l) q q″ =
+  Path-with-l-cycles zero q q′ = Σ (Path q q′) Cycle-free
+  Path-with-l-cycles (suc l) q q″ =
     ∃ λ q′ → Σ (Path q q′) Cycle-free
            × Σ (Cycle q′) Cycle-free
            × Path-with-l-cycles l q′ q″
 
   Path-with-l-cycles→Path : ∀ {l q q′} → Path-with-l-cycles l q q′ → Path q q′
-  Path-with-l-cycles→Path {ℕ.zero} (π , _) = π
-  Path-with-l-cycles→Path {ℕ.suc l} (_ , (π , _) , (c , _) , p) =
+  Path-with-l-cycles→Path {zero} (π , _) = π
+  Path-with-l-cycles→Path {suc l} (_ , (π , _) , (c , _) , p) =
     π ◅◅ c ◅◅ Path-with-l-cycles→Path {l} p
 
   -- Ignore the Cycle-free proofs for the sake of path equality
@@ -80,6 +90,93 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
                              ; trans = PEq.trans
                              }
     }
+
+  Path-from : Fin n → Set _
+  Path-from q = ∃ (Path q)
+
+  Path-to : Fin n → Set _
+  Path-to q′ = ∃ λ q → Path q q′
+
+  path-length : ∀ {q q′} → Path q q′ → ℕ
+  path-length = List.length ∘ path-vertices
+
+  vertex→n≢0 : Fin n → n ≢ 0
+  vertex→n≢0 q eq with subst Fin eq q
+  ... | ()
+
+  ≢0→suc : ∀ m → m ≢ ℕ.zero → ∃ λ m-1 → m ≡ ℕ.suc m-1
+  ≢0→suc ℕ.zero neq = ⊥-elim (neq PEq.refl)
+  ≢0→suc (ℕ.suc m-1) neq = m-1 , PEq.refl
+
+  vertex→n-is-suc : Fin n → ∃ λ n-1 → n ≡ ℕ.suc n-1
+  vertex→n-is-suc = ≢0→suc n ∘′ vertex→n≢0
+
+  all-paths-of-length-from : ∀ (l : ℕ) q → List⁺ (Path-from q)
+  all-paths-of-length-from ℕ.zero q = return (q , ε)
+    where open RawMonad List⁺.monad
+  all-paths-of-length-from (suc l) q =
+    all-vertices >>= λ q′ →
+    all-paths-of-length-from l q′ >>= λ { (q″ , π) →
+    return (q″ , edge {q} {q′} ◅ π)
+    }
+    where
+    open RawMonad List⁺.monad
+
+    n-is-suc : ∃ λ n-1 → n ≡ ℕ.suc n-1
+    n-is-suc = vertex→n-is-suc q
+
+    n-1 : ℕ
+    n-1 = proj₁ n-is-suc
+
+    all-vertices : List⁺ (Fin n)
+    all-vertices =
+      subst (λ m → List⁺ (Fin m)) (PEq.sym (proj₂ n-is-suc)) $
+            List⁺.fromVec (Vec.tabulate {ℕ.suc n-1} id)
+
+  all-paths-of-suc-length-from-to : ∀ (l : ℕ) q q′ → List⁺ (Path q q′)
+  all-paths-of-suc-length-from-to ℕ.zero q q′ = return (edge ◅ ε)
+    where open RawMonad List⁺.monad
+  all-paths-of-suc-length-from-to (ℕ.suc l) q q″ =
+    all-vertices >>= λ q′ →
+    all-paths-of-suc-length-from-to l q′ q″ >>= λ π →
+    return (edge ◅ π)
+    where
+    open RawMonad List⁺.monad
+
+    n-is-suc : ∃ λ n-1 → n ≡ ℕ.suc n-1
+    n-is-suc = vertex→n-is-suc q
+
+    n-1 : ℕ
+    n-1 = proj₁ n-is-suc
+
+    all-vertices : List⁺ (Fin n)
+    all-vertices =
+      subst (λ m → List⁺ (Fin m)) (PEq.sym (proj₂ n-is-suc)) $
+            List⁺.fromVec (Vec.tabulate {ℕ.suc n-1} id)
+
+  all-paths-from : (q : Fin n) → Colist (Path-from q)
+  all-paths-from q =
+    Colist.concat (Colist.map (λ l → all-paths-of-length-from l q)
+                              (all-ℕs-from ℕ.zero))
+    where
+    all-ℕs-from : ℕ → Colist ℕ
+    all-ℕs-from i = i ∷ ♯ all-ℕs-from (ℕ.suc i)
+
+  all-non-ε-paths-from-to : ∀ q q′ → Colist (Path q q′)
+  all-non-ε-paths-from-to q q′ =
+    Colist.concat (Colist.map (λ l → all-paths-of-suc-length-from-to l q q′)
+                              (all-ℕs-from 0))
+    where
+    all-ℕs-from : ℕ → Colist ℕ
+    all-ℕs-from i = i ∷ ♯ all-ℕs-from (ℕ.suc i)
+
+  all-paths-from-to : ∀ q q′ → Colist (Path q q′)
+  all-paths-from-to q q′ with q ≟ q′
+  all-paths-from-to q .q | yes PEq.refl = ε ∷ ♯ all-non-ε-paths-from-to q q
+  all-paths-from-to q q′ | no ¬p = all-non-ε-paths-from-to q q′
+
+  shortest-distance : ∀ q q′ → C → Set _
+  shortest-distance q q′ = ∑∞ (Colist.map path-weight (all-paths-from-to q q′))
 
   -- Definition 8: k-closed on a graph
   record _ClosedOnG (k : ℕ) : Set (c ⊔ ℓ) where
