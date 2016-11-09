@@ -75,6 +75,23 @@ module Semiring.Properties {c ℓ} (K : Semiring c ℓ) where
     where open EqReasoning setoid
 
   -- Proposition 1: the natural order coincides with the partial order.
+  negative→monotonic→≤0 :
+    ∀ {ℓ₂} (_≤_ : Rel C ℓ₂) → IsPartialOrder _≈_ _≤_ →
+    Negative _≤_ → Monotonic _≤_ → ∀ c → c ≤ 0#
+  negative→monotonic→≤0 _≤_ po neg mono c = begin
+      c ≈⟨ sym (proj₁ *-identity c) ⟩
+      1# * c ≤⟨ *-preserves-≤ neg (≤-refl {c}) ⟩
+      0# * c ≈⟨ proj₁ zero c ⟩
+      0# ∎
+    where
+    poset : Poset _ _ _
+    poset = record { Carrier = C; _≈_ = _≈_; _≤_ = _≤_; isPartialOrder = po}
+
+    open Poset poset hiding (_≤_) renaming (refl to ≤-refl)
+    open POR poset
+
+    *-preserves-≤ = proj₂ mono
+
   ≤⇒≤K :
     ∀ {ℓ₂} (_≤_ : Rel C ℓ₂) → IsPartialOrder _≈_ _≤_ →
     Negative _≤_ → Idempotent → Monotonic _≤_ → ∀ {a b} → a ≤ b → a ≤K b
@@ -105,11 +122,7 @@ module Semiring.Properties {c ℓ} (K : Semiring c ℓ) where
       c + b  ∎
 
     ≤0 : ∀ c → c ≤ 0#
-    ≤0 c = begin
-      c ≈⟨ sym (proj₁ *-identity c) ⟩
-      1# * c ≤⟨ *-preserves-≤ neg (≤-refl {c}) ⟩
-      0# * c ≈⟨ proj₁ zero c ⟩
-      0# ∎
+    ≤0 = negative→monotonic→≤0 _≤_ po neg mono
 
   ≤K⇒≤ :
     ∀ {ℓ₂} (_≤_ : Rel C ℓ₂) → IsPartialOrder _≈_ _≤_ →
@@ -130,11 +143,7 @@ module Semiring.Properties {c ℓ} (K : Semiring c ℓ) where
     *-preserves-≤ = proj₂ mono
 
     ≤0 : ∀ c → c ≤ 0#
-    ≤0 c = begin
-      c ≈⟨ sym (proj₁ *-identity c) ⟩
-      1# * c ≤⟨ *-preserves-≤ neg (≤-refl {c}) ⟩
-      0# * c ≈⟨ proj₁ zero c ⟩
-      0# ∎
+    ≤0 = negative→monotonic→≤0 _≤_ po neg mono
 
   -- Lemma 3: bounded implies idempotent
   bounded→idempotent : Bounded → Idempotent
