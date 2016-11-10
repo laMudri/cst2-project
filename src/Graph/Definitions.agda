@@ -20,6 +20,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_; proj₁; proj₂)
   open import Data.Star using (Star; ε; _◅_; _◅◅_)
+  open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤)
   open import Data.Vec as Vec using (Vec)
 
@@ -50,6 +51,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   path-weight ε = 1#
   path-weight (e ◅ π) = edge-weight e * path-weight π
 
+  -- A path with non-zero length
   Non-trivial : ∀ {q q′} → Path q q′ → Set _
   Non-trivial ε = ⊥
   Non-trivial (_ ◅ _) = ⊤
@@ -57,14 +59,35 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   Cycle : Fin n → Set _
   Cycle q = Path q q
 
-  -- Note: this does not include the source vertex. This allows us to talk of
-  -- cycle-free cycles (cycles that don't revisit the start until the end).
+  -- Subpaths: π is a path completely contained in ρ.
+  record _⊑_ {q q′ ql qr} (π : Path ql qr) (ρ : Path q q′) : Set Level.zero where
+    field
+      πl : Path q ql
+      πr : Path qr q′
+      eq : πl ◅◅ π ◅◅ πr ≡ ρ
+
+  record _⋤_ {q q′ ql qr} (π : Path ql qr) (ρ : Path q q′) : Set Level.zero where
+    field
+      πl : Path q ql
+      πr : Path qr q′
+      eq : πl ◅◅ π ◅◅ πr ≡ ρ
+      non-trivial : Non-trivial πl ⊎ Non-trivial πr
+
+  --_⋤_ : ∀ {q q′ ql qr} → Path ql qr → Path q q′ → Set _
+  --π ⋤ ρ = {!π ⊑ ρ × π ≢ ρ!}  -- π ≡ ρ is ill-typed
+
+  -- Note: this does not include the source vertex. This makes the length of
+  -- this list equal to the length of the path.
+  -- I don't know whether I'll still need this.
   path-vertices : ∀ {q q′} → Path q q′ → List (Fin n)
   path-vertices ε = []
   path-vertices (_◅_ {q} {q′} e π) = q′ ∷ path-vertices π
 
+  -- A path is cycle-free if no non-trivial proper subpath is a cycle.
+  -- A cycle-free cycle is possible (if only the non-proper subpath is a cycle),
+  -- and non-cycle-free cycles are also possible.
   Cycle-free : ∀ {q q′} → Path q q′ → Set _
-  Cycle-free {q} π = q ∉ path-vertices π
+  Cycle-free ρ = ∀ {ql qr} (π : Path ql qr) → Non-trivial π → π ⋤ ρ → ql ≢ qr
 
   -- Paths with only a fixed number of cycles. This fits the “at most k”
   -- reading, because we can add zero-length cycles without problem.
@@ -98,7 +121,8 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   Path-to q′ = ∃ λ q → Path q q′
 
   path-length : ∀ {q q′} → Path q q′ → ℕ
-  path-length = List.length ∘ path-vertices
+  path-length ε = ℕ.zero
+  path-length (x ◅ π) = ℕ.suc (path-length π)
 
   vertex→n≢0 : Fin n → n ≢ 0
   vertex→n≢0 q eq with subst Fin eq q
