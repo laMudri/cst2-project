@@ -19,7 +19,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.List.NonEmpty as List⁺ using (List⁺; _∷_)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_; proj₁; proj₂)
-  open import Data.Star using (Star; ε; _◅_; _◅◅_)
+  open import Star using (Star; ε; _◅_; _◅◅_; Non-trivial; _⊑_; _⊏_)
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤)
   open import Data.Vec as Vec using (Vec)
@@ -51,30 +51,8 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   path-weight ε = 1#
   path-weight (e ◅ π) = edge-weight e * path-weight π
 
-  -- A path with non-zero length
-  Non-trivial : ∀ {q q′} → Path q q′ → Set _
-  Non-trivial ε = ⊥
-  Non-trivial (_ ◅ _) = ⊤
-
   Cycle : Fin n → Set _
   Cycle q = Path q q
-
-  -- Subpaths: π is a path completely contained in ρ.
-  record _⊑_ {q q′ ql qr} (π : Path ql qr) (ρ : Path q q′) : Set Level.zero where
-    field
-      πl : Path q ql
-      πr : Path qr q′
-      eq : πl ◅◅ π ◅◅ πr ≡ ρ
-
-  record _⋤_ {q q′ ql qr} (π : Path ql qr) (ρ : Path q q′) : Set Level.zero where
-    field
-      πl : Path q ql
-      πr : Path qr q′
-      eq : πl ◅◅ π ◅◅ πr ≡ ρ
-      non-trivial : Non-trivial πl ⊎ Non-trivial πr
-
-  --_⋤_ : ∀ {q q′ ql qr} → Path ql qr → Path q q′ → Set _
-  --π ⋤ ρ = {!π ⊑ ρ × π ≢ ρ!}  -- π ≡ ρ is ill-typed
 
   -- Note: this does not include the source vertex. This makes the length of
   -- this list equal to the length of the path.
@@ -87,7 +65,9 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   -- A cycle-free cycle is possible (if only the non-proper subpath is a cycle),
   -- and non-cycle-free cycles are also possible.
   Cycle-free : ∀ {q q′} → Path q q′ → Set _
-  Cycle-free ρ = ∀ {ql qr} (π : Path ql qr) → Non-trivial π → π ⋤ ρ → ql ≢ qr
+  Cycle-free ρ =
+    ∀ {ql qr} (π : Path ql qr) (nt : Non-trivial π)
+              (sub : π ⊏ ρ) (eq : ql ≡ qr) → ⊥
 
   -- Paths with only a fixed number of cycles. This fits the “at most k”
   -- reading, because we can add zero-length cycles without problem.
