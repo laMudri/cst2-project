@@ -7,10 +7,13 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
   open import Algebra.Operations K using (_^_)
   open import Sum K
 
+  open import Colist
+    using ( Colist; []; _∷_; toColist; concat∞; product-with; _≃_; Zip-with
+          ; map)
   open import Data.List using (List; []; _∷_)
   open import Data.Nat as ℕ using (ℕ)
   open import Data.Nat.Properties.Simple using (+-suc)
-  open import Data.Product using (_×_; proj₁; proj₂)
+  open import Data.Product using (∃; _×_; proj₁; proj₂)
 
   open import Level
 
@@ -70,15 +73,12 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
     closed+ l a = _ClosedAt_.closed+ (closed a) l
 
   -- Definition 7: closed
-  -- I don't think this ever gets used, and it's rather tricky, so I'm leaving
-  -- it out for now.
-  {-
   record Closed : Set (c ⊔ ℓ) where
     field
       ∑-defined : ∀ a → ∃ (geo-∑∞ a)
-      ∑-assoc : ∀ (K : Set) (ass : Stream (Stream C)) as a →  → ∑∞ as a → ∑∞ ()
+      ∑-assoc :
+        ∀ ass as a → Zip-with ∑∞ (map toColist ass) as → ∑∞ as a → ∑∞ (concat∞ ass) a
       ∑-comm : ∀ as bs a b → as ≃ bs → ∑∞ as a → ∑∞ bs b → a ≈ b
       ∑-distrib :
-        ∀ as bs s a b → length as ≡ length bs →
-        ∑∞ (zipWith _*_ as bs) s → ∑∞ as a → ∑∞ bs b → s ≈ a * b
-  -}
+        ∀ as bs s a b →
+        ∑∞ (product-with _*_ as bs) s → ∑∞ (toColist as) a → ∑∞ (toColist bs) b → s ≈ a * b
