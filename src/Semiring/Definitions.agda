@@ -77,8 +77,9 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
     field
       ∑-defined : ∀ a → ∃ (geo-∑∞ a)
       ∑-assoc :
-        ∀ ass as a → Zip-with ∑∞ (map toColist ass) as → ∑∞ as a → ∑∞ (concat∞ ass) a
-      ∑-comm : ∀ as bs a b → as ≃ bs → ∑∞ as a → ∑∞ bs b → a ≈ b
+        ∀ {ass as a} → Zip-with ∑∞ (map toColist ass) as → ∑∞ as a →
+                       ∑∞ (concat∞ ass) a
+      ∑-comm : ∀ {as bs a b} → as ≃ bs → ∑∞ as a → ∑∞ bs b → a ≈ b
       ∑-distrib :
-        ∀ as bs s a b →
-        ∑∞ (product-with _*_ as bs) s → ∑∞ (toColist as) a → ∑∞ (toColist bs) b → s ≈ a * b
+        ∀ {as bs s a b} → ∑∞ (product-with _*_ as bs) s →
+                          ∑∞ (toColist as) a → ∑∞ (toColist bs) b → s ≈ a * b
