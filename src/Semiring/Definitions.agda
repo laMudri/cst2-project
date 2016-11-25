@@ -20,6 +20,7 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
   open import Relation.Binary using (Rel; _Preserves_⟶_; _Preserves₂_⟶_⟶_)
   import Relation.Binary.EqReasoning as EqReasoning
   open import Relation.Binary.PropositionalEquality as PEq using (cong)
+  open import Relation.Nullary using (Dec)
 
   -- Definition 2: idempotent
   Idempotent : Set _
@@ -83,3 +84,7 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
       ∑-distrib :
         ∀ {as bs s a b} → ∑∞ (product-with _*_ as bs) s →
                           ∑∞ (toColist as) a → ∑∞ (toColist bs) b → s ≈ a * b
+
+  -- Has decidable equality, so we can use it in the algorithm
+  Decidable : Set _
+  Decidable = ∀ a b → Dec (a ≈ b)
