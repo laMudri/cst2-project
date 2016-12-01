@@ -100,6 +100,10 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   Path-to : Fin n → Set _
   Path-to q′ = ∃ λ q → Path q q′
 
+  _▻_ :
+    ∀ {q q″ : Fin n} (πf : Path-from q) → Edge (proj₁ πf) q″ → Path-from q
+  _▻_ {q″ = q″} (q′ , π) e = q″ , π ◅◅ e ◅ ε
+
   path-length : ∀ {q q′} → Path q q′ → ℕ
   path-length ε = ℕ.zero
   path-length (x ◅ π) = ℕ.suc (path-length π)
