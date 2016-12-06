@@ -19,6 +19,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
   open import Data.Bool using (Bool; false; true; T; if_then_else_)
   open import Data.Empty using (⊥; ⊥-elim)
+  open import Data.Fin using (Fin; zero; suc)
+  open import Data.Fin.Properties renaming (_≟_ to _F≟_)
   open import Data.List using (List; []; _∷_; map; _++_)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (∃; _×_; _,_; ,_; proj₁; proj₂)
@@ -46,11 +48,21 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
       added-weight : Vec C n
       vertex-queue : Qc
 
+  Path-family : Set _
+  Path-family = (q : Fin n) → List (Path s q)
+
   record Helper-sets : Set (c ⊔ ℓ′) where
     constructor helper-sets
     field
-      D : Vec (List (Path-from s)) n
-      R : Vec (List (Path-from s)) n
+      D R : Path-family
+
+  -- Like vector update notation _[_]≔_, but for dependent functions from Fin.
+  _⟨_⟩≔_ :
+    ∀ {a n} {A : Fin n → Set a} →
+    ((x : Fin n) → A x) → (y : Fin n) → A y → ((x : Fin n) → A x)
+  (f ⟨ x ⟩≔ a) y with x F≟ y
+  _⟨_⟩≔_ {A = A} f x a y | yes eq = PEq.subst A eq a
+  (f ⟨ x ⟩≔ a) y | no _ = f y
 
   infixr 5 _⇒_ _⇏
   data Computation {st ℓ} {St : Set st} (R : Rel St ℓ) : St → Set (st ⊔ ℓ) where
@@ -96,26 +108,35 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     in
     alg-state d r S
 
+  --extract-vertex :
+  --  (state : Alg-state) → Helper-sets →
+  --  let open Alg-state state in
+  --  T (has-items vertex-queue) → Alg-state × Helper-sets
+  --extract-vertex (alg-state d r S) (helper-sets D R) has-items =
+  --  let q , S = dequeue S has-items in
+  --  alg-state d r S , helper-sets D R
+
   do-step-with-sets :
     (state : Alg-state) → Helper-sets →
-    T (has-items (Alg-state.vertex-queue state)) → Alg-state × Helper-sets
+    let open Alg-state state in
+    T (has-items vertex-queue) → Alg-state × Helper-sets
   do-step-with-sets (alg-state d r S) (helper-sets D R) has-items =
     let q , S = dequeue S has-items in
-    let r′ = lookup q r in let R′ = lookup q R in
-    let r = r [ q ]≔ 0# in let R = R [ q ]≔ [] in
+    let r′ = lookup q r in let R′ = R q in
+    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
     let d , r , S , D , R =
          foldl (λ _ → Vec C n × Vec C n × Qc
-                      × Vec (List (Path-from s)) n × Vec (List (Path-from s)) n)
+                      × Path-family × Path-family)
                (λ { (d , r , S , D , R) q′ →
                case lookup q′ d ≤? r′ * G q q′ of λ
                { (yes p) → d , r , S , D , R
                ; (no ¬p) →
                  let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
-                 let D = D [ q′ ]≔
-                      (map (λ πf → πf ▻ edge {_} {q′}) R′ ++ lookup q′ D) in
+                 let D = D ⟨ q′ ⟩≔
+                      (map (λ π → π ◅◅ edge ◅ ε) R′ ++ D q′) in
                  let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
-                 let R = R [ q′ ]≔
-                      (map (λ πf → πf ▻ edge {_} {q′}) R′ ++ lookup q′ R) in
+                 let R = R ⟨ q′ ⟩≔
+                      (map (λ π → π ◅◅ edge ◅ ε) R′ ++ R q′) in
                  d , r , (if contains q′ S then S else proj₁ (enqueue q′ S))
                  , D , R
                } })
@@ -177,11 +198,16 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   initial-state-with-sets : Alg-state × Helper-sets
   initial-state-with-sets = initial-state , helper-sets D D
     where
-    D : Vec (List (Path-from s)) n
-    D = replicate [] [ s ]≔ ((, ε) ∷ [])
+    D : (q : Fin n) → List (Path s q)
+    D q with s F≟ q
+    ... | yes eq = PEq.subst (Path s) eq ε ∷ []
+    ... | no _ = [] --replicate [] [ s ]≔ ((, ε) ∷ [])
 
   Reachable : Alg-state → Set _
   Reachable = Star _↝_ initial-state
+
+  Reachable-with-sets : Alg-state × Helper-sets → Set _
+  Reachable-with-sets = Star _↝S_ initial-state-with-sets
 
   -- Generic single-source shortest-distance
   gsssd : Vec C n
