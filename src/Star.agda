@@ -6,6 +6,8 @@ module Star where
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
 
+  open import Function
+
   open import Level
 
   open import Relation.Binary using (Rel)
@@ -136,3 +138,8 @@ module Star where
     (xs : Star T j k) → j ≢ k → Non-trivial xs
   distinct-endpoints→non-trivial ε neq = neq PEq.refl
   distinct-endpoints→non-trivial (x ◅ xs) neq = tt
+
+  -- Induction on Starˡ looks back up to the penultimate step, rather than
+  -- looking forward to after the first step.
+  Starˡ : ∀ {i t} {I : Set i} (T : Rel I t) → Rel I (i ⊔ t)
+  Starˡ T = flip (Star (flip T))

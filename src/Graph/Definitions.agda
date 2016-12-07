@@ -19,7 +19,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.List.NonEmpty as List⁺ using (List⁺; _∷_)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_; proj₁; proj₂)
-  open import Star using (Star; ε; _◅_; _◅◅_; Non-trivial; _⊑_; _⊏_)
+  open import Star using (Starˡ; ε; _◅_; _◅◅_; Non-trivial; _⊑_; _⊏_)
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤)
   open import Data.Vec as Vec using (Vec)
@@ -43,8 +43,10 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   edge-weight {q} {q′} e = G q q′
 
   -- Path with explicit endpoints
+  -- We want to extend paths forward, hence use of Starˡ rather than Star.
+  -- This means that literal paths should be read right-to-left.
   Path : Rel (Fin n) _
-  Path = Star Edge
+  Path = Starˡ Edge
 
   -- Weight of a path
   path-weight : ∀ {q q′} → Path q q′ → C
@@ -59,7 +61,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   -- I don't know whether I'll still need this.
   path-vertices : ∀ {q q′} → Path q q′ → List (Fin n)
   path-vertices ε = []
-  path-vertices (_◅_ {q} {q′} e π) = q′ ∷ path-vertices π
+  path-vertices (_◅_ {q} {q′} e π) = q ∷ path-vertices π
 
   -- A path is cycle-free if no non-trivial proper subpath is a cycle.
   -- A cycle-free cycle is possible (if only the non-proper subpath is a cycle),
@@ -81,7 +83,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   Path-with-l-cycles→Path : ∀ {l q q′} → Path-with-l-cycles l q q′ → Path q q′
   Path-with-l-cycles→Path {zero} (π , _) = π
   Path-with-l-cycles→Path {suc l} (_ , (π , _) , (c , _) , p) =
-    π ◅◅ c ◅◅ Path-with-l-cycles→Path {l} p
+    Path-with-l-cycles→Path {l} p ◅◅ c ◅◅ π
 
   -- Ignore the Cycle-free proofs for the sake of path equality
   P-setoid : ℕ → Fin n → Fin n → Setoid _ _
@@ -100,9 +102,9 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   Path-to : Fin n → Set _
   Path-to q′ = ∃ λ q → Path q q′
 
-  _▻_ :
-    ∀ {q q″ : Fin n} (πf : Path-from q) → Edge (proj₁ πf) q″ → Path-from q
-  _▻_ {q″ = q″} (q′ , π) e = q″ , π ◅◅ e ◅ ε
+  --_▻f_ :
+  --  ∀ {q q″ : Fin n} (πf : Path-from q) → Edge (proj₁ πf) q″ → Path-from q
+  --_▻f_ {q″ = q″} (q′ , π) e = q″ , π ▻f e
 
   path-length : ∀ {q q′} → Path q q′ → ℕ
   path-length ε = ℕ.zero
@@ -125,7 +127,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   all-paths-of-length-from (suc l) q =
     all-vertices >>= λ q′ →
     all-paths-of-length-from l q′ >>= λ { (q″ , π) →
-    return (q″ , edge {q} {q′} ◅ π)
+    return (q″ , (π ◅◅ edge ◅ ε))
     }
     where
     open RawMonad List⁺.monad
@@ -146,7 +148,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     where open RawMonad List⁺.monad
   all-paths-of-suc-length-from-to (ℕ.suc l) q q″ =
     all-vertices >>= λ q′ →
-    all-paths-of-suc-length-from-to l q′ q″ >>= λ π →
+    all-paths-of-suc-length-from-to l q q′ >>= λ π →
     return (edge ◅ π)
     where
     open RawMonad List⁺.monad

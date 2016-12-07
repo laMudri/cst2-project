@@ -24,7 +24,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   open import Data.List using (List; []; _∷_; map; _++_)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (∃; _×_; _,_; ,_; proj₁; proj₂)
-  open import Data.Star using (Star; ε; _◅_; _◅◅_)
+  open import Star using (Starˡ; ε; _◅_; _◅◅_)
   open import Data.Unit using (⊤; tt)
   open import Data.Vec
     using (Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl)
@@ -133,10 +133,10 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
                ; (no ¬p) →
                  let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
                  let D = D ⟨ q′ ⟩≔
-                      (map (λ π → π ◅◅ edge ◅ ε) R′ ++ D q′) in
+                      (map (λ π → edge ◅ π) R′ ++ D q′) in
                  let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
                  let R = R ⟨ q′ ⟩≔
-                      (map (λ π → π ◅◅ edge ◅ ε) R′ ++ R q′) in
+                      (map (λ π → edge ◅ π) R′ ++ R q′) in
                  d , r , (if contains q′ S then S else proj₁ (enqueue q′ S))
                  , D , R
                } })
@@ -201,13 +201,13 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     D : (q : Fin n) → List (Path s q)
     D q with s F≟ q
     ... | yes eq = PEq.subst (Path s) eq ε ∷ []
-    ... | no _ = [] --replicate [] [ s ]≔ ((, ε) ∷ [])
+    ... | no _ = []
 
   Reachable : Alg-state → Set _
-  Reachable = Star _↝_ initial-state
+  Reachable = Starˡ _↝_ initial-state
 
   Reachable-with-sets : Alg-state × Helper-sets → Set _
-  Reachable-with-sets = Star _↝S_ initial-state-with-sets
+  Reachable-with-sets = Starˡ _↝S_ initial-state-with-sets
 
   -- Generic single-source shortest-distance
   gsssd : Vec C n
