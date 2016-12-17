@@ -116,6 +116,20 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   --  let q , S = dequeue S has-items in
   --  alg-state d r S , helper-sets D R
 
+  do-inner-step :
+    (q : Fin n) → C → List (Path s q) →
+    Alg-state × Helper-sets → Fin n → Alg-state × Helper-sets
+  do-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′
+    with lookup q′ d ≤? r′ * G q q′
+  ... | yes p = alg-state d r S , helper-sets D R
+  ... | no ¬p =
+    let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
+    let D = D ⟨ q′ ⟩≔ (map (λ π → edge ◅ π) R′ ++ D q′) in
+    let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
+    let R = R ⟨ q′ ⟩≔ (map (λ π → edge ◅ π) R′ ++ R q′) in
+    let S = if contains q′ S then S else proj₁ (enqueue q′ S) in
+    alg-state d r S , helper-sets D R
+
   do-step-with-sets :
     (state : Alg-state) → Helper-sets →
     let open Alg-state state in
@@ -124,25 +138,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     let q , S = dequeue S has-items in
     let r′ = lookup q r in let R′ = R q in
     let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
-    let d , r , S , D , R =
-         foldl (λ _ → Vec C n × Vec C n × Qc
-                      × Path-family × Path-family)
-               (λ { (d , r , S , D , R) q′ →
-               case lookup q′ d ≤? r′ * G q q′ of λ
-               { (yes p) → d , r , S , D , R
-               ; (no ¬p) →
-                 let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
-                 let D = D ⟨ q′ ⟩≔
-                      (map (λ π → edge ◅ π) R′ ++ D q′) in
-                 let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
-                 let R = R ⟨ q′ ⟩≔
-                      (map (λ π → edge ◅ π) R′ ++ R q′) in
-                 d , r , (if contains q′ S then S else proj₁ (enqueue q′ S))
-                 , D , R
-               } })
-               (d , r , S , D , R) (allFin n)
-    in
-    alg-state d r S , helper-sets D R
+    foldl (λ _ → Alg-state × Helper-sets) (do-inner-step q r′ R′)
+          (alg-state d r S , helper-sets D R) (allFin n)
 
   _↝_ : Rel Alg-state _
   i ↝ j = ∃ λ hi → do-step i hi ≡ j

@@ -18,12 +18,14 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     using (here; there; module Membership; module Membership-≡)
   open Membership-≡
   open import Data.Nat as ℕ using (ℕ; zero; suc)
-  open import Data.Product using (Σ-syntax; ∃; _×_; _,_)
+  open import Data.Product using (Σ-syntax; ∃; _×_; _,_; proj₁; proj₂)
   open import Star as Star
     using (Star; ε; _◅_; _◅◅_; _⊏_; ¬⊏ε; ⊏x◅ε⇒≡ε; Non-trivial;
-           distinct-endpoints→non-trivial)
+           distinct-endpoints→non-trivial; ◅-injective′)
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
+
+  open import Function
 
   open import Level
 
@@ -34,10 +36,27 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   import Relation.Binary.PartialOrderReasoning as POR
   open import Relation.Nullary using (Dec; yes; no; ¬_)
 
-  target-∈-path-vertices :
-    ∀ {q q′ q″} (e : Edge q q′) (π : Path q′ q″) → q″ ∈ path-vertices (e ◅ π)
-  target-∈-path-vertices e ε = here PEq.refl
-  target-∈-path-vertices e (f ◅ π) = there (target-∈-path-vertices f π)
+  --target-∈-path-vertices :
+  --  ∀ {q q′ q″} (e : Edge q′ q″) (π : Path q q′) → q″ ∈ path-vertices (e ◅ π)
+  --target-∈-path-vertices e ε = here PEq.refl
+  --target-∈-path-vertices e (f ◅ π) = there (target-∈-path-vertices f π)
+
+  module Path where
+    infix 4 _≡?_
+    _≡?_ : ∀ {q q′} (π ρ : Path q q′) → Dec (π ≡ ρ)
+    ε ≡? ε = yes PEq.refl
+    ε ≡? x ◅ ρ = no (λ ())
+    x ◅ π ≡? ε = no (λ ())
+    _◅_ {j = q} edge π ≡? _◅_ {j = q′} edge ρ with q ≟ q′
+    edge ◅ π ≡? edge ◅ ρ | yes PEq.refl with π ≡? ρ
+    edge ◅ π ≡? edge ◅ .π | yes PEq.refl | yes PEq.refl = yes PEq.refl
+    edge ◅ π ≡? edge ◅ ρ | yes PEq.refl | no neq = no (prf π ρ neq)
+      where
+      prf :
+        ∀ {q q′ q″} {e : Edge q′ q″} (π ρ : Path q q′) → π ≢ ρ → e ◅ π ≢ e ◅ ρ
+      prf π ρ neq eq with ◅-injective′ eq
+      prf π ρ neq eq | PEq.refl , _ , eq′ = neq eq′
+    edge ◅ π ≡? edge ◅ ρ | no ¬p = no (¬p ∘ proj₁ ∘ ◅-injective′)
 
   ε-cycle-free : ∀ {q} → Cycle-free {q} ε
   ε-cycle-free {q}  π ¬t sub eq = ¬⊏ε π sub
@@ -47,6 +66,7 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   singleton-cycle-free e π nt sub eq with ⊏x◅ε⇒≡ε sub
   singleton-cycle-free e .ε nt sub eq | PEq.refl , PEq.refl = nt
 
+  {-
   P-finite : ∀ l q q′ → Finite (P-setoid l q q′)
   P-finite zero q q′ with q FinP.≟ q′
   P-finite ℕ.zero q .q | yes PEq.refl = 1 , record
@@ -77,3 +97,4 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     where
     open Membership (PEq.setoid (Fin 1))
   P-finite (suc l) q q′ = {!!}
+  -}
