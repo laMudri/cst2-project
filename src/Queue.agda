@@ -16,9 +16,10 @@ module Queue where
       Carrier : Set ℓ
       empty : Carrier
       has-items : Carrier → Bool
-      enqueue : A → Carrier → ∃ λ q → T (has-items q)
+      enqueue : A → Carrier → Carrier
       dequeue : (q : Carrier) → T (has-items q) → A × Carrier
       contains : A → Carrier → Bool
+      enqueue-has-items : ∀ x q → T (has-items (enqueue x q))
 
   -- An example
   stack : ∀ {c ℓ} (A : DecSetoid c ℓ) → Queue (DecSetoid.Carrier A) c
@@ -26,9 +27,10 @@ module Queue where
     { Carrier = List Carrier
     ; empty = []
     ; has-items = λ { [] → false ; (_ ∷ _) → true }
-    ; enqueue = λ x q → (x ∷ q) , tt
+    ; enqueue = λ x q → (x ∷ q)
     ; dequeue = λ { [] () ; (x ∷ q) i → x , q }
     ; contains = contains
+    ; enqueue-has-items = λ x q → tt
     }
     where
       open DecSetoid A

@@ -143,10 +143,3 @@ module Star where
   -- looking forward to after the first step.
   Starˡ : ∀ {i t} {I : Set i} (T : Rel I t) → Rel I (i ⊔ t)
   Starˡ T = flip (Star (flip T))
-
-  -- There is a transition in the chain satisfying P
-  data Any↝ {i t p} {I : Set i} {T : Rel I t} (P : ∀ {j k} → T j k → Set p)
-            : ∀ {j k} → Star T j k → Set (i ⊔ t ⊔ p) where
-    here : ∀ {j k l} {x : T j k} {xs : Star T k l} → P x → Any↝ P (x ◅ xs)
-    there : ∀ {j k l} {x : T j k} {xs : Star T k l} →
-            Any↝ P xs → Any↝ P (x ◅ xs)

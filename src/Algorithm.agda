@@ -17,17 +17,19 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
   open import Coinduction
 
-  open import Data.Bool using (Bool; false; true; T; if_then_else_)
+  open import Data.Bool using (Bool; false; true; T; if_then_else_; not)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties renaming (_≟_ to _F≟_)
-  open import Data.List using (List; []; _∷_; map; _++_)
+  open import Data.List using (List; []; _∷_; map; _++_; filter; foldr)
+  open import Data.List.Any using (Any; any)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (∃; _×_; _,_; ,_; proj₁; proj₂)
   open import Star using (Starˡ; ε; _◅_; _◅◅_)
   open import Data.Unit using (⊤; tt)
   open import Data.Vec
-    using (Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl)
+    using ( Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl; toList
+          ; tabulate)
 
   open import Level
 
@@ -37,6 +39,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   open import Relation.Binary.PropositionalEquality as PEq
     using (_≡_; inspect; [_]; Reveal_·_is_)
   open import Relation.Nullary using (Dec; yes; no; ¬_)
+  open import Relation.Nullary.Decidable using (⌊_⌋)
 
   _≤?_ : ∀ a b → Dec (a ≤K b)
   a ≤? b = a + b ≟ a
@@ -47,6 +50,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
       known-distances : Vec C n
       added-weight : Vec C n
       vertex-queue : Qc
+  open Alg-state public
 
   Path-family : Set _
   Path-family = (q : Fin n) → List (Path s q)
@@ -88,7 +92,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   normalize p i = Terminates-result (p i)
 
   do-step :
-    (state : Alg-state) → T (has-items (Alg-state.vertex-queue state)) →
+    (state : Alg-state) → T (has-items (vertex-queue state)) →
     Alg-state
   do-step (alg-state d r S) has-items =
     let q , S = dequeue S has-items in
@@ -102,7 +106,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
                ; (no ¬p) →
                  let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
                  let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
-                 d , r , (if contains q′ S then S else proj₁ (enqueue q′ S))
+                 d , r , (if contains q′ S then S else enqueue q′ S)
                } })
                (d , r , S) (allFin n)
     in
@@ -127,25 +131,52 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     let D = D ⟨ q′ ⟩≔ (map (λ π → edge ◅ π) R′ ++ D q′) in
     let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
     let R = R ⟨ q′ ⟩≔ (map (λ π → edge ◅ π) R′ ++ R q′) in
-    let S = if contains q′ S then S else proj₁ (enqueue q′ S) in
+    let S = if contains q′ S then S else enqueue q′ S in
     alg-state d r S , helper-sets D R
 
   do-step-with-sets :
-    (state : Alg-state) → Helper-sets →
-    let open Alg-state state in
-    T (has-items vertex-queue) → Alg-state × Helper-sets
-  do-step-with-sets (alg-state d r S) (helper-sets D R) has-items =
+    (state : Alg-state × Helper-sets) →
+    T (has-items (vertex-queue (proj₁ state))) → Alg-state × Helper-sets
+  do-step-with-sets (alg-state d r S , helper-sets D R) has-items =
     let q , S = dequeue S has-items in
     let r′ = lookup q r in let R′ = R q in
     let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
     foldl (λ _ → Alg-state × Helper-sets) (do-inner-step q r′ R′)
           (alg-state d r S , helper-sets D R) (allFin n)
 
+  do-step-with-sets′ :
+    (state : Alg-state × Helper-sets) →
+    T (has-items (vertex-queue (proj₁ state))) → Alg-state × Helper-sets
+  do-step-with-sets′ (alg-state d r S , helper-sets D R) has-items =
+    let q , S = dequeue S has-items in
+    let r′ = lookup q r in let R′ = R q in
+    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
+    let relaxed-vertices = filter (λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋)
+                                  (toList (allFin n)) in
+    let
+      new-S = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
+                    S relaxed-vertices
+
+      new-weights : Vec C n → Vec C n
+      new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
+        { (yes p) → r′ * G q q′ + lookup q′ w
+        ; (no ¬p) → lookup q′ w
+        })
+
+      new-sets : Path-family → Path-family
+      new-sets H q′ = case any (_F≟_ q′) relaxed-vertices of λ
+        { (yes p) → map (λ π → edge ◅ π) R′ ++ H q′
+        ; (no ¬p) → H q′
+        }
+    in
+    alg-state (new-weights d) (new-weights r) new-S
+    , helper-sets (new-sets D) (new-sets R)
+
   _↝_ : Rel Alg-state _
   i ↝ j = ∃ λ hi → do-step i hi ≡ j
 
   _↝S_ : Rel (Alg-state × Helper-sets) _
-  (i , is) ↝S j = ∃ λ hi → do-step-with-sets i is hi ≡ j
+  i ↝S j = ∃ λ hi → do-step-with-sets′ i hi ≡ j
 
   -- Algorithm expressed as a potentially infinite computation path.
   -- We have only one reduction rule (see _↝_):
@@ -190,7 +221,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     d = d-helper s
 
     S : Qc
-    S = proj₁ (enqueue s empty)
+    S = enqueue s empty
 
   initial-state-with-sets : Alg-state × Helper-sets
   initial-state-with-sets = initial-state , helper-sets D D
@@ -221,4 +252,4 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     d = d-helper s
 
     S : Qc
-    S = proj₁ (enqueue s empty)
+    S = enqueue s empty
