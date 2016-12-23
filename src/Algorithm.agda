@@ -148,29 +148,31 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     (state : Alg-state × Helper-sets) →
     T (has-items (vertex-queue (proj₁ state))) → Alg-state × Helper-sets
   do-step-with-sets′ (alg-state d r S , helper-sets D R) has-items =
-    let q , S = dequeue S has-items in
-    let r′ = lookup q r in let R′ = R q in
-    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
-    let relaxed-vertices = filter (λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋)
-                                  (toList (allFin n)) in
-    let
-      new-S = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
-                    S relaxed-vertices
+    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂
+    module DoStepWithSets′ where
+    qS₁ = dequeue S has-items
+    q = proj₁ qS₁ ; S₁ = proj₂ qS₁
+    r′ = lookup q r ; R′ = R q
+    r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
+    conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
+    relaxed-vertices = filter conditon (toList (allFin n))
 
-      new-weights : Vec C n → Vec C n
-      new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
-        { (yes p) → r′ * G q q′ + lookup q′ w
-        ; (no ¬p) → lookup q′ w
-        })
+    new-weights : Vec C n → Vec C n
+    new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
+      { (yes p) → r′ * G q q′ + lookup q′ w
+      ; (no ¬p) → lookup q′ w
+      })
 
-      new-sets : Path-family → Path-family
-      new-sets H q′ = case any (_F≟_ q′) relaxed-vertices of λ
-        { (yes p) → map (λ π → edge ◅ π) R′ ++ H q′
-        ; (no ¬p) → H q′
-        }
-    in
-    alg-state (new-weights d) (new-weights r) new-S
-    , helper-sets (new-sets D) (new-sets R)
+    new-sets : Path-family → Path-family
+    new-sets H q′ = case any (_F≟_ q′) relaxed-vertices of λ
+      { (yes p) → map (λ π → edge ◅ π) R′ ++ H q′
+      ; (no ¬p) → H q′
+      }
+
+    d₁ = new-weights d ; D₁ = new-sets D
+    r₂ = new-weights r₁ ; R₂ = new-sets R₁
+    S₂ = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
+               S₁ relaxed-vertices
 
   _↝_ : Rel Alg-state _
   i ↝ j = ∃ λ hi → do-step i hi ≡ j

@@ -24,19 +24,20 @@ module Algorithm.Properties
   open Membership-≡ using (_∈_; _∉_; _⊆_)
   open import Data.List.Any.Properties using (++ʳ)
   import Data.List.Any.Membership as Mem
-  open import Data.Product using (∃; Σ-syntax; _×_; _,_; proj₁; proj₂)
+  open import Data.Product using (∃; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂)
   open import Star using (Starˡ; ε; _◅_; _▻_; _◅◅_)
   open import Star.TransitionMembership renaming (Any to Any↝; map to map↝)
   open import Data.Unit using (⊤; tt)
   open import Vec
     using (Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl;
-          foldl-preserves; All; function→All)
+          foldl-preserves; All; function→All; toList)
 
   open import Function
 
   import Level as L
 
-  open import Relation.Binary.PropositionalEquality as PEq using (_≡_; _≢_)
+  open import Relation.Binary.PropositionalEquality as PEq
+    using (_≡_; _≢_; inspect; [_])
   open import Relation.Nullary using (Dec; yes; no; ¬_)
   open import Relation.Nullary.Negation using (¬?)
   open import Relation.Nullary.Product using (_×-dec_)
@@ -146,9 +147,18 @@ module Algorithm.Properties
     eπ-added-to-D→m-dequeued r (eπ∉Dₖq , eπ∈Dⱼq) | yes p = p
     eπ-added-to-D→m-dequeued
       {k = alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ}
-      r (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p with lookup q dₖ ≤? lookup (dequeued-vertex π e r) rₖ * G (dequeued-vertex π e r) q
-    eπ-added-to-D→m-dequeued {_} {alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p | yes p = {!!}
-    eπ-added-to-D→m-dequeued {_} {alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p₁ | no ¬p = {!!}
+      (hi , eq) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p with any (_F≟_ q) (DoStepWithSets′.relaxed-vertices dₖ rₖ Sₖ Dₖ Rₖ hi) | inspect (any (_F≟_ q)) (DoStepWithSets′.relaxed-vertices dₖ rₖ Sₖ Dₖ Rₖ hi)
+    eπ-added-to-D→m-dequeued {_} {alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p | yes p | [ eq ] = {!!}
+    eπ-added-to-D→m-dequeued {_} {alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p₁ | no ¬p | [ eq ] = ⊥-elim (eπ∉Dₖq (PEq.subst (λ Dq → e ◅ π ∈ Dq) Dⱼq≡Dₖq eπ∈Dⱼq))
+      where
+      open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi renaming (q to this-q)
+      dⱼ = d₁ ; rⱼ = r₂ ; Sⱼ = S₂ ; Dⱼ = D₁ ; Rⱼ = R₂
+
+      Dⱼq≡Dₖq : Dⱼ q ≡ Dₖ q
+      Dⱼq≡Dₖq = {!PEq.cong (λ { (yes p) → map (edge ◅_) R′ ++ Dₖ q ; (no ¬p) → Dₖ q }) eq!}
+
+      --relaxed-vertices⊆all-vertices : relaxed-vertices ⊆ toList (allFin n)
+      --relaxed-vertices⊆all-vertices = Mem.filter-⊆ conditon (toList (allFin n))
 
     eπ-added-to-D→π-was-in-R :
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → π-was-in-R π e r
