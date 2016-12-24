@@ -105,6 +105,17 @@ module Algorithm.Properties
   T-prop {false} () u
   T-prop {true} tt tt = PEq.refl
 
+  module Internals (k : Alg-state × Helper-sets)
+                   (hi : T (has-items (vertex-queue (proj₁ k)))) where
+    open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
+    open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ)
+
+    open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi public
+      renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
+                             ; D₁ to Dⱼ; R₂ to Rⱼ)
+      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
+            ; new-weights; new-sets)
+
   module _ {m q} (π : Path s m) (e : Edge m q) {j k} (r : k ↝S j) where
     open Helper-sets (proj₂ j) renaming (D to Dⱼ; R to Rⱼ)
     open Helper-sets (proj₂ k) renaming (D to Dₖ; R to Rₖ)
@@ -140,30 +151,19 @@ module Algorithm.Properties
     π-was-in-R? = any (Path._≡?_ π) (Rₖ m)
 
   module _ {m q} (π : Path s m) (e : Edge m q) where
-    π-was-not-in-R→eπ-not-added-to-D :
-      ∀ {j k} (r : k ↝S j) →
-      ¬ π-was-in-R π e r → ¬ eπ-added-to-D π e r
-    π-was-not-in-R→eπ-not-added-to-D (hi , PEq.refl) π∉Rₖm (eπ∉Dₖq , eπ∈Dⱼq) =
-      {!!}
-
     eπ-added-to-D→m-dequeued :
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → m-dequeued π e r
-    eπ-added-to-D→m-dequeued
-      {j = .(do-step-with-sets′ (alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ) hi)}
-      {k = alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ}
-      (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
+    eπ-added-to-D→m-dequeued {k = k} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
       where
-      open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi
-        renaming (q to this-q; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
-                             ; D₁ to Dⱼ; R₂ to Rⱼ)
+      open Internals k hi
 
       lemma :
-        (R′ : List (Path s this-q)) → e ◅ π ∈ map (edge ◅_) R′ → m ≡ this-q
+        (R′ : List (Path s dequeued)) → e ◅ π ∈ map (edge ◅_) R′ → m ≡ dequeued
       lemma [] ()
       lemma (π′ ∷ R′) (here px) = proj₁ (◅-injective′ px)
       lemma (π′ ∷ R′) (there any) = lemma R′ any
 
-      go : m ≡ this-q
+      go : m ≡ dequeued
       go with any (_F≟_ q) relaxed-vertices
       go | yes p with Inverse.from (AnyP.++↔ {xs = map (edge ◅_) R′}) ⟨$⟩ eπ∈Dⱼq
       go | yes p | (inj₁ eπ∈eR′) = lemma R′ eπ∈eR′
@@ -172,10 +172,28 @@ module Algorithm.Properties
 
     eπ-added-to-D→π-was-in-R :
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → π-was-in-R π e r
-    eπ-added-to-D→π-was-in-R r (eπ∉Dₖq , eπ∈Dⱼq) with π-was-in-R? π e r
-    eπ-added-to-D→π-was-in-R r (eπ∉Dₖq , eπ∈Dⱼq) | yes p = p
-    eπ-added-to-D→π-was-in-R (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p =
-      ⊥-elim (eπ∉Dₖq {!¬p!})
+    eπ-added-to-D→π-was-in-R {k = k} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
+      where
+      open Internals k hi
+
+      m≡dequeued : m ≡ dequeued
+      m≡dequeued = eπ-added-to-D→m-dequeued (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq)
+
+      lemma :
+        (Rₖm : List (Path s m)) → e ◅ π ∈ map (edge ◅_) Rₖm → π ∈ Rₖm
+      lemma [] ()
+      lemma (x ∷ Rₖm) (here PEq.refl) = here PEq.refl
+      lemma (x ∷ Rₖm) (there pxs) = there (lemma Rₖm pxs)
+
+      go : π ∈ Rₖ m
+      go with any (_F≟_ q) relaxed-vertices
+      go | yes p with Inverse.from (AnyP.++↔ {xs = map (edge ◅_) R′}) ⟨$⟩ eπ∈Dⱼq
+      go | yes p | (inj₁ eπ∈eR′) =
+        let eπ∈eRₖm = PEq.subst (λ v → e ◅ π ∈ map (edge ◅_) (Rₖ v))
+                                (PEq.sym m≡dequeued) eπ∈eR′ in
+        lemma (Rₖ m) eπ∈eRₖm
+      go | yes p | (inj₂ eπ∈Dₖq) = ⊥-elim (eπ∉Dₖq eπ∈Dₖq)
+      go | no ¬p = ⊥-elim (eπ∉Dₖq eπ∈Dⱼq)
 
   ∈D→was-added :
     ∀ {i} (rs : Reachable-with-sets i) →
@@ -197,15 +215,15 @@ module Algorithm.Properties
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
     Any↝ (λ { {j} {alg-state d r S , helper-sets D R} _ →
             ∃ λ hi → m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
-  path-in-D-gives-path-in-R′ rs π e eπ∈Dq =
-    map↝ {!!} (∈D→was-added rs π e eπ∈Dq)
-  --  ∃ λ j → Σ[ jrs ∈ Reachable-with-sets j ] ∃ λ rs → rs ◅◅ jrs ≡ irs ×
-  --    ∃ λ R′ → (m , R′) ≡ q,R′ jrs × π ∈ R′
-  --path-in-D-gives-path-in-R′ _ ε π e eπ∈Dq = {!!}
-  --path-in-D-gives-path-in-R′ i (ir ◅ irs) {m} {q} π e eπ∈Dq with m F≟ q
-  --path-in-D-gives-path-in-R′ i (_◅_ {j = j} ir irs) {q} π e eπ∈Dq | yes PEq.refl =
-  --  j , irs , ir ◅ ε , PEq.refl , {!!} , {!q,R′ irs!} , {!!}
-  --path-in-D-gives-path-in-R′ i (ir ◅ irs) π e eπ∈Dq | no ¬p = {!!}
+  path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
+    map↝ (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
+    where
+    f : ∀ j k (r : k ↝S j) → eπ-added-to-D π e r →
+        ∃ λ hi → let open Internals k hi in m ≡ dequeued × π ∈ Rₖ m
+    f j k r@(hi , PEq.refl) added =
+      let m≡dequeued = eπ-added-to-D→m-dequeued π e r added in
+      let π∈Rₖm = eπ-added-to-D→π-was-in-R π e r added in
+      hi , m≡dequeued , π∈Rₖm
 
   lemma-5 :
     ∀ i → Reachable-with-sets i →

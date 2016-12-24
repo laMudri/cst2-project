@@ -52,6 +52,10 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
       vertex-queue : Qc
   open Alg-state public
 
+  module Alg-state-abbrev (i : Alg-state) where
+    open Alg-state i public
+      renaming (known-distances to d; added-weight to r; vertex-queue to S)
+
   Path-family : Set _
   Path-family = (q : Fin n) → List (Path s q)
 
