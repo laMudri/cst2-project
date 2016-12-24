@@ -20,19 +20,24 @@ module Algorithm.Properties
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties renaming (_≟_ to _F≟_)
   open import Data.List using (List; []; _∷_; map; _++_)
-  open import Data.List.Any using (module Membership-≡; Any; here; there; any)
-  open Membership-≡ using (_∈_; _∉_; _⊆_)
-  open import Data.List.Any.Properties using (++ʳ)
+  open import Data.List.All as All using (All; []; _∷_)
+  open import Data.List.Any as Any
+    using (module Membership-≡; Any; here; there; any)
+  open Membership-≡ using (_∈_; _∉_; _⊆_; find)
+  open import Data.List.Any.Properties as AnyP using (++ʳ)
   import Data.List.Any.Membership as Mem
   open import Data.Product using (∃; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂)
-  open import Star using (Starˡ; ε; _◅_; _▻_; _◅◅_)
+  open import Star using (Starˡ; ε; _◅_; _◅◅_; ◅-injective′)
   open import Star.TransitionMembership renaming (Any to Any↝; map to map↝)
+  open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
-  open import Vec
+  open import Vec as Vec
     using (Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl;
-          foldl-preserves; All; function→All; toList)
+          foldl-preserves; function→All; toList)
 
   open import Function
+  open import Function.Equality using (_⟨$⟩_)
+  open import Function.Inverse using (Inverse)
 
   import Level as L
 
@@ -143,22 +148,27 @@ module Algorithm.Properties
 
     eπ-added-to-D→m-dequeued :
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → m-dequeued π e r
-    eπ-added-to-D→m-dequeued r (eπ∉Dₖq , eπ∈Dⱼq) with m-dequeued? π e r
-    eπ-added-to-D→m-dequeued r (eπ∉Dₖq , eπ∈Dⱼq) | yes p = p
     eπ-added-to-D→m-dequeued
+      {j = .(do-step-with-sets′ (alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ) hi)}
       {k = alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ}
-      (hi , eq) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p with any (_F≟_ q) (DoStepWithSets′.relaxed-vertices dₖ rₖ Sₖ Dₖ Rₖ hi) | inspect (any (_F≟_ q)) (DoStepWithSets′.relaxed-vertices dₖ rₖ Sₖ Dₖ Rₖ hi)
-    eπ-added-to-D→m-dequeued {_} {alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p | yes p | [ eq ] = {!!}
-    eπ-added-to-D→m-dequeued {_} {alg-state dₖ rₖ Sₖ , helper-sets Dₖ Rₖ} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) | no ¬p₁ | no ¬p | [ eq ] = ⊥-elim (eπ∉Dₖq (PEq.subst (λ Dq → e ◅ π ∈ Dq) Dⱼq≡Dₖq eπ∈Dⱼq))
+      (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
       where
-      open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi renaming (q to this-q)
-      dⱼ = d₁ ; rⱼ = r₂ ; Sⱼ = S₂ ; Dⱼ = D₁ ; Rⱼ = R₂
+      open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi
+        renaming (q to this-q; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
+                             ; D₁ to Dⱼ; R₂ to Rⱼ)
 
-      Dⱼq≡Dₖq : Dⱼ q ≡ Dₖ q
-      Dⱼq≡Dₖq = {!PEq.cong (λ { (yes p) → map (edge ◅_) R′ ++ Dₖ q ; (no ¬p) → Dₖ q }) eq!}
+      lemma :
+        (R′ : List (Path s this-q)) → e ◅ π ∈ map (edge ◅_) R′ → m ≡ this-q
+      lemma [] ()
+      lemma (π′ ∷ R′) (here px) = proj₁ (◅-injective′ px)
+      lemma (π′ ∷ R′) (there any) = lemma R′ any
 
-      --relaxed-vertices⊆all-vertices : relaxed-vertices ⊆ toList (allFin n)
-      --relaxed-vertices⊆all-vertices = Mem.filter-⊆ conditon (toList (allFin n))
+      go : m ≡ this-q
+      go with any (_F≟_ q) relaxed-vertices
+      go | yes p with Inverse.from (AnyP.++↔ {xs = map (edge ◅_) R′}) ⟨$⟩ eπ∈Dⱼq
+      go | yes p | (inj₁ eπ∈eR′) = lemma R′ eπ∈eR′
+      go | yes p | (inj₂ eπ∈Dₖq) = ⊥-elim (eπ∉Dₖq eπ∈Dₖq)
+      go | no ¬p = ⊥-elim (eπ∉Dₖq eπ∈Dⱼq)
 
     eπ-added-to-D→π-was-in-R :
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → π-was-in-R π e r
