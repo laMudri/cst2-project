@@ -28,7 +28,7 @@ module Algorithm.Properties
   import Data.List.Any.Membership as Mem
   open import Data.Product using (∃; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂)
   open import Star using (Starˡ; ε; _◅_; _◅◅_; ◅-injective′)
-  open import Star.TransitionMembership renaming (Any to Any↝; map to map↝)
+  import Star.TransitionMembership as ↝
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
   open import Vec as Vec
@@ -46,6 +46,21 @@ module Algorithm.Properties
   open import Relation.Nullary using (Dec; yes; no; ¬_)
   open import Relation.Nullary.Negation using (¬?)
   open import Relation.Nullary.Product using (_×-dec_)
+
+  module Internals-jk (k : Alg-state × Helper-sets)
+                   (hi : T (has-items (vertex-queue (proj₁ k)))) where
+    open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
+    open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ)
+
+    open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi public
+      renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
+                             ; D₁ to Dⱼ; R₂ to Rⱼ)
+      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
+            ; new-weights; new-sets)
+
+  module Internals-ij = Internals-jk
+    renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ
+             ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ)
 
   do-D-step :
     (state : Alg-state × Helper-sets) →
@@ -105,17 +120,6 @@ module Algorithm.Properties
   T-prop {false} () u
   T-prop {true} tt tt = PEq.refl
 
-  module Internals (k : Alg-state × Helper-sets)
-                   (hi : T (has-items (vertex-queue (proj₁ k)))) where
-    open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
-    open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ)
-
-    open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi public
-      renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
-                             ; D₁ to Dⱼ; R₂ to Rⱼ)
-      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
-            ; new-weights; new-sets)
-
   module _ {m q} (π : Path s m) (e : Edge m q) {j k} (r : k ↝S j) where
     open Helper-sets (proj₂ j) renaming (D to Dⱼ; R to Rⱼ)
     open Helper-sets (proj₂ k) renaming (D to Dₖ; R to Rₖ)
@@ -155,7 +159,7 @@ module Algorithm.Properties
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → m-dequeued π e r
     eπ-added-to-D→m-dequeued {k = k} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
       where
-      open Internals k hi
+      open Internals-jk k hi
 
       lemma :
         (R′ : List (Path s dequeued)) → e ◅ π ∈ map (edge ◅_) R′ → m ≡ dequeued
@@ -174,7 +178,7 @@ module Algorithm.Properties
       ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → π-was-in-R π e r
     eπ-added-to-D→π-was-in-R {k = k} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
       where
-      open Internals k hi
+      open Internals-jk k hi
 
       m≡dequeued : m ≡ dequeued
       m≡dequeued = eπ-added-to-D→m-dequeued (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq)
@@ -199,27 +203,27 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    Any↝ (eπ-added-to-D π e) rs
+    ↝.Any (eπ-added-to-D π e) rs
   ∈D→was-added ε {m} {q} π e eπ∈Dq with s F≟ q
   ∈D→was-added ε π e (here ()) | yes PEq.refl
   ∈D→was-added ε π e (there ()) | yes PEq.refl
   ∈D→was-added ε π e () | no ¬p
   ∈D→was-added (r ◅ rs) π e eπ∈Dq with eπ-added-to-D? π e r
-  ∈D→was-added (r ◅ rs) π e eπ∈Dq | yes p = Any↝.here p
+  ∈D→was-added (r ◅ rs) π e eπ∈Dq | yes p = ↝.Any.here p
   ∈D→was-added (r ◅ rs) π e eπ∈Dq | no ¬p =
-    Any↝.there (∈D→was-added rs π e (not-added→was-there π e r ¬p eπ∈Dq))
+    ↝.Any.there (∈D→was-added rs π e (not-added→was-there π e r ¬p eπ∈Dq))
 
   path-in-D-gives-path-in-R′ :
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    Any↝ (λ { {j} {alg-state d r S , helper-sets D R} _ →
+    ↝.Any (λ { {j} {alg-state d r S , helper-sets D R} _ →
             ∃ λ hi → m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
-    map↝ (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
+    ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
     where
     f : ∀ j k (r : k ↝S j) → eπ-added-to-D π e r →
-        ∃ λ hi → let open Internals k hi in m ≡ dequeued × π ∈ Rₖ m
+        ∃ λ hi → let open Internals-jk k hi in m ≡ dequeued × π ∈ Rₖ m
     f j k r@(hi , PEq.refl) added =
       let m≡dequeued = eπ-added-to-D→m-dequeued π e r added in
       let π∈Rₖm = eπ-added-to-D→π-was-in-R π e r added in
@@ -228,28 +232,35 @@ module Algorithm.Properties
   lemma-5 :
     ∀ i → Reachable-with-sets i →
     let open Helper-sets (proj₂ i) in
-    ∀ q q′ π (e : Edge q q′) → let eπ = e ◅ π in
-    eπ ∈ D q′ → eπ ∈ map (λ ρ → e ◅ ρ) (R q) → ⊥
+    ∀ m q π (e : Edge m q) → let eπ = e ◅ π in
+    eπ ∈ D q → eπ ∈ map (λ ρ → e ◅ ρ) (R m) → ⊥
 
-  lemma-5 .initial-state-with-sets ε q q′ π e π∈D π∈R with s F≟ q′
-  lemma-5 _ ε q .s π e (here ()) π∈R | yes PEq.refl
-  lemma-5 _ ε q q′ π e (there ()) π∈R | yes p
-  lemma-5 _ ε q q′ π e () π∈R | no ¬p
+  lemma-5 .initial-state-with-sets ε m q π e π∈D π∈R with s F≟ q
+  lemma-5 _ ε m .s π e (here ()) π∈R | yes PEq.refl
+  lemma-5 _ ε m q π e (there ()) π∈R | yes p
+  lemma-5 _ ε m q π e () π∈R | no ¬p
 
-  lemma-5 .(do-step-with-sets′ (j , js) hi) (_◅_ {j = j , js} (hi , PEq.refl) rs) q q′ π e π∈Di π∈Ri =
-    let i , is = do-step-with-sets′ (j , js) hi in
-    let open Helper-sets is renaming (D to Di; R to Ri) in
-    let open Helper-sets js in
-    let ih = lemma-5 (j , js) rs q′ in
-    --ih {!e!} (e ◅ π) {!!} {!!} {!!}
-    let stuff = path-in-D-gives-path-in-R′ ((hi , PEq.refl) ◅ rs) π e π∈Di in
-    {!stuff!}
+  lemma-5 i@.(do-step-with-sets′ j hi) (_◅_ {j = j} r@(hi , PEq.refl) rs) m q π e eπ∈Dᵢq eπ∈eRᵢm =
+    let j′ , k′ , r′ , elem , pr′ = ↝.find stuff in
+    {!ih!}
+    where
+    open Internals-ij j hi
+
+    π∈Rᵢm : π ∈ Rᵢ m
+    π∈Rᵢm = {!!}
+
+    ih = lemma-5 j rs q
+    stuff = path-in-D-gives-path-in-R′ (r ◅ rs) π e eπ∈Dᵢq
+    more-stuff = path-in-D-gives-path-in-R′ rs π e {!D-grows r q ?!}
 
   lemma-6-step :
     ∀ i → Reachable-with-sets i →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q → π ∈ D m
-  lemma-6-step i rs {m} {q} π e e◅π∈Dq = {!!}
+  lemma-6-step i rs {m} {q} π e e◅π∈Dq =
+    let thing = path-in-D-gives-path-in-R′ rs π e e◅π∈Dq in
+    let j , k , r , r∈rs , hi , m≡dequeued , π∈Rₖm = ↝.find thing in
+    {!!}
   --lemma-6-step .initial-state-with-sets ε {m} {q} π e e◅π∈Dq with s F≟ q
   --lemma-6-step _ ε π e (here ()) | yes PEq.refl
   --lemma-6-step _ ε π e (there ()) | yes p

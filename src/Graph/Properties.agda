@@ -20,8 +20,9 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (Σ-syntax; ∃; _×_; _,_; proj₁; proj₂)
   open import Star as Star
-    using (Star; ε; _◅_; _◅◅_; _⊏_; ¬⊏ε; ⊏x◅ε⇒≡ε; Non-trivial;
+    using (Star; ε; _◅_; _◅◅_; _⊏_; Non-trivial;
            distinct-endpoints→non-trivial; ◅-injective′)
+  open import Star.Properties {T = Edge} using (¬⊏ε; ⊏x◅ε⇒≡ε)
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
 
