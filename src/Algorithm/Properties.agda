@@ -8,7 +8,7 @@ module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
        (Q : Queue (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
   open import Algorithm K De Q G s
-  open Semiring K renaming (Carrier to C)
+  --open Semiring K renaming (Carrier to C) hiding (refl)
   open Queue Q renaming (Carrier to Qc)
   open import Semiring.Definitions K
   open import Semiring.Properties K
@@ -23,11 +23,12 @@ module Algorithm.Properties
   open import Data.List.All as All using (All; []; _∷_)
   open import Data.List.Any as Any
     using (module Membership-≡; Any; here; there; any)
-  open Membership-≡ using (_∈_; _∉_; _⊆_; find)
+  open Membership-≡ using (_∈_; _∉_; _⊆_; find; ⊆-preorder)
   open import Data.List.Any.Properties as AnyP using (++ʳ)
   import Data.List.Any.Membership as Mem
-  open import Data.Product using (∃; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂)
-  open import Star using (Starˡ; ε; _◅_; _◅◅_; ◅-injective′)
+  open import Data.Product
+    using (∃; ∃₂; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂; <_,_>)
+  open import Star using (Starˡ; ε; _◅_; _◅◅_; ◅-injective′; fold-preorder)
   import Star.TransitionMembership as ↝
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
@@ -37,18 +38,22 @@ module Algorithm.Properties
 
   open import Function
   open import Function.Equality using (_⟨$⟩_)
-  open import Function.Inverse using (Inverse)
+  open import Function.Equivalence using (Equivalence; _⇔_)
+  open import Function.Inverse using (Inverse; _↔_)
 
   import Level as L
 
+  open import Relation.Binary using (Preorder)
+  import Relation.Binary.On as On
   open import Relation.Binary.PropositionalEquality as PEq
     using (_≡_; _≢_; inspect; [_])
   open import Relation.Nullary using (Dec; yes; no; ¬_)
   open import Relation.Nullary.Negation using (¬?)
   open import Relation.Nullary.Product using (_×-dec_)
+  import Relation.Unary as U
 
   module Internals-jk (k : Alg-state × Helper-sets)
-                   (hi : T (has-items (vertex-queue (proj₁ k)))) where
+                      (hi : T (has-items (vertex-queue (proj₁ k)))) where
     open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
     open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ)
 
@@ -62,55 +67,27 @@ module Algorithm.Properties
     renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ
              ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ)
 
-  do-D-step :
-    (state : Alg-state × Helper-sets) →
-    T (has-items (vertex-queue (proj₁ state))) → Path-family
-  do-D-step (alg-state d r S , helper-sets D R) hi =
-    let q , S = dequeue S hi in
-    let r′ = lookup q r in let R′ = R q in
-    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
-    λ q′ → case lookup q′ d ≤? r′ * G q q′ of λ
-      { (yes p) → D q′
-      ; (no ¬p) → map (λ π → edge ◅ π) R′ ++ D q′
-      }
+  D-grows-step :
+    ∀ {i j} (r : j ↝S i) →
+    let open Internals-ij j (proj₁ r) in
+    ∀ {q} → Dⱼ q ⊆ Dᵢ q
+  D-grows-step {j = j} (hi , PEq.refl) {q} {π} = go
+    where
+    open Internals-ij j hi
 
-  do-D-step-correct :
-    ∀ (state : Alg-state × Helper-sets)
-    (hi : T (has-items (vertex-queue (proj₁ state)))) q′ →
-    do-D-step state hi q′ ≡ Helper-sets.D (proj₂ (do-step-with-sets state hi)) q′
-  do-D-step-correct (alg-state d r S , helper-sets D R) hi q′ with
-    let q , S = dequeue S hi in
-    let r′ = lookup q r in let R′ = R q in
-    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
-    lookup q′ d ≤? r′ * G q q′
-  do-D-step-correct (alg-state d r S , helper-sets D R) hi q′ | yes p = {!!}
-  do-D-step-correct (alg-state d r S , helper-sets D R) hi q′ | no ¬p = {!!}
+    go : π ∈ Dⱼ q → π ∈ Dᵢ q
+    go π∈Dⱼq with any (_F≟_ q) relaxed-vertices
+    go π∈Dⱼq | yes p = AnyP.++ʳ (map (edge ◅_) R′) π∈Dⱼq
+    go π∈Dⱼq | no ¬p = π∈Dⱼq
 
-  D-grows-in-inner-step :
-    ∀ q r′ R′ j q′ →
-    let i = do-inner-step q r′ R′ j q′ in
-    let open Helper-sets (proj₂ i) renaming (D to Di; R to Ri) in
-    let open Helper-sets (proj₂ j) renaming (D to Dj; R to Rj) in
-    ∀ q″ → Dj q″ ⊆ Di q″
-  D-grows-in-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′ q″ π∈Djq″ with lookup q′ d ≤? r′ * G q q′
-  D-grows-in-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′ q″ π∈Djq″ | yes _ = π∈Djq″
-  D-grows-in-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′ q″ π∈Djq″ | no _ with q′ F≟ q″
-  D-grows-in-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′ .q′ π∈Djq′ | no _ | yes PEq.refl = ++ʳ (map (_◅_ edge) R′) π∈Djq′
-  D-grows-in-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′ q″ π∈Djq″ | no _ | no ¬p = π∈Djq″
-
-  D-grows :
-    ∀ {i j} → j ↝S i →
-    let open Helper-sets (proj₂ i) renaming (D to Di; R to Ri) in
-    let open Helper-sets (proj₂ j) renaming (D to Dj; R to Rj) in
-    ∀ q → Dj q ⊆ Di q
-  D-grows {j = alg-state d r S , helper-sets D R} (hi , PEq.refl) q′ {π} π∈Dq′ =
-    let q , S = dequeue S hi in
-    let r′ = lookup q r in let R′ = R q in
-    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
-    {!!}
-    --foldl-preserves (λ k → π ∈ Helper-sets.D (proj₂ k) q′) π∈Dq′
-    --  (function→All _ (λ _ {k} → D-grows-in-inner-step q r′ R′ k _ q′)
-    --                (allFin n))
+  D-grows : ∀ {i j} (rs : Starˡ _↝S_ j i) →
+            let open Helper-sets (proj₂ i) renaming (D to Dᵢ) in
+            let open Helper-sets (proj₂ j) renaming (D to Dⱼ) in
+            ∀ {q} → Dⱼ q ⊆ Dᵢ q
+  D-grows {_ , helper-sets Dᵢ _} ε {q} = id
+  D-grows (r@(hi , PEq.refl) ◅ rs) {q} =
+    trans (D-grows rs {q}) (D-grows-step r {q})
+    where open Preorder (⊆-preorder (Path s q))
 
   T-dec : ∀ x → Dec (T x)
   T-dec false = no (λ z → z)
@@ -120,43 +97,56 @@ module Algorithm.Properties
   T-prop {false} () u
   T-prop {true} tt tt = PEq.refl
 
-  module _ {m q} (π : Path s m) (e : Edge m q) {j k} (r : k ↝S j) where
-    open Helper-sets (proj₂ j) renaming (D to Dⱼ; R to Rⱼ)
-    open Helper-sets (proj₂ k) renaming (D to Dₖ; R to Rₖ)
-    hi = proj₁ r
-    eq = proj₂ r
+  module _ {m q} {π : Path s m} {e : Edge m q} {H : List (Path s m)} where
+    take-the-edge-off : e ◅ π ∈ map (edge ◅_) H → π ∈ H
+    take-the-edge-off eπ∈eH = Any.map f (Inverse.from AnyP.map↔ ⟨$⟩ eπ∈eH)
+      where
+      f : (λ π′ → e ◅ π ≡ edge ◅ π′) U.⊆ _≡_ π
+      f eπ≡eπ′ with ◅-injective′ eπ≡eπ′
+      f eπ≡eπ′ | PEq.refl , _ , π≡π′ = π≡π′
 
-    eπ-added-to-D : Set _
-    eπ-added-to-D = (e ◅ π) ∉ Dₖ q × (e ◅ π) ∈ Dⱼ q
-
-    eπ-added-to-D? : Dec eπ-added-to-D
-    eπ-added-to-D? =
-      let dec = any (Path._≡?_ (edge ◅ π)) in
-      ¬? (dec (Dₖ q)) ×-dec dec (Dⱼ q)
-
-    not-added→was-there : ¬ eπ-added-to-D → (e ◅ π) ∈ Dⱼ q → (e ◅ π) ∈ Dₖ q
-    not-added→was-there ¬added eπ∈Dⱼq with any (Path._≡?_ (e ◅ π)) (Dₖ q)
-    not-added→was-there ¬added eπ∈Dⱼq | yes p = p
-    not-added→was-there ¬added eπ∈Dⱼq | no ¬p = ⊥-elim (¬added (¬p , eπ∈Dⱼq))
-
-    dequeued-vertex : Fin n
-    dequeued-vertex = proj₁ (dequeue (vertex-queue (proj₁ k)) hi)
-
-    m-dequeued : Set _
-    m-dequeued = m ≡ dequeued-vertex
-
-    m-dequeued? : Dec m-dequeued
-    m-dequeued? = m F≟ dequeued-vertex
-
-    π-was-in-R : Set _
-    π-was-in-R = π ∈ Rₖ m
-
-    π-was-in-R? : Dec π-was-in-R
-    π-was-in-R? = any (Path._≡?_ π) (Rₖ m)
+    put-the-edge-on : π ∈ H → e ◅ π ∈ map (edge ◅_) H
+    put-the-edge-on π∈H = Inverse.to Mem.map-∈↔ ⟨$⟩ (π , π∈H , PEq.refl)
 
   module _ {m q} (π : Path s m) (e : Edge m q) where
+    module _ {j k} (r : k ↝S j) where
+      private
+        open Helper-sets (proj₂ j) renaming (D to Dⱼ; R to Rⱼ)
+        --open Helper-sets (proj₂ k) renaming (D to Dₖ; R to Rₖ)
+        hi = proj₁ r
+        eq = proj₂ r
+        open Internals-jk k hi hiding (Dⱼ; Rⱼ)
+
+      eπ-added-to-D : Set _
+      eπ-added-to-D = (e ◅ π) ∉ Dₖ q × (e ◅ π) ∈ Dⱼ q
+
+      eπ-added-to-D? : Dec eπ-added-to-D
+      eπ-added-to-D? =
+        let dec = any (Path._≡?_ (edge ◅ π)) in
+        ¬? (dec (Dₖ q)) ×-dec dec (Dⱼ q)
+
+      not-added→was-there : ¬ eπ-added-to-D → (e ◅ π) ∈ Dⱼ q → (e ◅ π) ∈ Dₖ q
+      not-added→was-there ¬added eπ∈Dⱼq with any (Path._≡?_ (e ◅ π)) (Dₖ q)
+      not-added→was-there ¬added eπ∈Dⱼq | yes p = p
+      not-added→was-there ¬added eπ∈Dⱼq | no ¬p = ⊥-elim (¬added (¬p , eπ∈Dⱼq))
+
+      m-dequeued : Set _
+      m-dequeued = m ≡ dequeued
+
+      m-dequeued? : Dec m-dequeued
+      m-dequeued? = m F≟ dequeued
+
+      π-was-in-R : Set _
+      π-was-in-R = π ∈ Rₖ m
+
+      π-was-in-R? : Dec π-was-in-R
+      π-was-in-R? = any (Path._≡?_ π) (Rₖ m)
+
+      e-relaxed : Set _
+      e-relaxed = q ∈ relaxed-vertices
+
     eπ-added-to-D→m-dequeued :
-      ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → m-dequeued π e r
+      ∀ {j k} (r : k ↝S j) → eπ-added-to-D r → m-dequeued r
     eπ-added-to-D→m-dequeued {k = k} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
       where
       open Internals-jk k hi
@@ -175,7 +165,7 @@ module Algorithm.Properties
       go | no ¬p = ⊥-elim (eπ∉Dₖq eπ∈Dⱼq)
 
     eπ-added-to-D→π-was-in-R :
-      ∀ {j k} (r : k ↝S j) → eπ-added-to-D π e r → π-was-in-R π e r
+      ∀ {j k} (r : k ↝S j) → eπ-added-to-D r → π-was-in-R r
     eπ-added-to-D→π-was-in-R {k = k} (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq) = go
       where
       open Internals-jk k hi
@@ -183,21 +173,32 @@ module Algorithm.Properties
       m≡dequeued : m ≡ dequeued
       m≡dequeued = eπ-added-to-D→m-dequeued (hi , PEq.refl) (eπ∉Dₖq , eπ∈Dⱼq)
 
-      lemma :
-        (Rₖm : List (Path s m)) → e ◅ π ∈ map (edge ◅_) Rₖm → π ∈ Rₖm
-      lemma [] ()
-      lemma (x ∷ Rₖm) (here PEq.refl) = here PEq.refl
-      lemma (x ∷ Rₖm) (there pxs) = there (lemma Rₖm pxs)
-
       go : π ∈ Rₖ m
       go with any (_F≟_ q) relaxed-vertices
       go | yes p with Inverse.from (AnyP.++↔ {xs = map (edge ◅_) R′}) ⟨$⟩ eπ∈Dⱼq
       go | yes p | (inj₁ eπ∈eR′) =
         let eπ∈eRₖm = PEq.subst (λ v → e ◅ π ∈ map (edge ◅_) (Rₖ v))
                                 (PEq.sym m≡dequeued) eπ∈eR′ in
-        lemma (Rₖ m) eπ∈eRₖm
+        take-the-edge-off eπ∈eRₖm
       go | yes p | (inj₂ eπ∈Dₖq) = ⊥-elim (eπ∉Dₖq eπ∈Dₖq)
       go | no ¬p = ⊥-elim (eπ∉Dₖq eπ∈Dⱼq)
+
+    {-
+    eπ-added-to-D⇔ :
+      ∀ {j k} (r : k ↝S j) → e-relaxed r →
+      (m-dequeued r × π-was-in-R r) ⇔ eπ-added-to-D r
+    eπ-added-to-D⇔ {k = k} r@(hi , PEq.refl) e-relaxed = record
+      { to = PEq.→-to-⟶ to
+      ; from = record { _⟨$⟩_ = < eπ-added-to-D→m-dequeued r , eπ-added-to-D→π-was-in-R r > ; cong = {!!} }
+      }
+      where
+      open Internals-jk k hi
+
+      to : m-dequeued r × π-was-in-R r → eπ-added-to-D r
+      to (m-d , π∈Rₖm) with any (_F≟_ q) relaxed-vertices
+      to (PEq.refl , π∈Rₖm) | yes p = (λ eπ∈Dₖq → {!!}) , AnyP.++ˡ (put-the-edge-on π∈Rₖm)
+      to (m-d , π∈Rₖm) | no ¬p = ⊥-elim (¬p e-relaxed)
+    -}
 
   ∈D→was-added :
     ∀ {i} (rs : Reachable-with-sets i) →
@@ -217,17 +218,50 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    ↝.Any (λ { {j} {alg-state d r S , helper-sets D R} _ →
-            ∃ λ hi → m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
+    ↝.Any (λ { {j} {alg-state d r S , helper-sets D R} (hi , eq) →
+             m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
     ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
     where
     f : ∀ j k (r : k ↝S j) → eπ-added-to-D π e r →
-        ∃ λ hi → let open Internals-jk k hi in m ≡ dequeued × π ∈ Rₖ m
+        let open Internals-jk k (proj₁ r) in
+        m ≡ dequeued × π ∈ Rₖ m
     f j k r@(hi , PEq.refl) added =
       let m≡dequeued = eπ-added-to-D→m-dequeued π e r added in
       let π∈Rₖm = eπ-added-to-D→π-was-in-R π e r added in
-      hi , m≡dequeued , π∈Rₖm
+      m≡dequeued , π∈Rₖm
+
+  R⊆D : ∀ {i} (rs : Reachable-with-sets i) →
+        let open Helper-sets (proj₂ i) in
+        ∀ {q} → R q ⊆ D q
+  R⊆D ε π∈Rq = π∈Rq
+  R⊆D (_◅_ {j = j} (hi , PEq.refl) rs) {q} {π} = go
+    where
+    open Internals-ij j hi
+
+    go : π ∈ Rᵢ q → π ∈ Dᵢ q
+
+    go π∈Rq with any (_F≟_ q) relaxed-vertices  -- Was stuff added to D and R?
+
+    go π∈Rq | yes _ with dequeued F≟ q  -- Was this R just cleared?
+    go π∈Rq | yes _ | yes PEq.refl
+      with Inverse.from (AnyP.++↔ {xs = map (edge ◅_) (Rⱼ dequeued)}) ⟨$⟩ π∈Rq
+      -- Was our path π just added (l) or there from before (r)?
+    go π∈Rq | yes _ | yes PEq.refl | inj₁ x = AnyP.++ˡ x
+      -- Just added to D, too
+    go π∈Rq | yes _ | yes PEq.refl | inj₂ ()
+      -- Can't have been there before; R was just cleared
+    go π∈Rq | yes _ | no ¬p
+      with Inverse.from (AnyP.++↔ {xs = map (edge ◅_) (Rⱼ dequeued)}) ⟨$⟩ π∈Rq
+    go π∈Rq | yes _ | no ¬p | inj₁ x = AnyP.++ˡ x
+    go π∈Rq | yes _ | no ¬p | inj₂ y =
+      AnyP.++ʳ (map (edge ◅_) (Rⱼ dequeued)) (R⊆D rs y)
+
+    go π∈Rq | no _ with dequeued F≟ q
+    go () | no _ | yes PEq.refl
+      -- R was just cleared and nothing was added to it, so it must be empty
+    go π∈Rq | no _ | no ¬p = R⊆D rs π∈Rq
+      -- There was no change to either (R q) or (D q)
 
   lemma-5 :
     ∀ i → Reachable-with-sets i →
@@ -242,12 +276,12 @@ module Algorithm.Properties
 
   lemma-5 i@.(do-step-with-sets′ j hi) (_◅_ {j = j} r@(hi , PEq.refl) rs) m q π e eπ∈Dᵢq eπ∈eRᵢm =
     let j′ , k′ , r′ , elem , pr′ = ↝.find stuff in
-    {!ih!}
+    {!take-after-∈ elem!}
     where
     open Internals-ij j hi
 
     π∈Rᵢm : π ∈ Rᵢ m
-    π∈Rᵢm = {!!}
+    π∈Rᵢm = take-the-edge-off eπ∈eRᵢm
 
     ih = lemma-5 j rs q
     stuff = path-in-D-gives-path-in-R′ (r ◅ rs) π e eπ∈Dᵢq
@@ -258,16 +292,19 @@ module Algorithm.Properties
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q → π ∈ D m
   lemma-6-step i rs {m} {q} π e e◅π∈Dq =
-    let thing = path-in-D-gives-path-in-R′ rs π e e◅π∈Dq in
-    let j , k , r , r∈rs , hi , m≡dequeued , π∈Rₖm = ↝.find thing in
-    {!!}
-  --lemma-6-step .initial-state-with-sets ε {m} {q} π e e◅π∈Dq with s F≟ q
-  --lemma-6-step _ ε π e (here ()) | yes PEq.refl
-  --lemma-6-step _ ε π e (there ()) | yes p
-  --lemma-6-step _ ε π e () | no ¬p
-  --lemma-6-step _ (_◅_ {j = j , js} (hi , PEq.refl) rs) π e e◅π∈Dq =
-  --  let ih = lemma-6-step (j , js) rs π e {!!} in
-  --  {!ih!}
+    D-grows {i} {k} (↝.take-before-∈ r∈rs ◅◅ r ◅ ε) π∈Dₖm
+    where
+    stuff = ↝.find (path-in-D-gives-path-in-R′ rs π e e◅π∈Dq)
+    j = proj₁ stuff
+    k = proj₁ (proj₂ stuff)
+    r = proj₁ (proj₂ (proj₂ stuff))
+    r∈rs = proj₁ (proj₂ (proj₂ (proj₂ stuff)))
+    m≡dequeued = proj₁ (proj₂ (proj₂ (proj₂ (proj₂ stuff))))
+    π∈Rₖm = proj₂ (proj₂ (proj₂ (proj₂ (proj₂ stuff))))
+
+    π∈Dₖm = R⊆D (↝.take-after-∈ r∈rs) π∈Rₖm
+
+    open Internals-jk k (proj₁ r)
 
   lemma-6 :
     ∀ i → Reachable-with-sets i →

@@ -11,7 +11,7 @@ module Star where
 
   import Level as L
 
-  open import Relation.Binary using (Rel)
+  open import Relation.Binary using (Rel; Preorder)
   open import Relation.Binary.PropositionalEquality as PEq using (_≡_; _≢_)
   open import Relation.Nullary using (¬_)
 
@@ -78,6 +78,17 @@ module Star where
       ∀ {j k} → (xs : Star T j k) → j ≢ k → Non-trivial xs
     distinct-endpoints→non-trivial ε neq = neq PEq.refl
     distinct-endpoints→non-trivial (x ◅ xs) neq = tt
+
+    fold-preorder :
+      ∀ {ℓ₁ ℓ₂} (pre : Preorder i ℓ₁ ℓ₂) →
+      let open Preorder pre in
+      (eq : I ≡ Carrier) →
+      let coe = PEq.subst id eq in
+      (∀ {j k} → T j k → coe j ∼ coe k) →
+      ∀ {j k} (xs : Star T j k) → coe j ∼ coe k
+    fold-preorder pre eq f ε = Preorder.refl pre
+    fold-preorder pre eq f (x ◅ xs) =
+      Preorder.trans pre (f x) (fold-preorder pre eq f xs)
 
   -- Induction on Starˡ looks back up to the penultimate step, rather than
   -- looking forward to after the first step.
