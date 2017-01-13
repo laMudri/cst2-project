@@ -8,7 +8,7 @@ module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
        (Q : Queue (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
   open import Algorithm K De Q G s
-  --open Semiring K renaming (Carrier to C) hiding (refl)
+  open Semiring K renaming (Carrier to C)
   open Queue Q renaming (Carrier to Qc)
   open import Semiring.Definitions K
   open import Semiring.Properties K
@@ -28,13 +28,14 @@ module Algorithm.Properties
   import Data.List.Any.Membership as Mem
   open import Data.Product
     using (∃; ∃₂; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂; <_,_>)
-  open import Star using (Starˡ; ε; _◅_; _◅◅_; ◅-injective′; fold-preorder)
+  open import Star using ( Starˡ; ε; _◅_; _◅◅_; ◅-injective′; fold-preorder
+                         ; concat-vec)
   import Star.TransitionMembership as ↝
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
   open import Vec as Vec
     using (Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl;
-          foldl-preserves; function→All; toList)
+          foldl-preserves; function→All; toList; intersperse⁺)
 
   open import Function
   open import Function.Equality using (_⟨$⟩_)
@@ -63,6 +64,8 @@ module Algorithm.Properties
       using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
             ; new-weights; new-sets)
 
+  module Internals-jk-from-↝ {j k} (r : k ↝S j) = Internals-jk k (proj₁ r)
+
   module Internals-ij = Internals-jk
     renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ
              ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ)
@@ -86,8 +89,8 @@ module Algorithm.Properties
             ∀ {q} → Dⱼ q ⊆ Dᵢ q
   D-grows {_ , helper-sets Dᵢ _} ε {q} = id
   D-grows (r@(hi , PEq.refl) ◅ rs) {q} =
-    trans (D-grows rs {q}) (D-grows-step r {q})
-    where open Preorder (⊆-preorder (Path s q))
+    Pre.trans (D-grows rs {q}) (D-grows-step r {q})
+    where module Pre = Preorder (⊆-preorder (Path s q))
 
   T-dec : ∀ x → Dec (T x)
   T-dec false = no (λ z → z)
@@ -314,3 +317,30 @@ module Algorithm.Properties
   lemma-6 i rs π₁ (e ◅ π₂) e◅π∈Dq =
     let π∈Dq′ = lemma-6-step i rs (π₂ ◅◅ π₁) e e◅π∈Dq in
     lemma-6 i rs π₁ π₂ π∈Dq′
+
+  Relaxed : ∀ {j k} (r : k ↝S j) {pe ne} → Edge pe ne → Set _
+  Relaxed r {pe} {ne} e = pe ≡ dequeued × ne ∈ relaxed-vertices
+    where open Internals-jk-from-↝ r
+
+  lemma-7 :
+    ∀ {i j k l} →
+    Reachable-with-sets l → Starˡ _↝S_ l k → (r : k ↝S j) → Starˡ _↝S_ j i →
+    let alg-state dₗ _ _ , _ = l in
+    let alg-state dᵢ _ _ , _ = i in
+    ∀ {pe ne} (e : Edge pe ne) (x : C) → Relaxed r e →
+    lookup pe dₗ ≈ lookup pe dₗ + x →
+    lookup ne dᵢ ≈ lookup ne dᵢ + (x * edge-weight e)
+  lemma-7 = {!!}
+
+  lemma-8 :
+    ∀ {j} → Reachable-with-sets j → let _ , helper-sets Dⱼ _ = j in
+    ∀ {m q} (πb : Path s m) (πs : Vec (Path m m) n) (πe : Path m q)
+    (c : Cycle m) →
+    let path-with-cycles = πe ◅◅ concat-vec (intersperse⁺ c πs) ◅◅ πb in
+    let path-without-cycles = πe ◅◅ concat-vec πs ◅◅ πb in
+    path-with-cycles ∈ Dⱼ q →
+    path-without-cycles ∈ Dⱼ q
+      ⊎ ∃ λ x → ∀ {i} → Starˡ _↝S_ j i →
+        let alg-state dᵢ _ _ , _ = i in
+        lookup q dᵢ ≈ lookup q dᵢ + path-weight path-without-cycles + x
+  lemma-8 = {!!}
