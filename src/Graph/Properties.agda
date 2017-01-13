@@ -10,29 +10,33 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
 
   open import Finite
 
+  open import Function
+
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin as Fin using (Fin)
   open import Data.Fin.Properties as FinP hiding (setoid)
-  open import Data.List as List using (List)
+  open import Data.List as List using (List; []; _∷_)
   open import Data.List.Any
-    using (here; there; module Membership; module Membership-≡)
+    using (here; there; any; module Membership; module Membership-≡)
   open Membership-≡
-  open import Data.Nat as ℕ using (ℕ; zero; suc)
-  open import Data.Product using (Σ-syntax; ∃; _×_; _,_; proj₁; proj₂)
+  open import Data.Nat as ℕ using (ℕ; zero; suc; _≤′_; ≤′-refl; ≤′-step)
+  open import Data.Product using (Σ-syntax; ∃; _×_; _,_; proj₁; proj₂; <_,_>)
   open import Star as Star
-    using (Star; ε; _◅_; _◅◅_; _⊏_; Non-trivial;
-           distinct-endpoints→non-trivial; ◅-injective′)
-  open import Star.Properties {T = Edge} using (¬⊏ε; ⊏x◅ε⇒≡ε)
-  open import Data.Sum using (_⊎_; inj₁; inj₂)
+    using (Star; ε; _◅_; _◅◅_; _⊑_; subpath; _⊏_; strict-subpath; Non-trivial;
+           distinct-endpoints→non-trivial; ◅-injective′; statesₗ; statesᵣ;
+           states)
+  open import Star.Properties {T = flip Edge}
+    using (⊑-poset; ⊑ε⇒≡ε; ◅-⊑; ¬⊏ε; ⊏x◅ε⇒≡ε)
+  open import Data.Star.Properties using (◅◅-assoc)
+  open import Data.Sum using (_⊎_; inj₁; inj₂; [_,_])
   open import Data.Unit using (⊤; tt)
-
-  open import Function
 
   open import Level
 
-  open import Relation.Binary using (Rel)
+  open import Relation.Binary using (Rel; Poset)
   open import Relation.Binary.HeterogeneousEquality as HEq using (_≅_; _≇_)
-  open import Relation.Binary.PropositionalEquality as PEq using (_≡_; _≢_)
+  open import Relation.Binary.PropositionalEquality as PEq
+    using (_≡_; _≢_; inspect)
   import Relation.Binary.EqReasoning as EqR
   import Relation.Binary.PartialOrderReasoning as POR
   open import Relation.Nullary using (Dec; yes; no; ¬_)
@@ -66,6 +70,66 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     ∀ {q q′} → (e : Edge q q′) → Cycle-free (e ◅ ε)
   singleton-cycle-free e π nt sub eq with ⊏x◅ε⇒≡ε sub
   singleton-cycle-free e .ε nt sub eq | PEq.refl , PEq.refl = nt
+
+  ¬-has-cycle-ε : ∀ {s} → ¬ Has-cycle {s} ε
+  ¬-has-cycle-ε (has-cycle ε nt sub) = nt
+  ¬-has-cycle-ε (has-cycle (e ◅ c) nt sub) with ⊑ε⇒≡ε sub
+  ... | PEq.refl , PEq.refl , ()
+
+  q∈statesᵣ⇒Cycle-free⇒⊥ :
+    ∀ {s q q′} {e : Edge q q′} {π : Path s q} →
+    q′ ∈ statesₗ π → Cycle-free (e ◅ π) → ⊥
+  q∈statesᵣ⇒Cycle-free⇒⊥ = {!!}
+    where
+    go : ∀ {s q q′ t} (ρ : Path q′ t) (e : Edge q q′) (π : Path s q) →
+         q′ ∈ statesₗ π → Cycle-free (ρ ◅◅ e ◅ π) → ⊥
+    go ρ e ε () cf
+    go ρ e (f ◅ π) (here PEq.refl) cf =
+      cf (e ◅ ε) tt (strict-subpath ρ (f ◅ π) PEq.refl (inj₂ tt)) PEq.refl
+    go ρ e (f ◅ π) (there elem) cf = {!go (ρ ◅◅ e ◅ ε) f π elem!}
+
+  q∈statesᵣ⇒Has-cycle :
+    ∀ {s q} {π : Path s q} → q ∈ statesᵣ π → Has-cycle π
+  q∈statesᵣ⇒Has-cycle = go ε _
+    where
+    go : ∀ {s q q′} (ρ : Path q q′) (π : Path s q) →
+         q′ ∈ statesᵣ π → Has-cycle (ρ ◅◅ π)
+    go ρ ε ()
+    go ρ (e ◅ π) (here PEq.refl) =
+      has-cycle (ρ ◅◅ e ◅ ε) (nt ρ e) (subpath ε π (◅◅-assoc ρ (e ◅ ε) π))
+      where
+      nt : ∀ {i j k} (ρ : Path j k) (e : Edge i j) → Non-trivial (ρ ◅◅ e ◅ ε)
+      nt ε e = tt
+      nt (x ◅ ρ) e = tt
+    go ρ (e ◅ π) (there elem) =
+      PEq.subst Has-cycle (◅◅-assoc ρ (e ◅ ε) π) (go (ρ ◅◅ e ◅ ε) π elem)
+
+  has-cycle? : ∀ {s q} (π : Path s q) → Dec (Has-cycle π)
+  has-cycle? = {!!}
+    where
+    open Poset ⊑-poset
+    go : ∀ {s q} (π : Path s q) (qs : List (Fin n)) →
+         Dec (Has-cycle π ⊎ (∃ λ q′ → q′ ∈ statesᵣ π × q′ ∈ qs))
+    go {s} {.s} ε qs = no [ ¬-has-cycle-ε , (λ { (_ , () , _) }) ]
+    go {s} {q} (e ◅ π) qs with any (q ≟_) (statesᵣ π)
+    go {s} {q} (e ◅ π) qs | yes p =
+      yes (inj₁ (q∈statesᵣ⇒Has-cycle {π = e ◅ π} (there p)))
+    go {s} {q} (e ◅ π) qs | no ¬p with go π (q ∷ qs)
+    go {s} {q} (e ◅ π) qs | no ¬p | yes (inj₁ x) = {!statesᵣ π!}
+    go {s} {q} (e ◅ π) qs | no ¬p | yes (inj₂ y) = {!!}
+    go {s} {q} (e ◅ π) qs | no ¬elem | no ¬rec = no {!!}
+
+  ◅-Has-cycle : ∀ {s m q} {e : Edge m q} {π : Path s m} →
+                 Has-cycle π → Has-cycle (e ◅ π)
+  ◅-Has-cycle {e = e} (has-cycle c nt sub) = has-cycle c nt (◅-⊑ e sub)
+
+  long-path-has-cycle :
+    ∀ {s q} (π : Path s q) → n ≤′ path-length π → Has-cycle π
+  long-path-has-cycle π le with path-length π | inspect path-length π
+  long-path-has-cycle π ≤′-refl | .n | PEq.[ eq ] = {!states π!}
+  long-path-has-cycle ε (≤′-step le) | ℕ.suc l | PEq.[ () ]
+  long-path-has-cycle (e ◅ π) (≤′-step le) | ℕ.suc ._ | PEq.[ PEq.refl ] =
+    ◅-Has-cycle (long-path-has-cycle π le)
 
   {-
   P-finite : ∀ l q q′ → Finite (P-setoid l q q′)

@@ -2,10 +2,12 @@ module Star where
   open import Data.Star public
 
   open import Data.Empty using (⊥; ⊥-elim)
+  open import Data.List as List using (List; []; _∷_)
   open import Data.Nat using (ℕ; zero; suc)
   open import Data.Product using (Σ-syntax; _×_; _,_)
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
+  open import Data.Vec as Vec using (Vec; []; _∷_)
 
   open import Function
 
@@ -60,6 +62,7 @@ module Star where
     -- Subsequences: xs is a sequence completely contained (contiguously) in ys
     record _⊑_ {j j′ k k′} (xs : Star T j′ k′) (ys : Star T j k)
                : Set (i L.⊔ t) where
+      constructor subpath
       field
         ls : Star T j j′
         rs : Star T k′ k
@@ -68,6 +71,7 @@ module Star where
     -- Proper subsequences xs ⊑ ys and xs ≢ ys
     record _⊏_ {j j′ k k′} (xs : Star T j′ k′) (ys : Star T j k)
                : Set (i L.⊔ t) where
+      constructor strict-subpath
       field
         ls : Star T j j′
         rs : Star T k′ k
@@ -89,6 +93,21 @@ module Star where
     fold-preorder pre eq f ε = Preorder.refl pre
     fold-preorder pre eq f (x ◅ xs) =
       Preorder.trans pre (f x) (fold-preorder pre eq f xs)
+
+    concat-vec : ∀ {j n} → Vec (Star T j j) n → Star T j j
+    concat-vec {j} = Vec.foldr {A = Star T j j} (λ _ → Star T j j) _◅◅_ ε
+
+    statesₗ : ∀ {j k} → Star T j k → List I
+    statesₗ ε = []
+    statesₗ (_◅_ {j} x xs) = j ∷ statesₗ xs
+
+    statesᵣ : ∀ {j k} → Star T j k → List I
+    statesᵣ ε = []
+    statesᵣ (_◅_ {_} {k} x xs) = k ∷ statesᵣ xs
+
+    states : ∀ {j k} → Star T j k → List I
+    states (ε {j}) = j ∷ []
+    states (_◅_ {j} x xs) = j ∷ states xs
 
   -- Induction on Starˡ looks back up to the penultimate step, rather than
   -- looking forward to after the first step.

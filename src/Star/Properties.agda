@@ -37,13 +37,6 @@ module Star.Properties {i t} {I : Set i} {T : Rel I t} where
   length-◅◅ ε ys = refl
   length-◅◅ (x ◅ xs) ys = cong suc (length-◅◅ xs ys)
 
-  --⊏⇒≢ : ∀ {j j′ k′ k} {xs : Star T j′ k′} {ys : Star T j k} →
-  --      xs ⊏ ys → _≡_ {A = ∃₂ (Star T)} (j′ , k′ , xs) (j , k , ys) → ⊥
-  --⊏⇒≢ record { ls = ε ; rs = rs ; eq = eq ; non-trivial = (inj₁ ()) } eq₁
-  --⊏⇒≢ {xs = xs} record { ls = (x ◅ ls) ; rs = rs ; eq = eq ; non-trivial = (inj₁ tt) } refl = {!!}
-  --⊏⇒≢ record { ls = ls ; rs = ε ; eq = eq ; non-trivial = (inj₂ ()) } eq₁
-  --⊏⇒≢ record { ls = ls ; rs = (x ◅ rs) ; eq = eq ; non-trivial = (inj₂ tt) } refl = {!!}
-
   ⊑-poset : Poset _ _ _
   ⊑-poset = record
     { Carrier = ∃₂ (Star T)
@@ -169,14 +162,23 @@ module Star.Properties {i t} {I : Set i} {T : Rel I t} where
           ≡⟨ sym (length-◅◅ lsyx _) ⟩
         length (lsyx ◅◅ (x ◅ lsxy ◅◅ xs ◅◅ rsxy) ◅◅ rsyx)  ∎
 
+  ⊑ε⇒≡ε : ∀ {i j k} {xs : Star T j k} → xs ⊑ ε {x = i} →
+          ∃₂ λ (ji : j ≡ i) (ki : k ≡ i) → subst₂ (Star T) ji ki xs ≡ ε
+  ⊑ε⇒≡ε {xs = ε} record { ls = ε ; rs = ε ; eq = eq } = refl , refl , refl
+  ⊑ε⇒≡ε {xs = ε} record { ls = ε ; rs = (x ◅ rs) ; eq = () }
+  ⊑ε⇒≡ε {xs = x ◅ xs} record { ls = ε ; rs = rs ; eq = () }
+  ⊑ε⇒≡ε record { ls = (x ◅ ls) ; rs = rs ; eq = () }
+
+  ◅-⊑ : ∀ {i j j′ k′ k} (x : T i j) {xs : Star T j k} {ys : Star T j′ k′} →
+        ys ⊑ xs → ys ⊑ x ◅ xs
+  ◅-⊑ x (subpath ls rs eq) = subpath (x ◅ ls) rs (PEq.cong (x ◅_) eq)
+
   -- This proof mostly rests on the subsequence equation
   --   eq : xs ⊏ ε → ls ◅◅ xs ◅◅ rs ≡ ε
   -- If ls = ε, we get xs ◅◅ rs ≡ ε, and do a similar test on xs, then rs.
   -- If ls = _ ◅ _, we get _ ◅ _ ≡ ε, which cannot hold.
   -- If ls = ε, xs = ε, and rs = ε, this is in contradiction with non-trivial.
-  ¬⊏ε :
-    ∀ {i t} {I : Set i} {T : Rel I t} {i j k}
-    (xs : Star T i j) → ¬ (xs ⊏ ε {x = k})
+  ¬⊏ε : ∀ {i j k} (xs : Star T i j) → ¬ (xs ⊏ ε {x = k})
   ¬⊏ε xs record { ls = (l ◅ ls) ; rs = rs ; eq = () ; non-trivial = _ }
   ¬⊏ε (x ◅ xs) record { ls = ε ; rs = rs ; eq = () ; non-trivial = _ }
   ¬⊏ε ε record { ls = ε ; rs = (r ◅ rs) ; eq = () ; non-trivial = _ }
@@ -184,8 +186,7 @@ module Star.Properties {i t} {I : Set i} {T : Rel I t} where
   ¬⊏ε ε record { ls = ε ; rs = ε ; eq = eq ; non-trivial = (inj₂ ()) }
 
   ⊏x◅ε⇒≡ε :
-    ∀ {i t} {I : Set i} {T : Rel I t} {j j′ k k′}
-    {xs : Star T j′ k′} {t : T j k} → xs ⊏ t ◅ ε →
+    ∀ {j j′ k k′} {xs : Star T j′ k′} {t : T j k} → xs ⊏ t ◅ ε →
     Σ[ eq ∈ k′ ≡ j′ ] subst (Star T j′) eq xs ≡ ε
 
   -- Pick off the successful case

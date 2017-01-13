@@ -18,7 +18,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.List.Any using (Any; here; there; module Membership)
   open import Data.List.NonEmpty as List⁺ using (List⁺; _∷_)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
-  open import Data.Product using (Σ; _×_; ∃; ∃₂; _,_; proj₁; proj₂)
+  open import Data.Product as Prod using (Σ; _×_; ∃; ∃₂; _,_; proj₁; proj₂)
   open import Star using (Starˡ; ε; _◅_; _◅◅_; Non-trivial; _⊑_; _⊏_)
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤)
@@ -29,6 +29,7 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Level
 
   open import Relation.Binary using (Rel; Setoid)
+  import Relation.Binary.On as On
   open import Relation.Binary.PropositionalEquality as PEq
     using (_≡_; _≢_; inspect; [_]; subst)
   open import Relation.Nullary using (Dec; yes; no)
@@ -95,6 +96,66 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
                              ; trans = PEq.trans
                              }
     }
+
+  record Has-cycle {s q} (π : Path s q) : Set Level.zero where
+    constructor has-cycle
+    field
+      {q′} : _
+      cycle : Cycle q′
+      non-trivial : Non-trivial cycle
+      subpath : cycle ⊑ π
+
+  Has-cycle-setoid : ∀ {s q} (π : Path s q) → Setoid _ _
+  Has-cycle-setoid π = record
+    { Carrier = Has-cycle π
+    ; _≈_ = λ { (has-cycle {q} c _ s) (has-cycle {q′} c′ _ s′) →
+                ∃ ((q ≡ q′ → Set _) ∋ λ { PEq.refl →
+                ∃ ((c ≡ c′ → Set _) ∋ λ { PEq.refl →
+                  s ≡ s′
+                }) }) }
+    ; isEquivalence = record
+      { refl = PEq.refl , PEq.refl , PEq.refl
+      ; sym = λ { (PEq.refl , PEq.refl , PEq.refl) →
+                  PEq.refl , PEq.refl , PEq.refl }
+      ; trans =
+        λ { (PEq.refl , PEq.refl , PEq.refl) (PEq.refl , PEq.refl , PEq.refl) →
+            PEq.refl , PEq.refl , PEq.refl }
+      }
+    }
+
+  data _has_cycles : ∀ {p n} → Path p n → ℕ → Set Level.zero where
+    has-zero-cycles :
+      ∀ {p n} {π : Path p n} → Cycle-free π → π has ℕ.zero cycles
+    has-suc-cycles :
+      ∀ {p m n l} {π′ : Path m n} {c : Cycle m} {π : Path p m} →
+      Cycle-free π′ → Cycle-free c → π has l cycles →
+      (π′ ◅◅ c ◅◅ π) has ℕ.suc l cycles
+
+  record ∃-Path {p} (P : ∀ {q q′} → Path q q′ → Set p) : Set p where
+    constructor _,,_
+    field
+      {q q′} : Fin n
+      path : Path q q′
+      proof : P path
+
+  ∃-Path-setoid : ∀ {p} → (∀ {q q′} → Path q q′ → Set p) → Setoid _ _
+  ∃-Path-setoid P = record
+    { Carrier = ∃-Path P
+    ; _≈_ = λ { (_,,_ {q} {r} π _) (_,,_ {q′} {r′} π′ _) →
+                ∃₂ λ (eqq : q ≡ q′) (eqr : r ≡ r′) →
+                PEq.subst₂ Path eqq eqr π ≡ π′ }
+    ; isEquivalence = record
+      { refl = PEq.refl , PEq.refl , PEq.refl
+      ; sym = λ { (PEq.refl , PEq.refl , PEq.refl) →
+                  PEq.refl , PEq.refl , PEq.refl }
+      ; trans = λ { (PEq.refl , PEq.refl , PEq.refl)
+                    (PEq.refl , PEq.refl , PEq.refl) →
+                    PEq.refl , PEq.refl , PEq.refl }
+      }
+    }
+
+  has_cycles-setoid : ℕ → Setoid _ _
+  has l cycles-setoid = ∃-Path-setoid (_has l cycles)
 
   Path-from : Fin n → Set _
   Path-from q = ∃ (Path q)
@@ -189,6 +250,5 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   shortest-distance q q′ = ∑∞ (Colist.map path-weight (all-paths-from-to q q′))
 
   -- Definition 8: k-closed on a graph
-  record _ClosedOnG (k : ℕ) : Set (c ⊔ ℓ) where
-    field
-      closed : ∀ {q} (π : Cycle q) → k ClosedAt (path-weight π)
+  _ClosedOnG : ℕ → Set _
+  k ClosedOnG = ∀ {q} (π : Cycle q) → k ClosedAt (path-weight π)
