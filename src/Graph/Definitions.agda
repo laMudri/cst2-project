@@ -24,6 +24,8 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Data.Unit using (⊤)
   open import Data.Vec as Vec using (Vec)
 
+  open import Finite using (Finite)
+
   open import Function
 
   open import Level

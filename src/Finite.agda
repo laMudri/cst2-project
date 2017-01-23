@@ -583,6 +583,7 @@ module Finite where
     ∈-unremove (z , zneq) (x List.∷ xs , neq All.∷ neqs) (there elem) =
       there (∈-unremove (z , zneq) (xs , neqs) elem)
 
+  {-
   repeat-unremove :
     ∀ {n} (x : Fin (suc n)) (xns : ∃ (All (x ≢_))) →
     let open Inverse (Fin-remove-List x) in
@@ -619,3 +620,4 @@ module Finite where
 
     neqs : All (x ≢_) xs
     neqs = Surjection.to ¬Any↠All¬ ⟨$⟩ ¬p
+  -}

@@ -6,10 +6,10 @@ open import Data.Fin using (Fin; zero; suc)
 
 module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
-       (Q : Queue (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
+       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
   open import Algorithm K De Q G s
   open Semiring K renaming (Carrier to C)
-  open Queue Q renaming (Carrier to Qc)
+  open QueueDiscipline Q renaming (Carrier to Qc)
   open import Semiring.Definitions K
   open import Semiring.Properties K
   open import Graph.Definitions {K = K} G
@@ -54,7 +54,7 @@ module Algorithm.Properties
   import Relation.Unary as U
 
   module Internals-jk (k : Alg-state × Helper-sets)
-                      (hi : T (has-items (vertex-queue (proj₁ k)))) where
+                      (hi : Has-items (vertex-queue (proj₁ k))) where
     open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
     open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ)
 

@@ -9,6 +9,8 @@ module Star where
   open import Data.Unit using (⊤; tt)
   open import Data.Vec as Vec using (Vec; []; _∷_)
 
+  open import Finite using (Finite)
+
   open import Function
 
   import Level as L
@@ -77,6 +79,13 @@ module Star where
         rs : Star T k′ k
         eq : ls ◅◅ xs ◅◅ rs ≡ ys
         non-trivial : Non-trivial ls ⊎ Non-trivial rs
+
+    {-
+    count-subsequences :
+      ∀ {j j′ k′ k} (xs : Star T j′ k′) (ys : Star T j k) →
+      Finite (PEq.setoid (xs ⊑ ys))
+    count-subsequences xs ys = {!!}
+    -}
 
     distinct-endpoints→non-trivial :
       ∀ {j k} → (xs : Star T j k) → j ≢ k → Non-trivial xs

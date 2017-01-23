@@ -5,12 +5,13 @@ open import Graph as G
 open import Data.Fin using (Fin; zero; suc)
 
 module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
-                 (Q : Queue (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
+                 (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
+                 where
   infix 4 _≟_ _≤?_
   _≟_ = De
 
   open Semiring K renaming (Carrier to C)
-  open Queue Q renaming (Carrier to Qc)
+  open QueueDiscipline Q renaming (Carrier to Qc)
   open import Semiring.Definitions K
   open import Semiring.Properties K
   open import Graph.Definitions {K = K} G
@@ -75,7 +76,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   (f ⟨ x ⟩≔ a) y | no _ = f y
 
   do-step :
-    (state : Alg-state) → T (has-items (vertex-queue state)) →
+    (state : Alg-state) → Has-items (vertex-queue state) →
     Alg-state
   do-step (alg-state d r S) has-items =
     let q , S = dequeue S has-items in
@@ -111,7 +112,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
-    T (has-items (vertex-queue (proj₁ state))) → Alg-state × Helper-sets
+    Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
   do-step-with-sets (alg-state d r S , helper-sets D R) has-items =
     let q , S = dequeue S has-items in
     let r′ = lookup q r in let R′ = R q in
@@ -121,7 +122,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
   do-step-with-sets′ :
     (state : Alg-state × Helper-sets) →
-    T (has-items (vertex-queue (proj₁ state))) → Alg-state × Helper-sets
+    Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
   do-step-with-sets′ (alg-state d r S , helper-sets D R) has-items =
     alg-state d₁ r₂ S₂ , helper-sets D₁ R₂
     module DoStepWithSets′ where
@@ -150,7 +151,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
                S₁ relaxed-vertices
 
   do-step′ :
-    (state : Alg-state) → T (has-items (vertex-queue state)) → Alg-state
+    (state : Alg-state) → Has-items (vertex-queue state) → Alg-state
   do-step′ (alg-state d r S) has-items =
     alg-state d₁ r₂ S₂
     module DoStep′ where
@@ -186,26 +187,23 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   gsssd-loop-computation :
     (i : Alg-state) → Computation _↝_ i
   gsssd-loop-computation (alg-state d r S)
-    with has-items S | inspect has-items S
-  gsssd-loop-computation (alg-state d r S) | false | [ eq ] =
-    (λ { j (hi , _) → PEq.subst T eq hi }) ⇏
-  gsssd-loop-computation (alg-state d r S) | true | [ eq ] =
-    let hi = PEq.subst T (PEq.sym eq) tt in
+    with count S | inspect count S
+  gsssd-loop-computation (alg-state d r S) | ℕ.zero | [ eq ] =
+    (λ { j (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) }) ⇏
+  gsssd-loop-computation (alg-state d r S) | ℕ.suc c | [ eq ] =
+    let hi = PEq.subst Is-suc (PEq.sym eq) is-suc in
     let j = do-step′ (alg-state d r S) hi in
     (hi , PEq.refl) ⇒ ♯ (gsssd-loop-computation j)
 
   -- Algorithm expressed with countdown argument
   gsssd-loop : ℕ → (d r : Vec C n) → Qc → Vec C n
   gsssd-loop zero d r S = d  -- shouldn't be used
-  gsssd-loop (suc countdown) d r S =
-    case (∃ λ x → Reveal has-items · S is x) ∋
-         (has-items S , inspect has-items S) of λ
-    { (false , i) → d [ s ]≔ 1#
-    ; (true , [ eq ]) →
-      let hi = PEq.subst T (PEq.sym eq) tt in
-      let alg-state d r S = do-step (alg-state d r S) hi in
-      gsssd-loop countdown d r S
-    }
+  gsssd-loop (suc countdown) d r S with count S | inspect count S
+  gsssd-loop (ℕ.suc countdown) d r S | ℕ.zero | eq = d [ s ]≔ 1#
+  gsssd-loop (ℕ.suc countdown) d r S | ℕ.suc c | [ eq ] =
+    let hi = PEq.subst Is-suc (PEq.sym eq) is-suc in
+    let alg-state d r S = do-step (alg-state d r S) hi in
+    gsssd-loop countdown d r S
 
   initial-state : Alg-state
   initial-state = alg-state d d S
