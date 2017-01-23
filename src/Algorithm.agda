@@ -75,55 +75,10 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   _⟨_⟩≔_ {A = A} f x a y | yes eq = PEq.subst A eq a
   (f ⟨ x ⟩≔ a) y | no _ = f y
 
-  do-step :
-    (state : Alg-state) → Has-items (vertex-queue state) →
-    Alg-state
-  do-step (alg-state d r S) has-items =
-    let q , S = dequeue S has-items in
-    let r′ = lookup q r in
-    let r = r [ q ]≔ 0# in
-    let d , r , S =
-         foldl (λ _ → Vec C n × Vec C n × Qc)
-               (λ { (d , r , S) q′ →
-               case lookup q′ d ≤? r′ * G q q′ of λ
-               { (yes p) → d , r , S
-               ; (no ¬p) →
-                 let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
-                 let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
-                 d , r , (if contains q′ S then S else enqueue q′ S)
-               } })
-               (d , r , S) (allFin n)
-    in
-    alg-state d r S
-
-  do-inner-step :
-    (q : Fin n) → C → List (Path s q) →
-    Alg-state × Helper-sets → Fin n → Alg-state × Helper-sets
-  do-inner-step q r′ R′ (alg-state d r S , helper-sets D R) q′
-    with lookup q′ d ≤? r′ * G q q′
-  ... | yes p = alg-state d r S , helper-sets D R
-  ... | no ¬p =
-    let d = d [ q′ ]≔ (lookup q′ d + r′ * G q q′) in
-    let D = D ⟨ q′ ⟩≔ (map (λ π → edge ◅ π) R′ ++ D q′) in
-    let r = r [ q′ ]≔ (lookup q′ r + r′ * G q q′) in
-    let R = R ⟨ q′ ⟩≔ (map (λ π → edge ◅ π) R′ ++ R q′) in
-    let S = if contains q′ S then S else enqueue q′ S in
-    alg-state d r S , helper-sets D R
-
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
     Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
   do-step-with-sets (alg-state d r S , helper-sets D R) has-items =
-    let q , S = dequeue S has-items in
-    let r′ = lookup q r in let R′ = R q in
-    let r = r [ q ]≔ 0# in let R = R ⟨ q ⟩≔ [] in
-    foldl (λ _ → Alg-state × Helper-sets) (do-inner-step q r′ R′)
-          (alg-state d r S , helper-sets D R) (allFin n)
-
-  do-step-with-sets′ :
-    (state : Alg-state × Helper-sets) →
-    Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
-  do-step-with-sets′ (alg-state d r S , helper-sets D R) has-items =
     alg-state d₁ r₂ S₂ , helper-sets D₁ R₂
     module DoStepWithSets′ where
     qS₁ = dequeue S has-items
@@ -150,9 +105,9 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     S₂ = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
                S₁ relaxed-vertices
 
-  do-step′ :
+  do-step :
     (state : Alg-state) → Has-items (vertex-queue state) → Alg-state
-  do-step′ (alg-state d r S) has-items =
+  do-step (alg-state d r S) has-items =
     alg-state d₁ r₂ S₂
     module DoStep′ where
     qS₁ = dequeue S has-items
@@ -174,10 +129,10 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
                S₁ relaxed-vertices
 
   _↝_ : Rel Alg-state _
-  i ↝ j = ∃ λ hi → do-step′ i hi ≡ j
+  i ↝ j = ∃ λ hi → do-step i hi ≡ j
 
   _↝S_ : Rel (Alg-state × Helper-sets) _
-  i ↝S j = ∃ λ hi → do-step-with-sets′ i hi ≡ j
+  i ↝S j = ∃ λ hi → do-step-with-sets i hi ≡ j
 
   -- Algorithm expressed as a potentially infinite computation path.
   -- We have only one reduction rule (see _↝_):
@@ -192,7 +147,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     (λ { j (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) }) ⇏
   gsssd-loop-computation (alg-state d r S) | ℕ.suc c | [ eq ] =
     let hi = PEq.subst Is-suc (PEq.sym eq) is-suc in
-    let j = do-step′ (alg-state d r S) hi in
+    let j = do-step (alg-state d r S) hi in
     (hi , PEq.refl) ⇒ ♯ (gsssd-loop-computation j)
 
   -- Algorithm expressed with countdown argument
