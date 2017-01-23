@@ -17,6 +17,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
   open import Coinduction
 
+  open import Computation
+
   open import Data.Bool using (Bool; false; true; T; if_then_else_; not)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin using (Fin; zero; suc)
@@ -72,29 +74,6 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   _⟨_⟩≔_ {A = A} f x a y | yes eq = PEq.subst A eq a
   (f ⟨ x ⟩≔ a) y | no _ = f y
 
-  infixr 5 _⇒_ _⇏
-  data Computation {st ℓ} {St : Set st} (R : Rel St ℓ) : St → Set (st ⊔ ℓ) where
-    _⇏ : ∀ {i} → (∀ j → ¬ R i j) → Computation R i
-    _⇒_ : ∀ {i j} → R i j → ∞ (Computation R j) → Computation R i
-
-  data Terminates {st ℓ} {St : Set st} {R : Rel St ℓ}
-                  : {i : St} → Computation R i → Set (st ⊔ ℓ) where
-    now : ∀ {i} → (t : ∀ j → ¬ R i j) → Terminates {i = i} (t ⇏)
-    later : ∀ {i j} (r : R i j) {c : Computation R j} →
-            Terminates c → Terminates (r ⇒ ♯ c)
-
-  Terminates-result :
-    ∀ {st ℓ} {St : Set st} {R : Rel St ℓ} {i : St}
-    {c : Computation R i} → Terminates c → St
-  Terminates-result (now {i} t) = i
-  Terminates-result (later r t) = Terminates-result t
-
-  normalize :
-    ∀ {st ℓ} {St : Set st} {R : Rel St ℓ}
-    {cf : ∀ i → Computation R i} → (∀ i → Terminates (cf i)) →
-    St → St
-  normalize p i = Terminates-result (p i)
-
   do-step :
     (state : Alg-state) → T (has-items (vertex-queue state)) →
     Alg-state
@@ -115,14 +94,6 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
                (d , r , S) (allFin n)
     in
     alg-state d r S
-
-  --extract-vertex :
-  --  (state : Alg-state) → Helper-sets →
-  --  let open Alg-state state in
-  --  T (has-items vertex-queue) → Alg-state × Helper-sets
-  --extract-vertex (alg-state d r S) (helper-sets D R) has-items =
-  --  let q , S = dequeue S has-items in
-  --  alg-state d r S , helper-sets D R
 
   do-inner-step :
     (q : Fin n) → C → List (Path s q) →
@@ -178,8 +149,31 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     S₂ = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
                S₁ relaxed-vertices
 
+  do-step′ :
+    (state : Alg-state) → T (has-items (vertex-queue state)) → Alg-state
+  do-step′ (alg-state d r S) has-items =
+    alg-state d₁ r₂ S₂
+    module DoStep′ where
+    qS₁ = dequeue S has-items
+    q = proj₁ qS₁ ; S₁ = proj₂ qS₁
+    r′ = lookup q r
+    r₁ = r [ q ]≔ 0#
+    conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
+    relaxed-vertices = filter conditon (toList (allFin n))
+
+    new-weights : Vec C n → Vec C n
+    new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
+      { (yes p) → r′ * G q q′ + lookup q′ w
+      ; (no ¬p) → lookup q′ w
+      })
+
+    d₁ = new-weights d
+    r₂ = new-weights r₁
+    S₂ = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
+               S₁ relaxed-vertices
+
   _↝_ : Rel Alg-state _
-  i ↝ j = ∃ λ hi → do-step i hi ≡ j
+  i ↝ j = ∃ λ hi → do-step′ i hi ≡ j
 
   _↝S_ : Rel (Alg-state × Helper-sets) _
   i ↝S j = ∃ λ hi → do-step-with-sets′ i hi ≡ j
@@ -197,7 +191,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     (λ { j (hi , _) → PEq.subst T eq hi }) ⇏
   gsssd-loop-computation (alg-state d r S) | true | [ eq ] =
     let hi = PEq.subst T (PEq.sym eq) tt in
-    let j = do-step (alg-state d r S) hi in
+    let j = do-step′ (alg-state d r S) hi in
     (hi , PEq.refl) ⇒ ♯ (gsssd-loop-computation j)
 
   -- Algorithm expressed with countdown argument
