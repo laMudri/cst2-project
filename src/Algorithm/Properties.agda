@@ -56,19 +56,19 @@ module Algorithm.Properties
   module Internals-jk (k : Alg-state × Helper-sets)
                       (hi : Has-items (vertex-queue (proj₁ k))) where
     open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
-    open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ)
+    open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ; N to Nₖ)
 
-    open DoStepWithSets′ dₖ rₖ Sₖ Dₖ Rₖ hi public
+    open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Nₖ hi public
       renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
-                             ; D₁ to Dⱼ; R₂ to Rⱼ)
+                             ; D₁ to Dⱼ; R₂ to Rⱼ; N₁ to Nⱼ)
       using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
             ; new-weights; new-sets)
 
   module Internals-jk-from-↝ {j k} (r : k ↝S j) = Internals-jk k (proj₁ r)
 
   module Internals-ij = Internals-jk
-    renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ
-             ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ)
+    renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Nⱼ to Nᵢ
+             ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ; Nₖ to Nⱼ)
 
   D-grows-step :
     ∀ {i j} (r : j ↝S i) →
@@ -87,7 +87,7 @@ module Algorithm.Properties
             let open Helper-sets (proj₂ i) renaming (D to Dᵢ) in
             let open Helper-sets (proj₂ j) renaming (D to Dⱼ) in
             ∀ {q} → Dⱼ q ⊆ Dᵢ q
-  D-grows {_ , helper-sets Dᵢ _} ε {q} = id
+  D-grows {_ , helper-sets Dᵢ _ _} ε {q} = id
   D-grows (r@(hi , PEq.refl) ◅ rs) {q} =
     Pre.trans (D-grows rs {q}) (D-grows-step r {q})
     where module Pre = Preorder (⊆-preorder (Path s q))
@@ -221,7 +221,7 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    ↝.Any (λ { {j} {alg-state d r S , helper-sets D R} (hi , eq) →
+    ↝.Any (λ { {j} {alg-state d r S , helper-sets D R N} (hi , eq) →
              m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
     ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
@@ -277,7 +277,7 @@ module Algorithm.Properties
   lemma-5 _ ε m q π e (there ()) π∈R | yes p
   lemma-5 _ ε m q π e () π∈R | no ¬p
 
-  lemma-5 i@.(do-step-with-sets′ j hi) (_◅_ {j = j} r@(hi , PEq.refl) rs) m q π e eπ∈Dᵢq eπ∈eRᵢm =
+  lemma-5 i@.(do-step-with-sets j hi) (_◅_ {j = j} r@(hi , PEq.refl) rs) m q π e eπ∈Dᵢq eπ∈eRᵢm =
     let j′ , k′ , r′ , elem , pr′ = ↝.find stuff in
     {!take-after-∈ elem!}
     where
@@ -333,7 +333,7 @@ module Algorithm.Properties
   lemma-7 = {!!}
 
   lemma-8 :
-    ∀ {j} → Reachable-with-sets j → let _ , helper-sets Dⱼ _ = j in
+    ∀ {j} → Reachable-with-sets j → let _ , helper-sets Dⱼ _ _ = j in
     ∀ {m q} (πb : Path s m) (πs : Vec (Path m m) n) (πe : Path m q)
     (c : Cycle m) →
     let path-with-cycles = πe ◅◅ concat-vec (intersperse⁺ c πs) ◅◅ πb in

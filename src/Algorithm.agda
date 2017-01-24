@@ -62,10 +62,13 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   Path-family : Set _
   Path-family = (q : Fin n) → List (Path s q)
 
+  -- D and R are defined in the paper.
+  -- N q is the number of times the vertex q has been dequeued
   record Helper-sets : Set (c ⊔ ℓ′) where
     constructor helper-sets
     field
       D R : Path-family
+      N : Fin n → ℕ
 
   -- Like vector update notation _[_]≔_, but for dependent functions from Fin.
   _⟨_⟩≔_ :
@@ -75,14 +78,22 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   _⟨_⟩≔_ {A = A} f x a y | yes eq = PEq.subst A eq a
   (f ⟨ x ⟩≔ a) y | no _ = f y
 
+  _⟨_⟩&_ :
+    ∀ {a n} {A : Fin n → Set a} →
+    ((x : Fin n) → A x) → (y : Fin n) → (A y → A y) → ((x : Fin n) → A x)
+  (f ⟨ x ⟩& g) y with x F≟ y
+  (f ⟨ x ⟩& g) .x | yes PEq.refl = g (f x)
+  (f ⟨ x ⟩& g) y | no _ = f y
+
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
     Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
-  do-step-with-sets (alg-state d r S , helper-sets D R) has-items =
-    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂
-    module DoStepWithSets′ where
+  do-step-with-sets (alg-state d r S , helper-sets D R N) has-items =
+    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂ N₁
+    module DoStepWithSets where
     qS₁ = dequeue S has-items
     q = proj₁ qS₁ ; S₁ = proj₂ qS₁
+    N₁ = N ⟨ q ⟩& ℕ.suc
     r′ = lookup q r ; R′ = R q
     r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
@@ -109,7 +120,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     (state : Alg-state) → Has-items (vertex-queue state) → Alg-state
   do-step (alg-state d r S) has-items =
     alg-state d₁ r₂ S₂
-    module DoStep′ where
+    module DoStep where
     qS₁ = dequeue S has-items
     q = proj₁ qS₁ ; S₁ = proj₂ qS₁
     r′ = lookup q r
@@ -177,12 +188,15 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     S = enqueue s empty
 
   initial-state-with-sets : Alg-state × Helper-sets
-  initial-state-with-sets = initial-state , helper-sets D D
+  initial-state-with-sets = initial-state , helper-sets D D N
     where
     D : (q : Fin n) → List (Path s q)
     D q with s F≟ q
     ... | yes eq = PEq.subst (Path s) eq ε ∷ []
     ... | no _ = []
+
+    N : Fin n → ℕ
+    N _ = 0
 
   Reachable : Alg-state → Set _
   Reachable = Starˡ _↝_ initial-state
