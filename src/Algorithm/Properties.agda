@@ -70,6 +70,8 @@ module Algorithm.Properties
     renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Nⱼ to Nᵢ
              ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ; Nₖ to Nⱼ)
 
+  module Internals-ij-from-↝ {i j} (r : j ↝S i) = Internals-ij j (proj₁ r)
+
   D-grows-step :
     ∀ {i j} (r : j ↝S i) →
     let open Internals-ij j (proj₁ r) in
@@ -266,81 +268,6 @@ module Algorithm.Properties
     go π∈Rq | no _ | no ¬p = R⊆D rs π∈Rq
       -- There was no change to either (R q) or (D q)
 
-  lemma-5 :
-    ∀ i → Reachable-with-sets i →
-    let open Helper-sets (proj₂ i) in
-    ∀ m q π (e : Edge m q) → let eπ = e ◅ π in
-    eπ ∈ D q → eπ ∈ map (λ ρ → e ◅ ρ) (R m) → ⊥
-
-  lemma-5 .initial-state-with-sets ε m q π e π∈D π∈R with s F≟ q
-  lemma-5 _ ε m .s π e (here ()) π∈R | yes PEq.refl
-  lemma-5 _ ε m q π e (there ()) π∈R | yes p
-  lemma-5 _ ε m q π e () π∈R | no ¬p
-
-  lemma-5 i@.(do-step-with-sets j hi) (_◅_ {j = j} r@(hi , PEq.refl) rs) m q π e eπ∈Dᵢq eπ∈eRᵢm =
-    let j′ , k′ , r′ , elem , pr′ = ↝.find stuff in
-    {!take-after-∈ elem!}
-    where
-    open Internals-ij j hi
-
-    π∈Rᵢm : π ∈ Rᵢ m
-    π∈Rᵢm = take-the-edge-off eπ∈eRᵢm
-
-    ih = lemma-5 j rs q
-    stuff = path-in-D-gives-path-in-R′ (r ◅ rs) π e eπ∈Dᵢq
-    more-stuff = path-in-D-gives-path-in-R′ rs π e {!D-grows r q ?!}
-
-  lemma-6-step :
-    ∀ i → Reachable-with-sets i →
-    let open Helper-sets (proj₂ i) in
-    ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q → π ∈ D m
-  lemma-6-step i rs {m} {q} π e e◅π∈Dq =
-    D-grows {i} {k} (↝.take-before-∈ r∈rs ◅◅ r ◅ ε) π∈Dₖm
-    where
-    stuff = ↝.find (path-in-D-gives-path-in-R′ rs π e e◅π∈Dq)
-    j = proj₁ stuff
-    k = proj₁ (proj₂ stuff)
-    r = proj₁ (proj₂ (proj₂ stuff))
-    r∈rs = proj₁ (proj₂ (proj₂ (proj₂ stuff)))
-    m≡dequeued = proj₁ (proj₂ (proj₂ (proj₂ (proj₂ stuff))))
-    π∈Rₖm = proj₂ (proj₂ (proj₂ (proj₂ (proj₂ stuff))))
-
-    π∈Dₖm = R⊆D (↝.take-after-∈ r∈rs) π∈Rₖm
-
-    open Internals-jk k (proj₁ r)
-
-  lemma-6 :
-    ∀ i → Reachable-with-sets i →
-    let open Helper-sets (proj₂ i) in
-    ∀ {m q} (π₁ : Path s m) (π₂ : Path m q) → (π₂ ◅◅ π₁) ∈ D q → π₁ ∈ D m
-  lemma-6 i rs π₁ ε π∈Dq = π∈Dq
-  lemma-6 i rs π₁ (e ◅ π₂) e◅π∈Dq =
-    let π∈Dq′ = lemma-6-step i rs (π₂ ◅◅ π₁) e e◅π∈Dq in
-    lemma-6 i rs π₁ π₂ π∈Dq′
-
   Relaxed : ∀ {j k} (r : k ↝S j) {pe ne} → Edge pe ne → Set _
   Relaxed r {pe} {ne} e = pe ≡ dequeued × ne ∈ relaxed-vertices
     where open Internals-jk-from-↝ r
-
-  lemma-7 :
-    ∀ {i j k l} →
-    Reachable-with-sets l → Starˡ _↝S_ l k → (r : k ↝S j) → Starˡ _↝S_ j i →
-    let alg-state dₗ _ _ , _ = l in
-    let alg-state dᵢ _ _ , _ = i in
-    ∀ {pe ne} (e : Edge pe ne) (x : C) → Relaxed r e →
-    lookup pe dₗ ≈ lookup pe dₗ + x →
-    lookup ne dᵢ ≈ lookup ne dᵢ + (x * edge-weight e)
-  lemma-7 = {!!}
-
-  lemma-8 :
-    ∀ {j} → Reachable-with-sets j → let _ , helper-sets Dⱼ _ _ = j in
-    ∀ {m q} (πb : Path s m) (πs : Vec (Path m m) n) (πe : Path m q)
-    (c : Cycle m) →
-    let path-with-cycles = πe ◅◅ concat-vec (intersperse⁺ c πs) ◅◅ πb in
-    let path-without-cycles = πe ◅◅ concat-vec πs ◅◅ πb in
-    path-with-cycles ∈ Dⱼ q →
-    path-without-cycles ∈ Dⱼ q
-      ⊎ ∃ λ x → ∀ {i} → Starˡ _↝S_ j i →
-        let alg-state dᵢ _ _ , _ = i in
-        lookup q dᵢ ≈ lookup q dᵢ + path-weight path-without-cycles + x
-  lemma-8 = {!!}
