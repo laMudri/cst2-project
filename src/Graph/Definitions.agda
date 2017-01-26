@@ -74,65 +74,6 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     ∀ {ql qr} (π : Path ql qr) (nt : Non-trivial π)
               (sub : π ⊏ ρ) (eq : ql ≡ qr) → ⊥
 
-  -- Paths with only a fixed number of cycles. This fits the “at most k”
-  -- reading, because we can add zero-length cycles without problem.
-  Path-with-l-cycles : ℕ → Rel (Fin n) _
-  Path-with-l-cycles zero q q′ = Σ (Path q q′) Cycle-free
-  Path-with-l-cycles (suc l) q q″ =
-    ∃ λ q′ → Σ (Path q q′) Cycle-free
-           × Σ (Cycle q′) Cycle-free
-           × Path-with-l-cycles l q′ q″
-
-  Path-with-l-cycles→Path : ∀ {l q q′} → Path-with-l-cycles l q q′ → Path q q′
-  Path-with-l-cycles→Path {zero} (π , _) = π
-  Path-with-l-cycles→Path {suc l} (_ , (π , _) , (c , _) , p) =
-    Path-with-l-cycles→Path {l} p ◅◅ c ◅◅ π
-
-  -- Ignore the Cycle-free proofs for the sake of path equality
-  P-setoid : ℕ → Fin n → Fin n → Setoid _ _
-  P-setoid l q q′ = record
-    { Carrier = Path-with-l-cycles l q q′
-    ; _≈_ = _≡_ on Path-with-l-cycles→Path {l} {q} {q′}
-    ; isEquivalence = record { refl = PEq.refl
-                             ; sym = PEq.sym
-                             ; trans = PEq.trans
-                             }
-    }
-
-  record Has-cycle {s q} (π : Path s q) : Set Level.zero where
-    constructor has-cycle
-    field
-      {q′} : _
-      cycle : Cycle q′
-      non-trivial : Non-trivial cycle
-      subpath : cycle ⊑ π
-
-  Has-cycle-setoid : ∀ {s q} (π : Path s q) → Setoid _ _
-  Has-cycle-setoid π = record
-    { Carrier = Has-cycle π
-    ; _≈_ = λ { (has-cycle {q} c _ s) (has-cycle {q′} c′ _ s′) →
-                ∃ ((q ≡ q′ → Set _) ∋ λ { PEq.refl →
-                ∃ ((c ≡ c′ → Set _) ∋ λ { PEq.refl →
-                  s ≡ s′
-                }) }) }
-    ; isEquivalence = record
-      { refl = PEq.refl , PEq.refl , PEq.refl
-      ; sym = λ { (PEq.refl , PEq.refl , PEq.refl) →
-                  PEq.refl , PEq.refl , PEq.refl }
-      ; trans =
-        λ { (PEq.refl , PEq.refl , PEq.refl) (PEq.refl , PEq.refl , PEq.refl) →
-            PEq.refl , PEq.refl , PEq.refl }
-      }
-    }
-
-  data _has_cycles : ∀ {p n} → Path p n → ℕ → Set Level.zero where
-    has-zero-cycles :
-      ∀ {p n} {π : Path p n} → Cycle-free π → π has ℕ.zero cycles
-    has-suc-cycles :
-      ∀ {p m n l} {π′ : Path m n} {c : Cycle m} {π : Path p m} →
-      Cycle-free π′ → Cycle-free c → π has l cycles →
-      (π′ ◅◅ c ◅◅ π) has ℕ.suc l cycles
-
   record ∃-Path {p} (P : ∀ {q q′} → Path q q′ → Set p) : Set p where
     constructor _,,_
     field
@@ -156,18 +97,11 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
       }
     }
 
-  has_cycles-setoid : ℕ → Setoid _ _
-  has l cycles-setoid = ∃-Path-setoid (_has l cycles)
-
   Path-from : Fin n → Set _
   Path-from q = ∃ (Path q)
 
   Path-to : Fin n → Set _
   Path-to q′ = ∃ λ q → Path q q′
-
-  --_▻f_ :
-  --  ∀ {q q″ : Fin n} (πf : Path-from q) → Edge (proj₁ πf) q″ → Path-from q
-  --_▻f_ {q″ = q″} (q′ , π) e = q″ , π ▻f e
 
   path-length : ∀ {q q′} → Path q q′ → ℕ
   path-length ε = ℕ.zero

@@ -15,12 +15,14 @@ module Star.Properties {i t} {I : Set i} {T : Rel I t} where
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
 
+  open import Function
+
   import Level as L
 
   open import Relation.Binary using (Poset; IsPartialOrder; DecTotalOrder)
   open import Relation.Binary.PropositionalEquality as PEq
-    using (_≡_; _≢_; refl; sym; subst; subst₂; cong; module ≡-Reasoning)
-  open import Relation.Nullary using (¬_)
+    using (_≡_; _≢_; refl; sym; subst; subst₂; cong; cong₂; module ≡-Reasoning)
+  open import Relation.Nullary using (¬_; Dec; yes; no)
 
   ε⊑ : ∀ {j k m} {xs : Star T j k} → m ∈ xs → ε {x = m} ⊑ xs
   ε⊑ {m = j} {xs} (here refl) = record { ls = ε ; rs = xs ; eq = refl }
@@ -169,6 +171,10 @@ module Star.Properties {i t} {I : Set i} {T : Rel I t} where
   ⊑ε⇒≡ε {xs = x ◅ xs} record { ls = ε ; rs = rs ; eq = () }
   ⊑ε⇒≡ε record { ls = (x ◅ ls) ; rs = rs ; eq = () }
 
+  ¬◅⊑ε : ∀ {i j k l} {x : T i j} {xs : Star T j k} → x ◅ xs ⊑ ε {x = l} → ⊥
+  ¬◅⊑ε sub with ⊑ε⇒≡ε sub
+  ¬◅⊑ε sub | refl , refl , ()
+
   ◅-⊑ : ∀ {i j j′ k′ k} (x : T i j) {xs : Star T j k} {ys : Star T j′ k′} →
         ys ⊑ xs → ys ⊑ x ◅ xs
   ◅-⊑ x (subpath ls rs eq) = subpath (x ◅ ls) rs (PEq.cong (x ◅_) eq)
@@ -233,3 +239,30 @@ module Star.Properties {i t} {I : Set i} {T : Rel I t} where
   ⊏x◅ε⇒≡ε {xs = x ◅ xs}
           record { ls = (l ◅ ls) ; rs = rs ; eq = eq ; non-trivial = nt }
           | refl , _ , eq′ | refl , _ , ()
+
+  prefix-ε : ∀ {j k} (ys : Star T j k) → Prefix ε ys
+  prefix-ε ys = prefix ys refl
+
+  Prefix⇒⊑ : ∀ {j k k′} {xs : Star T j k′} {ys : Star T j k} →
+             Prefix xs ys → xs ⊑ ys
+  Prefix⇒⊑ (prefix rs eq) = subpath ε rs eq
+
+  Prefix? : ∀ {j k k′} → (∀ {j k k′} (x : T j k) (y : T j k′) →
+                          Dec (∃ λ (keq : k ≡ k′) → subst (T j) keq x ≡ y)) →
+            (xs : Star T j k′) (ys : Star T j k) → Dec (Prefix xs ys)
+  Prefix? _≟_ ε ys = yes (prefix-ε ys)
+  Prefix? _≟_ (x ◅ xs) ε = no (¬◅⊑ε ∘ Prefix⇒⊑)
+  Prefix? _≟_ (x ◅ xs) (y ◅ ys) with x ≟ y
+  Prefix? _≟_ (x ◅ xs) (y ◅ ys) | yes (refl , xy) with Prefix? _≟_ xs ys
+  Prefix? _≟_ (x ◅ xs) (y ◅ ys) | yes (refl , xy) | yes (prefix rs eq) =
+    yes (prefix rs (cong₂ _◅_ xy eq))
+  Prefix? _≟_ (x ◅ xs) (y ◅ ys) | yes (refl , xy) | no ¬p = no nope
+    where
+    nope : ¬ Prefix (x ◅ xs) (y ◅ ys)
+    nope (prefix rs eq) with ◅-injective′ eq
+    ... | refl , _ , xsys = ¬p (prefix rs xsys)
+  Prefix? _≟_ (x ◅ xs) (y ◅ ys) | no ¬p = no nope
+    where
+    nope : ¬ Prefix (x ◅ xs) (y ◅ ys)
+    nope (prefix rs eq) with ◅-injective′ eq
+    ... | refl , xy , _ = ¬p (refl , xy)

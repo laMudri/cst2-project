@@ -80,6 +80,13 @@ module Star where
         eq : ls ◅◅ xs ◅◅ rs ≡ ys
         non-trivial : Non-trivial ls ⊎ Non-trivial rs
 
+    record Prefix {j k k′} (xs : Star T j k′) (ys : Star T j k)
+                  : Set (i L.⊔ t) where
+      constructor prefix
+      field
+        rs : Star T k′ k
+        eq : xs ◅◅ rs ≡ ys
+
     {-
     count-subsequences :
       ∀ {j j′ k′ k} (xs : Star T j′ k′) (ys : Star T j k) →
