@@ -21,6 +21,9 @@ module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   open import Function.Equality using (_⟨$⟩_; cong)
   open import Function.Inverse as I using (Inverse; _↔_)
 
+  open import Level as L using ()
+
+  open import Relation.Binary using (Setoid)
   open import Relation.Binary.PropositionalEquality as PEq
     using (_≡_; _≢_; →-to-⟶; module ≡-Reasoning)
   open import Relation.Nullary using (¬_; Dec; yes; no)
@@ -35,9 +38,11 @@ module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
       occurs : Cycle c occurs m times-in π
       most : ∀ {q′} (c′ : Cycle q′) →
              ∃ λ m′ → m′ ≤ m × Cycle c′ occurs m′ times-in π
-  --Most-occurring-cycle : ∀ {p n q} → Cycle q → Path p n → Set
-  --Most-occurring-cycle c π = ∃ λ n → Cycle c occurs n times-in π × (∀ {q′} (c′ : Cycle q′) → ∃ λ n′ → n′ ≤ n × Cycle c′ occurs n′ times-in π)
 
+  postulate P : ℕ → Fin n → Setoid L.zero L.zero
+  --P k q = {!!}
+
+  {-
   cycle-occurrences : ∀ {p n q} (c : Cycle q) → c ≢ ε → (π : Path p n) →
                       ∃ λ n → Cycle c occurs n times-in π
   {-
@@ -95,3 +100,4 @@ module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   cycle-occurrences {p} {q} {.q} c neq π | yes PEq.refl | no ¬pre = {!!}
   cycle-occurrences {.p} {p} {q} c neq ε | no ¬qn = {!!}
   cycle-occurrences {p} {n} {q} c neq (x ◅ π) | no ¬qn = {!cycle-occurrences c neq π!}
+  -}

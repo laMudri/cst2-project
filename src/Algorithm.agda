@@ -63,12 +63,13 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   Path-family = (q : Fin n) → List (Path s q)
 
   -- D and R are defined in the paper.
-  -- N q is the number of times the vertex q has been dequeued
+  -- I q is the number of times the vertex q has been inserted into the queue.
+  -- E q is the number of times the vertex q has been extracted from the queue.
   record Helper-sets : Set (c ⊔ ℓ′) where
     constructor helper-sets
     field
       D R : Path-family
-      N : Fin n → ℕ
+      I E : Fin n → ℕ
 
   -- Like vector update notation _[_]≔_, but for dependent functions from Fin.
   _⟨_⟩≔_ :
@@ -88,16 +89,17 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
     Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
-  do-step-with-sets (alg-state d r S , helper-sets D R N) has-items =
-    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂ N₁
+  do-step-with-sets (alg-state d r S , helper-sets D R I E) has-items =
+    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂ I₁ E₁
     module DoStepWithSets where
     qS₁ = dequeue S has-items
     q = proj₁ qS₁ ; S₁ = proj₂ qS₁
-    N₁ = N ⟨ q ⟩& ℕ.suc
+    E₁ = E ⟨ q ⟩& ℕ.suc
     r′ = lookup q r ; R′ = R q
     r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
     relaxed-vertices = filter conditon (toList (allFin n))
+    I₁ = λ q′ → if conditon q′ then ℕ.suc (I q′) else I q′
 
     new-weights : Vec C n → Vec C n
     new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
@@ -150,16 +152,25 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   --  hi : j has a queue with items
   -- -------------------------------
   --        j ⇒ do-step hi j
-  gsssd-loop-computation :
-    (i : Alg-state) → Computation _↝_ i
-  gsssd-loop-computation (alg-state d r S)
-    with count S | inspect count S
+  gsssd-loop-computation : (i : Alg-state) → Computation _↝_ i
+  gsssd-loop-computation (alg-state d r S) with count S | inspect count S
   gsssd-loop-computation (alg-state d r S) | ℕ.zero | [ eq ] =
     (λ { j (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) }) ⇏
   gsssd-loop-computation (alg-state d r S) | ℕ.suc c | [ eq ] =
     let hi = PEq.subst Is-suc (PEq.sym eq) is-suc in
     let j = do-step (alg-state d r S) hi in
     (hi , PEq.refl) ⇒ ♯ (gsssd-loop-computation j)
+
+  gsssd-loop-computation-with-sets :
+    (i : Alg-state × Helper-sets) → Computation _↝S_ i
+  gsssd-loop-computation-with-sets (alg-state d r S , h)
+    with count S | inspect count S
+  gsssd-loop-computation-with-sets (alg-state d r S , h) | ℕ.zero | [ eq ] =
+    (λ { j (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) }) ⇏
+  gsssd-loop-computation-with-sets (alg-state d r S , h) | ℕ.suc c | [ eq ] =
+    let hi = PEq.subst Is-suc (PEq.sym eq) is-suc in
+    let j = do-step-with-sets (alg-state d r S , h) hi in
+    (hi , PEq.refl) ⇒ ♯ (gsssd-loop-computation-with-sets j)
 
   -- Algorithm expressed with countdown argument
   gsssd-loop : ℕ → (d r : Vec C n) → Qc → Vec C n
@@ -188,15 +199,15 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     S = enqueue s empty
 
   initial-state-with-sets : Alg-state × Helper-sets
-  initial-state-with-sets = initial-state , helper-sets D D N
+  initial-state-with-sets = initial-state , helper-sets D D I I
     where
     D : (q : Fin n) → List (Path s q)
     D q with s F≟ q
     ... | yes eq = PEq.subst (Path s) eq ε ∷ []
     ... | no _ = []
 
-    N : Fin n → ℕ
-    N _ = 0
+    I : Fin n → ℕ
+    I _ = 0
 
   Reachable : Alg-state → Set _
   Reachable = Starˡ _↝_ initial-state
@@ -220,3 +231,10 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
     S : Qc
     S = enqueue s empty
+
+  gsssd-computation : Computation _↝_ initial-state
+  gsssd-computation = gsssd-loop-computation initial-state
+
+  gsssd-computation-with-sets : Computation _↝S_ initial-state-with-sets
+  gsssd-computation-with-sets =
+    gsssd-loop-computation-with-sets initial-state-with-sets
