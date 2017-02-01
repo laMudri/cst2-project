@@ -26,6 +26,7 @@ module Algorithm.Theorem1
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Product using (∃; _×_; _,_; proj₁; proj₂)
   open import Star using (Star; Starˡ; ε; _◅_)
+  open import Vec using (Vec; lookup)
 
   open import Function.Surjection using (Surjection; _↠_)
 
@@ -60,3 +61,10 @@ module Algorithm.Theorem1
 
   terminates : Terminates gsssd-computation-with-sets
   terminates = terminates-from ε
+
+  result : Vec C n
+  result = {!d!}
+    where open Alg-state-abbrev (proj₁ (Terminates-result terminates))
+
+  correct : ∀ q → shortest-distance s q (lookup q result)
+  correct q = {!!}
