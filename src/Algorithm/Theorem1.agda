@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 
 open import Semiring as K
 open import Semiring.Definitions using (Decidable)
@@ -16,14 +17,19 @@ module Algorithm.Theorem1
   open Semiring K renaming (Carrier to C)
   open import Semiring.Definitions K
   open import Semiring.Properties K
+  open import Sum K
   open QueueDiscipline Q
   open import Graph.Definitions {K = K} G
   open import Graph.Properties {K = K} G
-  open import Graph.Cycle {K = K} G
+  open import Graph.Cycle {K = K} G s
+
+  open import Algorithm.Lemma5 K De Q G s
+  open import Algorithm.Lemma9 K De Q G s closed
 
   open import Computation
 
   open import Data.Empty using (⊥; ⊥-elim)
+  open import Data.List as List using (List; []; _∷_)
   open import Data.Product using (∃; _×_; _,_; proj₁; proj₂)
   open import Star using (Star; Starˡ; ε; _◅_)
   open import Vec using (Vec; lookup)
@@ -63,8 +69,11 @@ module Algorithm.Theorem1
   terminates = terminates-from ε
 
   result : Vec C n
-  result = {!d!}
+  result = d
     where open Alg-state-abbrev (proj₁ (Terminates-result terminates))
+
+  k-correct : ∀ q → ∑ (List.map path-weight (all-P k q)) ≈ lookup q result
+  k-correct q = {!!}
 
   correct : ∀ q → shortest-distance s q (lookup q result)
   correct q = {!!}

@@ -1,3 +1,5 @@
+{-# OPTIONS --allow-unsolved-metas #-}
+
 open import Semiring as K
 open import Semiring.Definitions using (Decidable)
 open import Queue as Q

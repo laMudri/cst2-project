@@ -20,7 +20,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
   open import Computation
 
-  open import Data.Bool using (Bool; false; true; T; if_then_else_; not)
+  open import Data.Bool using (Bool; false; true; T; if_then_else_; not; _∧_)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties renaming (_≟_ to _F≟_)
@@ -63,13 +63,14 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   Path-family = (q : Fin n) → List (Path s q)
 
   -- D and R are defined in the paper.
+  -- L q is the number of times the condition has held at q
   -- I q is the number of times the vertex q has been inserted into the queue.
   -- E q is the number of times the vertex q has been extracted from the queue.
   record Helper-sets : Set (c ⊔ ℓ′) where
     constructor helper-sets
     field
       D R : Path-family
-      I E : Fin n → ℕ
+      L I E : Fin n → ℕ
 
   -- Like vector update notation _[_]≔_, but for dependent functions from Fin.
   _⟨_⟩≔_ :
@@ -89,8 +90,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
     Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
-  do-step-with-sets (alg-state d r S , helper-sets D R I E) has-items =
-    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂ I₁ E₁
+  do-step-with-sets (alg-state d r S , helper-sets D R L I E) has-items =
+    alg-state d₁ r₂ S₂ , helper-sets D₁ R₂ L₁ I₁ E₁
     module DoStepWithSets where
     qS₁ = dequeue S has-items
     q = proj₁ qS₁ ; S₁ = proj₂ qS₁
@@ -99,7 +100,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
     relaxed-vertices = filter conditon (toList (allFin n))
-    I₁ = λ q′ → if conditon q′ then ℕ.suc (I q′) else I q′
+    L₁ = λ q′ → if conditon q′ then ℕ.suc (L q′) else L q′
+    I₁ = λ q′ → if conditon q′ ∧ contains q′ S then ℕ.suc (I q′) else I q′
 
     new-weights : Vec C n → Vec C n
     new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
@@ -199,15 +201,15 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     S = enqueue s empty
 
   initial-state-with-sets : Alg-state × Helper-sets
-  initial-state-with-sets = initial-state , helper-sets D D I I
+  initial-state-with-sets = initial-state , helper-sets D D L L L
     where
     D : (q : Fin n) → List (Path s q)
     D q with s F≟ q
     ... | yes eq = PEq.subst (Path s) eq ε ∷ []
     ... | no _ = []
 
-    I : Fin n → ℕ
-    I _ = 0
+    L : Fin n → ℕ
+    L _ = 0
 
   Reachable : Alg-state → Set _
   Reachable = Starˡ _↝_ initial-state

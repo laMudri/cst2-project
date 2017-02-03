@@ -1,15 +1,19 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Semiring as S
 open import Graph as G
+open import Data.Fin as F using (Fin)
 
-module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
+module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) (s : Fin n) where
   open Semiring K renaming (Carrier to C)
   open import Sum K
   open import Semiring.Definitions K
   open import Graph.Definitions {K = K} G
 
   open import Data.Empty using (⊥; ⊥-elim)
-  open import Data.Fin as F using (Fin)
   open import Data.Fin.Properties as FP using (_≟_)
+  open import Data.List as List using (List; []; _∷_)
+  open import Data.List.Any as Any using (module Membership-≡; Any; here; there)
+  open Membership-≡ using (_∈_)
   open import Data.Nat as ℕ using (ℕ; zero; suc; _≤_)
   open import Data.Product as Prod using (∃; ∃₂; _×_; _,_; proj₁; proj₂)
   open import Star
@@ -39,8 +43,15 @@ module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
       most : ∀ {q′} (c′ : Cycle q′) →
              ∃ λ m′ → m′ ≤ m × Cycle c′ occurs m′ times-in π
 
-  postulate P : ℕ → Fin n → Setoid L.zero L.zero
-  --P k q = {!!}
+  -- Paths where a cycle can only occur at most k times
+  P : ℕ → Fin n → Setoid L.zero L.zero
+  P k q = ∃-Path-setoid λ π →
+          ∀ {cq} (c : Cycle cq) l → Cycle c occurs l times-in π → l ≤ k
+
+  postulate all-P : ℕ → (q : Fin n) → List (Path s q)
+
+  postulate
+    all-P-correct : ∀ k q → Inverse (P k q) (PEq.setoid (∃ λ π → π ∈ all-P k q))
 
   {-
   cycle-occurrences : ∀ {p n q} (c : Cycle q) → c ≢ ε → (π : Path p n) →

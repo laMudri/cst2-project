@@ -1,3 +1,5 @@
+{-# OPTIONS --allow-unsolved-metas #-}
+
 open import Semiring as K
 open import Semiring.Definitions using (Decidable)
 open import Queue as Q
@@ -17,6 +19,7 @@ module Algorithm.Lemma9
   open import Semiring.Properties K
   open import Graph.Definitions {K = K} G
   open import Graph.Properties {K = K} G
+  open import Graph.Cycle {K = K} G s
 
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.List using (List; []; _∷_; map; _++_)
@@ -33,14 +36,12 @@ module Algorithm.Lemma9
 
   open import Relation.Nullary using (¬_)
 
-  -- To go in Graph.Definitions, probably under a better name
-  postulate
-    P : ℕ → Path-family
-
+  -- Note: the paper states this negatively. By the decidability of list
+  -- membership, this statement is equivalent.
   lemma-9 :
     ∀ {i j} → Reachable-with-sets j → (r : j ↝S i) →
     let open Internals-ij-from-↝ r in
-    ∀ {ne} (e : Edge dequeued ne) (π : Path s ne) →
-    (π ∈ map (e ◅_) R′ → π ∈ P k ne → ⊥) →
-    lookup ne dⱼ ≤K r′ * edge-weight e → ⊥
-  lemma-9 rs r e π nin le = {!!}
+    ∀ {ne} (e : Edge dequeued ne) →
+    lookup ne dⱼ ≤K r′ * edge-weight e →
+    ∃ λ π → π ∈ map (e ◅_) R′ × π ∈ all-P k ne
+  lemma-9 rs r e le = {!!}

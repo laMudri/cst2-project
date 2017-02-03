@@ -1,3 +1,5 @@
+{-# OPTIONS --allow-unsolved-metas #-}
+
 open import Semiring as K
 open import Semiring.Definitions using (Decidable)
 open import Queue as Q
@@ -23,10 +25,10 @@ module Algorithm.Lemma5
   import Star.TransitionMembership as ↝
 
   lemma-5 :
-    ∀ i → Reachable-with-sets i →
+    ∀ {i} → Reachable-with-sets i →
     let open Helper-sets (proj₂ i) in
     ∀ m q π (e : Edge m q) → let eπ = e ◅ π in
-    eπ ∈ D q → eπ ∈ map (λ ρ → e ◅ ρ) (R m) → ⊥
+    eπ ∈ D q → eπ ∈ map (e ◅_) (R m) → ⊥
 
   lemma-5 = {!!}
 

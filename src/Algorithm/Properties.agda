@@ -57,11 +57,11 @@ module Algorithm.Properties
                       (hi : Has-items (vertex-queue (proj₁ k))) where
     open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
     open Helper-sets (proj₂ k) public
-      renaming (D to Dₖ; R to Rₖ; I to Iₖ; E to Eₖ)
+      renaming (D to Dₖ; R to Rₖ; L to Lₖ; I to Iₖ; E to Eₖ)
 
-    open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Iₖ Eₖ hi public
+    open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Lₖ Iₖ Eₖ hi public
       renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
-                             ; D₁ to Dⱼ; R₂ to Rⱼ; I₁ to Iⱼ; E₁ to Eⱼ)
+                             ; D₁ to Dⱼ; R₂ to Rⱼ; L₁ to Lⱼ; I₁ to Iⱼ; E₁ to Eⱼ)
       using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
             ; new-weights; new-sets)
 
@@ -69,9 +69,9 @@ module Algorithm.Properties
 
   module Internals-ij = Internals-jk
     renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ
-             ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Iⱼ to Iᵢ; Eⱼ to Eᵢ
+             ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Lⱼ to Lᵢ; Iⱼ to Iᵢ; Eⱼ to Eᵢ
              ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ
-             ; Dₖ to Dⱼ; Rₖ to Rⱼ; Iₖ to Iⱼ; Eₖ to Eⱼ)
+             ; Dₖ to Dⱼ; Rₖ to Rⱼ; Lₖ to Lⱼ; Iₖ to Iⱼ; Eₖ to Eⱼ)
 
   module Internals-ij-from-↝ {i j} (r : j ↝S i) = Internals-ij j (proj₁ r)
 
@@ -92,7 +92,7 @@ module Algorithm.Properties
             let open Helper-sets (proj₂ i) renaming (D to Dᵢ) in
             let open Helper-sets (proj₂ j) renaming (D to Dⱼ) in
             ∀ {q} → Dⱼ q ⊆ Dᵢ q
-  D-grows {_ , helper-sets Dᵢ _ _ _} ε {q} = id
+  D-grows {_ , helper-sets Dᵢ _ _ _ _} ε {q} = id
   D-grows (r@(hi , PEq.refl) ◅ rs) {q} =
     Pre.trans (D-grows rs {q}) (D-grows-step r {q})
     where module Pre = Preorder (⊆-preorder (Path s q))
@@ -226,7 +226,7 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    ↝.Any (λ { {j} {alg-state _ _ S , helper-sets _ R _ _} (hi , eq) →
+    ↝.Any (λ { {j} {alg-state _ _ S , helper-sets _ R _ _ _} (hi , eq) →
              m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
     ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
