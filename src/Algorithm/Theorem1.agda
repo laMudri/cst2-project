@@ -6,14 +6,15 @@ open import Queue as Q
 open import Graph as G
 import Graph.Definitions as GD
 open import Data.Fin using (Fin; zero; suc)
-open import Data.Nat as ℕ using (ℕ; zero; suc; _≤_; z≤n; s≤s)
+open import Data.Nat as ℕ
+  using (ℕ; zero; suc; _≤_; z≤n; s≤s; _≤′_; ≤′-refl; ≤′-step)
 
 module Algorithm.Theorem1
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
        (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
        {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
   open import Algorithm K De Q G s
-  open import Algorithm.Properties K De Q G s
+  --open import Algorithm.Properties K De Q G s
   open Semiring K renaming (Carrier to C)
   open import Semiring.Definitions K
   open import Semiring.Properties K
@@ -23,8 +24,8 @@ module Algorithm.Theorem1
   open import Graph.Properties {K = K} G
   open import Graph.Cycle {K = K} G s
 
-  open import Algorithm.Lemma5 K De Q G s
-  open import Algorithm.Lemma9 K De Q G s closed
+  --open import Algorithm.Lemma5 K De Q G s
+  --open import Algorithm.Lemma9 K De Q G s closed
 
   open import Computation
 
@@ -32,8 +33,9 @@ module Algorithm.Theorem1
   open import Data.List as List using (List; []; _∷_)
   open import Data.Product using (∃; _×_; _,_; proj₁; proj₂)
   open import Star using (Star; Starˡ; ε; _◅_)
-  open import Vec using (Vec; lookup)
+  open import Vec as V using (Vec; lookup; sum)
 
+  open import Function using (_∘_)
   open import Function.Surjection using (Surjection; _↠_)
 
   open import Relation.Binary.PropositionalEquality as PEq
@@ -42,12 +44,12 @@ module Algorithm.Theorem1
 
   -- The number of times each vertex q is enqueued is less than card (P k q).
   -- There is a surjection from P k q to Fin (I q).
-  enqueues-finite :
+  insertions-finite :
     ∀ {i} → Reachable-with-sets i →
     let open Alg-state-abbrev (proj₁ i) in
     let open Helper-sets (proj₂ i) in
     ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
-  enqueues-finite = {!!}
+  insertions-finite = {!!}
 
   E≤I : ∀ {i} → Reachable-with-sets i →
         let open Alg-state-abbrev (proj₁ i) in
@@ -57,13 +59,34 @@ module Algorithm.Theorem1
   E≤I (r@(hi , PEq.refl) ◅ rs) q = {!Eᵢ!}
     where open Internals-ij-from-↝ r
 
+  extractions-≤ :
+    ∀ {i} → Reachable-with-sets i →
+    let open Alg-state-abbrev (proj₁ i) in
+    let open Helper-sets (proj₂ i) in
+    sum (V.tabulate E) ≤ sum (V.tabulate (List.length ∘ all-P k))
+  extractions-≤ = {!!}
+
+  extractions-suc :
+    ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+    sum (V.tabulate Eᵢ) ≡ suc (sum (V.tabulate Eⱼ))
+  extractions-suc r@(hi , PEq.refl) = {!Eᵢ!}
+    where open Internals-ij-from-↝ r
+
+  terminates-from′ :
+    ∀ {i} → Reachable-with-sets i →
+    let open Alg-state-abbrev (proj₁ i) in
+    let open Helper-sets (proj₂ i) in
+    (∀ q → L q ≤′ List.length (all-P k q)) →
+    Terminates (gsssd-loop-computation-with-sets i)
+  terminates-from′ {i} rs bound = {!!}
+
   terminates-from :
     ∀ {i} → Reachable-with-sets i →
     Terminates (gsssd-loop-computation-with-sets i)
   terminates-from {alg-state d r S , _} rs with count S | inspect count S
   terminates-from {alg-state d r S , _} rs | ℕ.zero | [ eq ] =
     now (λ { _ (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) })
-  terminates-from {alg-state d r S , _} rs | ℕ.suc z | [ eq ] = {!!}
+  terminates-from {alg-state d r S , helper-sets D R L I E} rs | suc z | [ eq ] = {!!}
 
   terminates : Terminates gsssd-computation-with-sets
   terminates = terminates-from ε

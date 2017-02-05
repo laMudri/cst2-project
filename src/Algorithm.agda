@@ -80,12 +80,11 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   _⟨_⟩≔_ {A = A} f x a y | yes eq = PEq.subst A eq a
   (f ⟨ x ⟩≔ a) y | no _ = f y
 
-  _⟨_⟩&_ :
-    ∀ {a n} {A : Fin n → Set a} →
-    ((x : Fin n) → A x) → (y : Fin n) → (A y → A y) → ((x : Fin n) → A x)
-  (f ⟨ x ⟩& g) y with x F≟ y
-  (f ⟨ x ⟩& g) .x | yes PEq.refl = g (f x)
-  (f ⟨ x ⟩& g) y | no _ = f y
+  appAt : ∀ {a n} {A : Fin n → Set a} (i : Fin n) →
+          (A i → A i) → ((∀ j → A j) → (∀ j → A j))
+  appAt i f g j with i F≟ j
+  appAt i f g .i | yes PEq.refl = f (g i)
+  appAt i f g j | no ¬p = g j
 
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
@@ -95,13 +94,13 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     module DoStepWithSets where
     qS₁ = dequeue S has-items
     q = proj₁ qS₁ ; S₁ = proj₂ qS₁
-    E₁ = E ⟨ q ⟩& ℕ.suc
+    E₁ = appAt q ℕ.suc E
     r′ = lookup q r ; R′ = R q
     r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
     relaxed-vertices = filter conditon (toList (allFin n))
     L₁ = λ q′ → if conditon q′ then ℕ.suc (L q′) else L q′
-    I₁ = λ q′ → if conditon q′ ∧ contains q′ S then ℕ.suc (I q′) else I q′
+    I₁ = λ q′ → if conditon q′ ∧ not (contains q′ S) then ℕ.suc (I q′) else I q′
 
     new-weights : Vec C n → Vec C n
     new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
@@ -240,3 +239,25 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   gsssd-computation-with-sets : Computation _↝S_ initial-state-with-sets
   gsssd-computation-with-sets =
     gsssd-loop-computation-with-sets initial-state-with-sets
+
+  module Internals-jk (k : Alg-state × Helper-sets)
+                      (hi : Has-items (vertex-queue (proj₁ k))) where
+    open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
+    open Helper-sets (proj₂ k) public
+      renaming (D to Dₖ; R to Rₖ; L to Lₖ; I to Iₖ; E to Eₖ)
+
+    open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Lₖ Iₖ Eₖ hi public
+      renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
+                             ; D₁ to Dⱼ; R₂ to Rⱼ; L₁ to Lⱼ; I₁ to Iⱼ; E₁ to Eⱼ)
+      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
+            ; new-weights; new-sets)
+
+  module Internals-jk-from-↝ {j k} (r : k ↝S j) = Internals-jk k (proj₁ r)
+
+  module Internals-ij = Internals-jk
+    renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ
+             ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Lⱼ to Lᵢ; Iⱼ to Iᵢ; Eⱼ to Eᵢ
+             ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ
+             ; Dₖ to Dⱼ; Rₖ to Rⱼ; Lₖ to Lⱼ; Iₖ to Iⱼ; Eₖ to Eⱼ)
+
+  module Internals-ij-from-↝ {i j} (r : j ↝S i) = Internals-ij j (proj₁ r)

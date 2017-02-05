@@ -53,28 +53,6 @@ module Algorithm.Properties
   open import Relation.Nullary.Product using (_×-dec_)
   import Relation.Unary as U
 
-  module Internals-jk (k : Alg-state × Helper-sets)
-                      (hi : Has-items (vertex-queue (proj₁ k))) where
-    open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
-    open Helper-sets (proj₂ k) public
-      renaming (D to Dₖ; R to Rₖ; L to Lₖ; I to Iₖ; E to Eₖ)
-
-    open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Lₖ Iₖ Eₖ hi public
-      renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
-                             ; D₁ to Dⱼ; R₂ to Rⱼ; L₁ to Lⱼ; I₁ to Iⱼ; E₁ to Eⱼ)
-      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
-            ; new-weights; new-sets)
-
-  module Internals-jk-from-↝ {j k} (r : k ↝S j) = Internals-jk k (proj₁ r)
-
-  module Internals-ij = Internals-jk
-    renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ
-             ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Lⱼ to Lᵢ; Iⱼ to Iᵢ; Eⱼ to Eᵢ
-             ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ
-             ; Dₖ to Dⱼ; Rₖ to Rⱼ; Lₖ to Lⱼ; Iₖ to Iⱼ; Eₖ to Eⱼ)
-
-  module Internals-ij-from-↝ {i j} (r : j ↝S i) = Internals-ij j (proj₁ r)
-
   D-grows-step :
     ∀ {i j} (r : j ↝S i) →
     let open Internals-ij j (proj₁ r) in
