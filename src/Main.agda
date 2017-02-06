@@ -99,7 +99,7 @@ module Main where
       ; zero = (λ x → nothing) , rzero
       }
     }
-    where
+    module K where
     open Setoid (Maybe.setoid (PEq.setoid ℕ))
     open CommutativeSemiringWithoutOne ⊔-⊓-0-commutativeSemiringWithoutOne
       using ()
@@ -134,7 +134,22 @@ module Main where
       x + y ⊓ z          ≡⟨ distrib-l x y z ⟩
       (x + y) ⊓ (x + z)  ≡⟨ ⊓-cong (+-comm x y) (+-comm x z) ⟩
       (y + x) ⊓ (z + x)  ∎
+  open K using (_T⊓_; _T+_)
+
+  open Semiring K hiding (zero)
   open import Semiring.Definitions K
+  open import Sum K
+
+  0-T⊓ : ∀ y → just 0 T⊓ y ≡ just 0
+  0-T⊓ (just y) = PEq.refl
+  0-T⊓ nothing = PEq.refl
+
+  closed : _Closed 1
+  closed = record
+    { closed = λ a → record
+      { closed = reflexive (0-T⊓ ((a T+ just 0) T⊓ nothing))
+      }
+    }
 
   De : Decidable
   De (just x) (just y) with x ≟ y
@@ -169,13 +184,38 @@ module Main where
   G (suc (suc i)) (suc zero) = just 1
   G (suc (suc i)) (suc (suc j)) = nothing
 
+  open import Graph.Definitions {K = K} G
+
+  closedOnG : 1 ClosedOnG
+  closedOnG c = _Closed.closed closed (path-weight c)
+
   Q = stack (FinP.decSetoid 3)
-  open Queue Q
+  open QueueDiscipline Q
 
   open import Algorithm K De Q G zero
+  open import Algorithm.Theorem1 K De Q G zero closedOnG
 
+  {-
   {-# NON_TERMINATING #-}
   run : Alg-state → Alg-state
-  run i with has-items (vertex-queue i) | inspect has-items (vertex-queue i)
-  run i | false | _ = i
-  run i | true | [ eq ] = run (do-step′ i (PEq.subst T (PEq.sym eq) tt))
+  run i with Has-items? (vertex-queue i)
+  run i | yes hi = run (do-step i hi)
+  run i | no _ = i
+  -}
+
+  open import IO
+  open import IO.Primitive as Prim using ()
+  open import Computation
+  open import Data.Nat.Show as ℕS using ()
+  open import Data.String hiding (show)
+  open import Data.Vec hiding (_++_)
+
+  show : ∀ {n} → Vec (Maybe ℕ) n → String
+  show [] = "\n"
+  show (just x ∷ xs) = ℕS.show x ++ "\n" ++ show xs
+  show (nothing ∷ xs) = "∞\n" ++ show xs
+
+  {-# NON_TERMINATING #-}
+  main : Prim.IO ⊤
+  main = run $
+    putStr (show (Alg-state-abbrev.d (proj₁ (Terminates-result terminates))))

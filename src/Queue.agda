@@ -15,6 +15,10 @@ module Queue where
   data Is-suc : ℕ → Set where
     is-suc : ∀ {n} → Is-suc (suc n)
 
+  Is-suc? : ∀ n → Dec (Is-suc n)
+  Is-suc? zero = no (λ ())
+  Is-suc? (suc n) = yes is-suc
+
   zero-not-suc : ¬ Is-suc zero
   zero-not-suc ()
 
@@ -32,6 +36,9 @@ module Queue where
 
     Has-items : Carrier → Set
     Has-items = Is-suc ∘ count
+
+    Has-items? : ∀ q → Dec (Has-items q)
+    Has-items? = Is-suc? ∘ count
 
   -- An example
   stack : ∀ {c ℓ} (A : DecSetoid c ℓ) → QueueDiscipline (DecSetoid.Carrier A) c

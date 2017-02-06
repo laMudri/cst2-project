@@ -61,12 +61,19 @@ module Algorithm.Theorem1
   E≤I (r@(hi , PEq.refl) ◅ rs) q = {!Eᵢ!}
     where open Internals-ij-from-↝ r
 
+  sum-0 : ∀ n → sum (tabulate {n = n} (λ _ → 0)) ≡ 0
+  sum-0 zero = PEq.refl
+  sum-0 (suc n) = sum-0 n
+
   extractions-≤ :
     ∀ {i} → Reachable-with-sets i →
     let open Alg-state-abbrev (proj₁ i) in
     let open Helper-sets (proj₂ i) in
     sum (tabulate E) ≤ sum (tabulate (List.length ∘ all-P k))
-  extractions-≤ = {!!}
+  extractions-≤ {_ , helper-sets _ _ _ _ E} ε =
+    PEq.subst (_≤ sum (tabulate (List.length ∘ all-P k))) (PEq.sym (sum-0 n)) z≤n
+  extractions-≤ (r@(hi , PEq.refl) ◅ rs) = {!!}
+    where open Internals-ij-from-↝ r
 
   appAtV : ∀ {a n} {A : Set a} (i : Fin n) → (A → A) → (Vec A n → Vec A n)
   appAtV zero f (x ∷ xs) = f x ∷ xs
@@ -97,19 +104,16 @@ module Algorithm.Theorem1
   appAt-∘-suc : ∀ {a n} {A : Set a} i (f : A → A) (g : Fin (suc n) → A) →
                 ∀ j → appAt (suc i) f g (suc j) ≡ appAt i f (g ∘ suc) j
   appAt-∘-suc i f g j with suc i F≟ suc j
-  appAt-∘-suc i f g .i | yes PEq.refl = PEq.sym (appAt-diagonal i f (g ∘ suc))
-  appAt-∘-suc i f g j | no ¬p = PEq.sym (appAt-non-diagonal i f (g ∘ suc) j (¬p ∘ {!PEq.cong suc!}))
-  {-
-    tabulate (appAt (suc i) f g ∘ suc)   ≡⟨ PEq.refl ⟩
-    tail (tabulate (appAt (suc i) f g))  ≡⟨ {!!} ⟩
-    tabulate (appAt i f (g ∘ suc))       ∎
-  -}
-    where open ≡-Reasoning
+  appAt-∘-suc i f g .i | yes PEq.refl =
+    PEq.sym (appAt-diagonal i f (g ∘ suc))
+  appAt-∘-suc i f g j | no ¬p =
+    PEq.sym (appAt-non-diagonal i f (g ∘ suc) j (¬p ∘ PEq.cong suc))
 
   tabulate-cong : ∀ {a n} {A : Set a} {f g : Fin n → A} →
                   (∀ i → f i ≡ g i) → tabulate f ≡ tabulate g
   tabulate-cong {n = zero} {f = f} {g} eq = PEq.refl
-  tabulate-cong {n = suc n} {f = f} {g} eq = PEq.cong₂ _∷_ (eq Fin.zero) (tabulate-cong {n = n} (eq ∘ suc))
+  tabulate-cong {n = suc n} {f = f} {g} eq =
+    PEq.cong₂ _∷_ (eq Fin.zero) (tabulate-cong {n = n} (eq ∘ suc))
 
   appAtV-appAt : ∀ {a n} {A : Set a} i (f : A → A) (g : Fin n → A) →
                  appAtV i f (tabulate g) ≡ tabulate (appAt i f g)
