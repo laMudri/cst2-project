@@ -24,7 +24,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties renaming (_≟_ to _F≟_)
-  open import Data.List using (List; []; _∷_; map; _++_; filter; foldr)
+  open import Data.List using (List; []; _∷_; map; _++_; filter; foldr; length)
   open import Data.List.Any using (Any; any)
   open import Data.Nat as ℕ using (ℕ; zero; suc)
   open import Data.Product using (∃; _×_; _,_; ,_; proj₁; proj₂)
@@ -32,7 +32,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   open import Data.Unit using (⊤; tt)
   open import Data.Vec
     using ( Vec; []; _∷_; lookup; replicate; _[_]≔_; allFin; foldl; toList
-          ; tabulate)
+          ; sum; tabulate)
 
   open import Level
 
@@ -100,6 +100,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
     relaxed-vertices = filter conditon (toList (allFin n))
     L₁ = λ q′ → if conditon q′ then ℕ.suc (L q′) else L q′
+    enqueued-vertices = filter (λ q′ → not (contains q′ S)) relaxed-vertices
     I₁ = λ q′ → if conditon q′ ∧ not (contains q′ S) then ℕ.suc (I q′) else I q′
 
     new-weights : Vec C n → Vec C n
@@ -116,8 +117,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
     d₁ = new-weights d ; D₁ = new-sets D
     r₂ = new-weights r₁ ; R₂ = new-sets R₁
-    S₂ = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
-               S₁ relaxed-vertices
+    S₂ = foldr enqueue S₁ enqueued-vertices
 
   do-step :
     (state : Alg-state) → Has-items (vertex-queue state) → Alg-state
@@ -130,6 +130,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     r₁ = r [ q ]≔ 0#
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
     relaxed-vertices = filter conditon (toList (allFin n))
+    enqueued-vertices = filter (λ q′ → not (contains q′ S)) relaxed-vertices
 
     new-weights : Vec C n → Vec C n
     new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
@@ -139,8 +140,7 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
 
     d₁ = new-weights d
     r₂ = new-weights r₁
-    S₂ = foldr (λ q′ S → if contains q′ S then S else enqueue q′ S)
-               S₁ relaxed-vertices
+    S₂ = foldr enqueue S₁ enqueued-vertices
 
   _↝_ : Rel Alg-state _
   i ↝ j = ∃ λ hi → do-step i hi ≡ j
@@ -240,6 +240,9 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   gsssd-computation-with-sets =
     gsssd-loop-computation-with-sets initial-state-with-sets
 
+  ∣_∣ : ∀ {n} → (Fin n → ℕ) → ℕ
+  ∣_∣ = sum ∘ tabulate
+
   module Internals-jk (k : Alg-state × Helper-sets)
                       (hi : Has-items (vertex-queue (proj₁ k))) where
     open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
@@ -249,8 +252,14 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Lₖ Iₖ Eₖ hi public
       renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
                              ; D₁ to Dⱼ; R₂ to Rⱼ; L₁ to Lⱼ; I₁ to Iⱼ; E₁ to Eⱼ)
-      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
+      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices; enqueued-vertices
             ; new-weights; new-sets)
+
+    relaxed-# : ℕ
+    relaxed-# = length relaxed-vertices
+
+    enqueued-# : ℕ
+    enqueued-# = length enqueued-vertices
 
   module Internals-jk-from-↝ {j k} (r : k ↝S j) = Internals-jk k (proj₁ r)
 

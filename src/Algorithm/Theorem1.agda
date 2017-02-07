@@ -20,6 +20,7 @@ module Algorithm.Theorem1
   open import Semiring.Properties K
   open import Sum K hiding (tabulate)
   open QueueDiscipline Q
+  open import Queue.Properties Q
   open import Graph.Definitions {K = K} G
   open import Graph.Properties {K = K} G
   open import Graph.Cycle {K = K} G s
@@ -29,6 +30,7 @@ module Algorithm.Theorem1
 
   open import Computation
 
+  open import Data.Bool using (Bool; false; true; if_then_else_; not; _∧_)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin.Properties as FP using () renaming (_≟_ to _F≟_)
   open import Data.List as List using (List; []; _∷_)
@@ -61,7 +63,7 @@ module Algorithm.Theorem1
   E≤I (r@(hi , PEq.refl) ◅ rs) q = {!Eᵢ!}
     where open Internals-ij-from-↝ r
 
-  sum-0 : ∀ n → sum (tabulate {n = n} (λ _ → 0)) ≡ 0
+  sum-0 : ∀ n → ∣_∣ {n = n} (λ _ → 0) ≡ 0
   sum-0 zero = PEq.refl
   sum-0 (suc n) = sum-0 n
 
@@ -69,9 +71,9 @@ module Algorithm.Theorem1
     ∀ {i} → Reachable-with-sets i →
     let open Alg-state-abbrev (proj₁ i) in
     let open Helper-sets (proj₂ i) in
-    sum (tabulate E) ≤ sum (tabulate (List.length ∘ all-P k))
+    ∣ E ∣ ≤ ∣ List.length ∘ all-P k ∣
   extractions-≤ {_ , helper-sets _ _ _ _ E} ε =
-    PEq.subst (_≤ sum (tabulate (List.length ∘ all-P k))) (PEq.sym (sum-0 n)) z≤n
+    PEq.subst (_≤ ∣ List.length ∘ all-P k ∣) (PEq.sym (sum-0 n)) z≤n
   extractions-≤ (r@(hi , PEq.refl) ◅ rs) = {!!}
     where open Internals-ij-from-↝ r
 
@@ -128,21 +130,60 @@ module Algorithm.Theorem1
     where open ≡-Reasoning
 
   appAt-sum-suc : ∀ {n} i (f : Fin n → ℕ) →
-                  sum (tabulate (appAt i suc f)) ≡ suc (sum (tabulate f))
+                  ∣ appAt i suc f ∣ ≡ suc ∣ f ∣
   appAt-sum-suc i f = begin
-    sum (tabulate (appAt i suc f))
+    ∣ appAt i suc f ∣
       ≡⟨ PEq.cong sum (PEq.sym (appAtV-appAt i suc f)) ⟩
     sum (appAtV i suc (tabulate f))
       ≡⟨ appAtV-sum-suc i (tabulate f) ⟩
-    suc (sum (tabulate f))
+    suc ∣ f ∣
       ∎
     where open ≡-Reasoning
 
   extractions-suc :
     ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
-    sum (tabulate Eᵢ) ≡ suc (sum (tabulate Eⱼ))
+    ∣ Eᵢ ∣ ≡ suc ∣ Eⱼ ∣
   extractions-suc r@(hi , PEq.refl) = appAt-sum-suc dequeued Eⱼ
     where open Internals-ij-from-↝ r
+
+  count-S : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+            suc (count Sᵢ) ≡ enqueued-# ℕ.+ count Sⱼ
+  count-S r@(hi , PEq.refl) = begin
+    suc (count Sᵢ)  ≡⟨ PEq.cong suc (enqueue-+ enqueued-vertices _) ⟩
+    suc (enqueued-# ℕ.+ count S₁)  ≡⟨ PEq.sym (+-suc enqueued-# _) ⟩
+    enqueued-# ℕ.+ suc (count S₁)  ≡⟨ PEq.cong (enqueued-# ℕ.+_) (dequeue-pred Sⱼ hi) ⟩
+    enqueued-# ℕ.+ count Sⱼ  ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  1+I=E+S : ∀ {i} → Reachable-with-sets i →
+            let open Alg-state-abbrev (proj₁ i) in
+            let open Helper-sets (proj₂ i) in
+            suc ∣ I ∣ ≡ ∣ E ∣ ℕ.+ count S
+  1+I=E+S {i , is} ε = begin
+    suc ∣ I ∣          ≡⟨ PEq.cong suc (sum-0 n) ⟩
+    suc 0              ≡⟨ PEq.cong suc (PEq.sym empty-zero) ⟩
+    suc (count empty)  ≡⟨ PEq.sym (enqueue-suc _ empty) ⟩
+    count S            ≡⟨⟩
+    0 ℕ.+ count S      ≡⟨ PEq.cong (ℕ._+ count S) (PEq.sym (sum-0 n)) ⟩
+    ∣ E ∣ ℕ.+ count S  ∎
+    where
+    open ≡-Reasoning
+    open Alg-state-abbrev i
+    open Helper-sets is
+  1+I=E+S (r@(hi , PEq.refl) ◅ rs) = begin
+    suc ∣ Iᵢ ∣                          ≡⟨ {!!} ⟩
+    suc (enqueued-# ℕ.+ ∣ Iⱼ ∣)           ≡⟨ {!!} ⟩
+    enqueued-# ℕ.+ suc ∣ Iⱼ ∣             ≡⟨ PEq.cong (enqueued-# ℕ.+_) (1+I=E+S rs) ⟩
+    enqueued-# ℕ.+ (∣ Eⱼ ∣ ℕ.+ count Sⱼ)  ≡⟨ {!!} ⟩
+    ∣ Eⱼ ∣ ℕ.+ (enqueued-# ℕ.+ count Sⱼ)  ≡⟨ {!!} ⟩
+    ∣ Eⱼ ∣ ℕ.+ suc (count Sᵢ)  ≡⟨ {!!} ⟩
+    suc ∣ Eⱼ ∣ ℕ.+ count Sᵢ  ≡⟨ PEq.cong (ℕ._+ count Sᵢ) (PEq.sym (extractions-suc r)) ⟩
+    ∣ Eᵢ ∣ ℕ.+ count Sᵢ                  ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
 
   terminates-from′ :
     ∀ {i} → Reachable-with-sets i →
