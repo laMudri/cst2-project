@@ -18,6 +18,12 @@ module Computation where
     later : ∀ {i j} (r : R i j) {c : Computation R j} →
             Terminates c → Terminates (r ⇒ ♯ c)
 
+  data StronglyNormalizing {st ℓ} {St : Set st} (R : Rel St ℓ)
+                           : St → Set (st ⊔ ℓ) where
+    now : ∀ {i} (¬r : ∀ {j} → ¬ R i j) → StronglyNormalizing R i
+    later : ∀ {i j} (r : R i j) (rs : StronglyNormalizing R j) →
+            StronglyNormalizing R i
+
   Terminates-result :
     ∀ {st ℓ} {St : Set st} {R : Rel St ℓ} {i : St}
     {c : Computation R i} → Terminates c → St

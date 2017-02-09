@@ -29,17 +29,20 @@ module Algorithm.Theorem1
   --open import Algorithm.Lemma9 K De Q G s closed
 
   open import Computation
+  open import Computation.Properties _↝S_
+  open import Computation.Properties.Decidable {R = _↝S_} {!!} initial-state-with-sets
 
   open import Data.Bool using (Bool; false; true; if_then_else_; not; _∧_)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin.Properties as FP using () renaming (_≟_ to _F≟_)
   open import Data.List as List using (List; []; _∷_)
-  open import Data.Nat.Properties.Simple using (+-suc)
+  open import Data.Nat.Properties as ℕP using (≤″⇒≤)
+  open import Data.Nat.Properties.Simple as ℕS using (+-suc)
   open import Data.Product using (∃; _×_; _,_; proj₁; proj₂)
-  open import Star using (Star; Starˡ; ε; _◅_)
+  open import Star using (Star; Starˡ; ε; _◅_; length; states)
   open import Vec as V using (Vec; []; _∷_; lookup; sum; tabulate; tail)
 
-  open import Function using (_∘_)
+  open import Function using (_∘_; _∘′_)
   open import Function.Surjection using (Surjection; _↠_)
 
   open import Relation.Binary.PropositionalEquality as PEq
@@ -54,14 +57,6 @@ module Algorithm.Theorem1
     let open Helper-sets (proj₂ i) in
     ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
   insertions-finite = {!!}
-
-  E≤I : ∀ {i} → Reachable-with-sets i →
-        let open Alg-state-abbrev (proj₁ i) in
-        let open Helper-sets (proj₂ i) in
-        ∀ q → E q ≤ I q
-  E≤I ε q = z≤n
-  E≤I (r@(hi , PEq.refl) ◅ rs) q = {!Eᵢ!}
-    where open Internals-ij-from-↝ r
 
   sum-0 : ∀ n → ∣_∣ {n = n} (λ _ → 0) ≡ 0
   sum-0 zero = PEq.refl
@@ -157,7 +152,7 @@ module Algorithm.Theorem1
     open Internals-ij-from-↝ r
     open ≡-Reasoning
 
-  1+I=E+S : ∀ {i} → Reachable-with-sets i →
+  1+I=E+S : ∀ {i} (rs : Reachable-with-sets i) →
             let open Alg-state-abbrev (proj₁ i) in
             let open Helper-sets (proj₂ i) in
             suc ∣ I ∣ ≡ ∣ E ∣ ℕ.+ count S
@@ -173,17 +168,63 @@ module Algorithm.Theorem1
     open Alg-state-abbrev i
     open Helper-sets is
   1+I=E+S (r@(hi , PEq.refl) ◅ rs) = begin
-    suc ∣ Iᵢ ∣                          ≡⟨ {!!} ⟩
-    suc (enqueued-# ℕ.+ ∣ Iⱼ ∣)           ≡⟨ {!!} ⟩
-    enqueued-# ℕ.+ suc ∣ Iⱼ ∣             ≡⟨ PEq.cong (enqueued-# ℕ.+_) (1+I=E+S rs) ⟩
-    enqueued-# ℕ.+ (∣ Eⱼ ∣ ℕ.+ count Sⱼ)  ≡⟨ {!!} ⟩
-    ∣ Eⱼ ∣ ℕ.+ (enqueued-# ℕ.+ count Sⱼ)  ≡⟨ {!!} ⟩
-    ∣ Eⱼ ∣ ℕ.+ suc (count Sᵢ)  ≡⟨ {!!} ⟩
-    suc ∣ Eⱼ ∣ ℕ.+ count Sᵢ  ≡⟨ PEq.cong (ℕ._+ count Sᵢ) (PEq.sym (extractions-suc r)) ⟩
-    ∣ Eᵢ ∣ ℕ.+ count Sᵢ                  ∎
+    suc ∣ Iᵢ ∣  ≡⟨ PEq.cong suc {!!} ⟩
+    suc (enqueued-# ℕ.+ ∣ Iⱼ ∣)
+      ≡⟨ PEq.sym (+-suc enqueued-# (∣ Iⱼ ∣)) ⟩
+    enqueued-# ℕ.+ suc ∣ Iⱼ ∣
+      ≡⟨ PEq.cong (enqueued-# ℕ.+_) (1+I=E+S rs) ⟩
+    enqueued-# ℕ.+ (∣ Eⱼ ∣ ℕ.+ count Sⱼ)
+      ≡⟨ lemma enqueued-# (∣ Eⱼ ∣) (count Sⱼ) ⟩
+    ∣ Eⱼ ∣ ℕ.+ (enqueued-# ℕ.+ count Sⱼ)
+      ≡⟨ PEq.cong (∣ Eⱼ ∣ ℕ.+_) (PEq.sym (count-S r)) ⟩
+    ∣ Eⱼ ∣ ℕ.+ suc (count Sᵢ)
+      ≡⟨ +-suc (∣ Eⱼ ∣) (count Sᵢ) ⟩
+    suc ∣ Eⱼ ∣ ℕ.+ count Sᵢ
+      ≡⟨ PEq.cong (ℕ._+ count Sᵢ) (PEq.sym (extractions-suc r)) ⟩
+    ∣ Eᵢ ∣ ℕ.+ count Sᵢ
+      ∎
     where
     open Internals-ij-from-↝ r
     open ≡-Reasoning
+
+    lemma : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
+    lemma x y z = begin
+      x ℕ.+ (y ℕ.+ z)  ≡⟨ PEq.sym (ℕS.+-assoc x y z) ⟩
+      (x ℕ.+ y) ℕ.+ z  ≡⟨ PEq.cong (ℕ._+ z) (ℕS.+-comm x y) ⟩
+      (y ℕ.+ x) ℕ.+ z  ≡⟨ ℕS.+-assoc y x z ⟩
+      y ℕ.+ (x ℕ.+ z)  ∎
+
+  E≤I : ∀ {i} → Reachable-with-sets i →
+        let open Helper-sets (proj₂ i) in
+        ∀ q → E q ≤ I q
+  E≤I ε q = z≤n
+  E≤I (r@(hi , PEq.refl) ◅ rs) q = {!Eᵢ!}
+    where open Internals-ij-from-↝ r
+
+  ∣E∣≤1+∣I∣ : ∀ {i} → Reachable-with-sets i →
+              let open Helper-sets (proj₂ i) in
+              ∣ E ∣ ≤ suc ∣ I ∣
+  ∣E∣≤1+∣I∣ rs = ≤″⇒≤ (ℕ.less-than-or-equal (PEq.sym (1+I=E+S rs)))
+
+  ∣E∣-time : ∀ {i} (rs : Reachable-with-sets i) →
+             let open Helper-sets (proj₂ i) in
+             ∣ E ∣ ≡ length rs
+  ∣E∣-time ε = sum-0 n
+  ∣E∣-time (r@(hi , PEq.refl) ◅ rs) = begin
+    ∣ Eᵢ ∣           ≡⟨ extractions-suc r ⟩
+    suc ∣ Eⱼ ∣       ≡⟨ PEq.cong suc (∣E∣-time rs) ⟩
+    suc (length rs)  ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  terminates-from-∣E∣ :
+    ∀ {j} → Reachable-with-sets j →
+    let open Alg-state-abbrev (proj₁ j) in
+    let open Helper-sets (proj₂ j) in
+    ∀ Emax {i} → Starˡ _↝S_ j i → ∣ Helper-sets.E (proj₂ i) ∣ ≤′ Emax →
+    Terminates (gsssd-loop-computation-with-sets i)
+  terminates-from-∣E∣ rs Emax ss bound = {!!}
 
   terminates-from′ :
     ∀ {i} → Reachable-with-sets i →
@@ -201,8 +242,21 @@ module Algorithm.Theorem1
     now (λ { _ (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) })
   terminates-from {alg-state d r S , helper-sets D R L I E} rs | suc z | [ eq ] = {!!}
 
+  terminates-∣E∣ :
+    ∀ Emax {i} → Reachable-with-sets i →
+    let open Alg-state-abbrev (proj₁ i) in
+    let open Helper-sets (proj₂ i) in
+    ∣ E ∣ ≤′ Emax → Terminates (gsssd-loop-computation-with-sets i)
+  terminates-∣E∣ .(∣ E ∣) {alg-state d r S , helper-sets D R L I E} rs ≤′-refl = {!!}
+  terminates-∣E∣ .(suc _) {alg-state d r S , helper-sets D R L I E} rs (≤′-step bound) with count S | inspect count S
+  terminates-∣E∣ .(suc _) {alg-state d r S , helper-sets D R L I E} rs (≤′-step bound) | ℕ.zero | [ eq ] = now (λ { j (hi , _) → zero-not-suc (PEq.subst Is-suc eq hi) })
+  terminates-∣E∣ .(suc _) {alg-state d r S , helper-sets D R L I E} rs (≤′-step bound) | suc z | [ eq ] = {!later ? ?!}
+
   terminates : Terminates gsssd-computation-with-sets
   terminates = terminates-from ε
+
+  strongly-normalizing : StronglyNormalizing _↝S_ initial-state-with-sets
+  strongly-normalizing = bound-norm {!!} {!!}
 
   result : Vec C n
   result = d
