@@ -25,7 +25,7 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     using (Star; ε; _◅_; _◅◅_; _⊑_; subpath; _⊏_; strict-subpath; Non-trivial;
            distinct-endpoints→non-trivial; ◅-injective′; statesₗ; statesᵣ;
            states)
-  open import Star.Properties {T = flip Edge}
+  open import Star.Properties
     using (⊑-poset; ⊑ε⇒≡ε; ◅-⊑; ¬⊏ε; ⊏x◅ε⇒≡ε)
   open import Data.Star.Properties using (◅◅-assoc)
   open import Data.Sum using (_⊎_; inj₁; inj₂; [_,_])

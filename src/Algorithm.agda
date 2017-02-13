@@ -86,6 +86,12 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   appAt i f g .i | yes PEq.refl = f (g i)
   appAt i f g j | no ¬p = g j
 
+  appWhen : ∀ {a n} {A : Set a} (p : Fin n → Bool) →
+            (A → A) → ((Fin n → A) → (Fin n → A))
+  appWhen p f g i with p i
+  appWhen p f g i | false = g i
+  appWhen p f g i | true = f (g i)
+
   do-step-with-sets :
     (state : Alg-state × Helper-sets) →
     Has-items (vertex-queue (proj₁ state)) → Alg-state × Helper-sets
@@ -99,9 +105,9 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
     conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
     relaxed-vertices = filter conditon (toList (allFin n))
-    L₁ = λ q′ → if conditon q′ then ℕ.suc (L q′) else L q′
+    L₁ = appWhen conditon ℕ.suc L
     enqueued-vertices = filter (λ q′ → not (contains q′ S)) relaxed-vertices
-    I₁ = λ q′ → if conditon q′ ∧ not (contains q′ S) then ℕ.suc (I q′) else I q′
+    I₁ = appWhen (λ q′ → conditon q′ ∧ not (contains q′ S)) ℕ.suc I
 
     new-weights : Vec C n → Vec C n
     new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ

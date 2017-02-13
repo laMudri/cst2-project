@@ -7,7 +7,9 @@ open import Graph as G
 import Graph.Definitions as GD
 open import Data.Fin using (Fin; zero; suc)
 open import Data.Nat as ℕ
-  using (ℕ; zero; suc; _≤_; z≤n; s≤s; _≤′_; ≤′-refl; ≤′-step)
+  using ( ℕ; zero; suc; _≤_; z≤n; s≤s; _≤′_; ≤′-refl; ≤′-step
+        ; module ≤-Reasoning
+        )
 
 module Algorithm.Theorem1
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
@@ -35,14 +37,17 @@ module Algorithm.Theorem1
   open import Data.Bool using (Bool; false; true; if_then_else_; not; _∧_)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin.Properties as FP using () renaming (_≟_ to _F≟_)
-  open import Data.List as List using (List; []; _∷_)
+  open import Data.List as List using (List; []; _∷_; filter)
   open import Data.Nat.Properties as ℕP using (≤″⇒≤)
   open import Data.Nat.Properties.Simple as ℕS using (+-suc)
   open import Data.Product using (∃; _×_; _,_; proj₁; proj₂)
   open import Star using (Star; Starˡ; ε; _◅_; length; states)
-  open import Vec as V using (Vec; []; _∷_; lookup; sum; tabulate; tail)
+  open import Star.Properties using (Star→Starˡ; Star↔Starˡ; length≡)
+  open import Vec as V using (Vec; []; _∷_; lookup; sum; tabulate; tail; toList; allFin)
 
   open import Function using (_∘_; _∘′_)
+  open import Function.Equality using (_⟨$⟩_)
+  open import Function.Inverse using (Inverse)
   open import Function.Surjection using (Surjection; _↠_)
 
   open import Relation.Binary.PropositionalEquality as PEq
@@ -61,6 +66,14 @@ module Algorithm.Theorem1
   sum-0 : ∀ n → ∣_∣ {n = n} (λ _ → 0) ≡ 0
   sum-0 zero = PEq.refl
   sum-0 (suc n) = sum-0 n
+
+  x+[y+z]=y+[x+z] : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
+  x+[y+z]=y+[x+z] x y z = begin
+    x ℕ.+ (y ℕ.+ z)  ≡⟨ PEq.sym (ℕS.+-assoc x y z) ⟩
+    (x ℕ.+ y) ℕ.+ z  ≡⟨ PEq.cong (ℕ._+ z) (ℕS.+-comm x y) ⟩
+    (y ℕ.+ x) ℕ.+ z  ≡⟨ ℕS.+-assoc y x z ⟩
+    y ℕ.+ (x ℕ.+ z)  ∎
+    where open ≡-Reasoning
 
   extractions-≤ :
     ∀ {i} → Reachable-with-sets i →
@@ -144,10 +157,77 @@ module Algorithm.Theorem1
   count-S : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
             suc (count Sᵢ) ≡ enqueued-# ℕ.+ count Sⱼ
   count-S r@(hi , PEq.refl) = begin
-    suc (count Sᵢ)  ≡⟨ PEq.cong suc (enqueue-+ enqueued-vertices _) ⟩
-    suc (enqueued-# ℕ.+ count S₁)  ≡⟨ PEq.sym (+-suc enqueued-# _) ⟩
-    enqueued-# ℕ.+ suc (count S₁)  ≡⟨ PEq.cong (enqueued-# ℕ.+_) (dequeue-pred Sⱼ hi) ⟩
-    enqueued-# ℕ.+ count Sⱼ  ∎
+    suc (count Sᵢ)
+      ≡⟨ PEq.cong suc (enqueue-+ enqueued-vertices _) ⟩
+    suc (enqueued-# ℕ.+ count S₁)
+      ≡⟨ PEq.sym (+-suc enqueued-# _) ⟩
+    enqueued-# ℕ.+ suc (count S₁)
+      ≡⟨ PEq.cong (enqueued-# ℕ.+_) (dequeue-pred Sⱼ hi) ⟩
+    enqueued-# ℕ.+ count Sⱼ
+      ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  appWhenV : ∀ {a n} {A : Set a} (p : Fin n → Bool) →
+             (A → A) → (Vec A n → Vec A n)
+  appWhenV p f [] = []
+  appWhenV p f (x ∷ xs) with p Fin.zero
+  appWhenV p f (x ∷ xs) | false = x ∷ appWhenV (p ∘ suc) f xs
+  appWhenV p f (x ∷ xs) | true = f x ∷ appWhenV (p ∘ suc) f xs
+
+  appWhenV-sum-suc :
+    ∀ {n} p (xs : Vec ℕ n) →
+    sum (appWhenV p suc xs) ≡ List.length (filter p (toList (allFin n))) ℕ.+ sum xs
+  appWhenV-sum-suc p [] = PEq.refl
+  appWhenV-sum-suc {suc n} p (x ∷ xs) with p Fin.zero
+  appWhenV-sum-suc {suc n} p (x ∷ xs) | false = {-begin
+    x ℕ.+ sum (appWhenV (p ∘ suc) suc xs)
+      ≡⟨ PEq.cong (x ℕ.+_) (appWhenV-sum-suc (p ∘ suc) xs) ⟩
+    x ℕ.+ (List.length (filter (p ∘ suc) (toList (allFin n))) ℕ.+ sum xs)
+      ≡⟨ x+[y+z]=y+[x+z] x (List.length (filter (p ∘ suc) (toList (allFin n)))) (sum xs) ⟩
+    _ ℕ.+ (x ℕ.+ sum xs)
+      ∎-}
+    --PEq.trans (PEq.cong (x ℕ.+_) (appWhenV-sum-suc (p ∘ suc) xs))
+    --          (x+[y+z]=y+[x+z] x (List.length (filter (p ∘ suc) (toList (allFin n)))) (sum xs))
+    --where open ≡-Reasoning
+    {!!}
+  appWhenV-sum-suc {suc n} p (x ∷ xs) | true = PEq.cong suc {!appWhenV-sum-suc (p ∘ suc) xs!}
+
+  appWhen-∘-suc : ∀ {a n} {A : Set a} p f (g : Fin (suc n) → A) i →
+                  appWhen (p ∘ suc) f (g ∘ suc) i ≡ appWhen p f g (suc i)
+  appWhen-∘-suc p f g i with p (suc i)
+  appWhen-∘-suc p f g i | false = PEq.refl
+  appWhen-∘-suc p f g i | true = PEq.refl
+
+  appWhenV-appWhen : ∀ {a n} {A : Set a} p (f : A → A) (g : Fin n → A) →
+                     appWhenV p f (tabulate g) ≡ tabulate (appWhen p f g)
+  appWhenV-appWhen {n = ℕ.zero} p f g = PEq.refl
+  appWhenV-appWhen {n = suc n} p f g with p Fin.zero
+  appWhenV-appWhen {_} {suc n} p f g | false =
+    PEq.cong (g Fin.zero ∷_) (PEq.trans (appWhenV-appWhen (p ∘ suc) f (g ∘ suc))
+                                        (tabulate-cong (appWhen-∘-suc p f g)))
+  appWhenV-appWhen {_} {suc n} p f g | true =
+    PEq.cong (f (g (Fin.zero)) ∷_) (PEq.trans (appWhenV-appWhen (p ∘ suc) f (g ∘ suc))
+                                              (tabulate-cong (appWhen-∘-suc p f g)))
+
+  appWhen-sum-suc :
+    ∀ {n} p (f : Fin n → ℕ) →
+    ∣ appWhen p suc f ∣ ≡ List.length (filter p (toList (allFin n))) ℕ.+ ∣ f ∣
+  appWhen-sum-suc {n} p f = begin
+    ∣ appWhen p suc f ∣
+      ≡⟨ PEq.cong sum (PEq.sym (appWhenV-appWhen p suc f)) ⟩
+    sum (appWhenV p suc (tabulate f))
+      ≡⟨ appWhenV-sum-suc p (tabulate f) ⟩
+    List.length (filter p (toList (allFin n))) ℕ.+ ∣ f ∣
+      ∎
+    where open ≡-Reasoning
+
+  ∣I∣ : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+        ∣ Iᵢ ∣ ≡ enqueued-# ℕ.+ ∣ Iⱼ ∣
+  ∣I∣ r@(hi , PEq.refl) = begin
+    ∣ Iᵢ ∣  ≡⟨ {!enqueued-#!} ⟩
+    enqueued-# ℕ.+ ∣ Iⱼ ∣  ∎
     where
     open Internals-ij-from-↝ r
     open ≡-Reasoning
@@ -168,13 +248,13 @@ module Algorithm.Theorem1
     open Alg-state-abbrev i
     open Helper-sets is
   1+I=E+S (r@(hi , PEq.refl) ◅ rs) = begin
-    suc ∣ Iᵢ ∣  ≡⟨ PEq.cong suc {!!} ⟩
+    suc ∣ Iᵢ ∣  ≡⟨ PEq.cong suc (∣I∣ r) ⟩
     suc (enqueued-# ℕ.+ ∣ Iⱼ ∣)
       ≡⟨ PEq.sym (+-suc enqueued-# (∣ Iⱼ ∣)) ⟩
     enqueued-# ℕ.+ suc ∣ Iⱼ ∣
       ≡⟨ PEq.cong (enqueued-# ℕ.+_) (1+I=E+S rs) ⟩
     enqueued-# ℕ.+ (∣ Eⱼ ∣ ℕ.+ count Sⱼ)
-      ≡⟨ lemma enqueued-# (∣ Eⱼ ∣) (count Sⱼ) ⟩
+      ≡⟨ x+[y+z]=y+[x+z] enqueued-# (∣ Eⱼ ∣) (count Sⱼ) ⟩
     ∣ Eⱼ ∣ ℕ.+ (enqueued-# ℕ.+ count Sⱼ)
       ≡⟨ PEq.cong (∣ Eⱼ ∣ ℕ.+_) (PEq.sym (count-S r)) ⟩
     ∣ Eⱼ ∣ ℕ.+ suc (count Sᵢ)
@@ -186,13 +266,6 @@ module Algorithm.Theorem1
     where
     open Internals-ij-from-↝ r
     open ≡-Reasoning
-
-    lemma : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
-    lemma x y z = begin
-      x ℕ.+ (y ℕ.+ z)  ≡⟨ PEq.sym (ℕS.+-assoc x y z) ⟩
-      (x ℕ.+ y) ℕ.+ z  ≡⟨ PEq.cong (ℕ._+ z) (ℕS.+-comm x y) ⟩
-      (y ℕ.+ x) ℕ.+ z  ≡⟨ ℕS.+-assoc y x z ⟩
-      y ℕ.+ (x ℕ.+ z)  ∎
 
   E≤I : ∀ {i} → Reachable-with-sets i →
         let open Helper-sets (proj₂ i) in
@@ -255,8 +328,23 @@ module Algorithm.Theorem1
   terminates : Terminates gsssd-computation-with-sets
   terminates = terminates-from ε
 
+  max-steps : ℕ
+  max-steps = {!!}
+
+  max-steps-bound-l : ∀ {i} (rs : Starˡ _↝S_ initial-state-with-sets i) → length rs ≤ max-steps
+  max-steps-bound-l {i , is} rs = {!!}
+
+  max-steps-bound : ∀ {i} (rs : Star _↝S_ initial-state-with-sets i) → length rs ≤ max-steps
+  max-steps-bound rs = begin
+    length rs  ≡⟨ PEq.sym (length≡ rs) ⟩
+    length (Star→Starˡ rs)  ≤⟨ max-steps-bound-l (Star→Starˡ rs) ⟩
+    max-steps  ∎
+    where
+    open Inverse Star↔Starˡ
+    open ≤-Reasoning
+
   strongly-normalizing : StronglyNormalizing _↝S_ initial-state-with-sets
-  strongly-normalizing = bound-norm {!!} {!!}
+  strongly-normalizing = bound-norm max-steps max-steps-bound
 
   result : Vec C n
   result = d
