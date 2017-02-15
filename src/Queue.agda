@@ -45,6 +45,9 @@ module Queue where
     Has-items? : ∀ q → Dec (Has-items q)
     Has-items? = Is-suc? ∘ count
 
+    _∈Q_ : A → Carrier → Set
+    x ∈Q q = T (contains x q)
+
   -- An example
   stack : ∀ {c ℓ} (A : DecSetoid c ℓ) → QueueDiscipline (DecSetoid.Carrier A) c
   stack A = record

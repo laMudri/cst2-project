@@ -20,6 +20,7 @@ module Algorithm.Lemma9
   open import Graph.Definitions {K = K} G
   open import Graph.Properties {K = K} G
   open import Graph.Cycle {K = K} G s
+  open QueueDiscipline Q
 
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.List using (List; []; _∷_; map; _++_)
@@ -38,10 +39,11 @@ module Algorithm.Lemma9
 
   -- Note: the paper states this negatively. By the decidability of list
   -- membership, this statement is equivalent.
-  lemma-9 :
-    ∀ {i j} → Reachable-with-sets j → (r : j ↝S i) →
-    let open Internals-ij-from-↝ r in
-    ∀ {ne} (e : Edge dequeued ne) →
-    lookup ne dⱼ ≤K r′ * edge-weight e →
-    ∃ λ π → π ∈ map (e ◅_) R′ × π ∈ all-P k ne
-  lemma-9 rs r e le = {!!}
+  postulate
+    lemma-9 :
+      ∀ i → (hi : Has-items (Alg-state-abbrev.S (proj₁ (σS i IS₀)))) →
+      let open Internals-ij (σS i IS₀) hi in
+      ∀ {ne} (e : Edge dequeued ne) →
+      lookup ne dⱼ ≤K r′ * edge-weight e →
+      ∃ λ π → π ∈ map (e ◅_) R′ × π ∈ all-P k ne
+  --lemma-9 rs r e le = {!!}
