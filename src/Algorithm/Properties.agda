@@ -2,34 +2,47 @@ open import Semiring as K
 open import Semiring.Definitions using (Decidable)
 open import Queue as Q
 open import Graph as G
+import Graph.Definitions as GD
 open import Data.Fin using (Fin; zero; suc)
+open import Data.Nat as ℕ
+  using ( ℕ; zero; suc; _≤_; z≤n; s≤s; _≤′_; ≤′-refl; ≤′-step
+        ; module ≤-Reasoning
+        )
 
 module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
-       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
+       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
+       {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
   open import Algorithm K De Q G s
   open Semiring K renaming (Carrier to C)
   open QueueDiscipline Q renaming (Carrier to Qc)
+  open import Queue.Properties Q
   open import Semiring.Definitions K
   open import Semiring.Properties K
   open import Graph.Definitions {K = K} G
   open import Graph.Properties {K = K} G
+  open import Graph.Cycle {K = K} G s
 
-  open import Data.Bool using (Bool; false; true; T; if_then_else_)
+  open import App
+  open import App.Properties
+
+  open import Data.Bool using (Bool; false; true; not; T; if_then_else_)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties renaming (_≟_ to _F≟_)
-  open import Data.List using (List; []; _∷_; map; _++_)
+  open import Data.List as List using (List; []; _∷_; map; _++_)
   open import Data.List.All as All using (All; []; _∷_)
   open import Data.List.Any as Any
     using (module Membership-≡; Any; here; there; any)
   open Membership-≡ using (_∈_; _∉_; _⊆_; find; ⊆-preorder)
   open import Data.List.Any.Properties as AnyP using (++ʳ)
   import Data.List.Any.Membership as Mem
+  open import Data.Nat.Properties as ℕP using (≤″⇒≤)
+  open import Data.Nat.Properties.Simple as ℕS using (+-suc)
   open import Data.Product
     using (∃; ∃₂; Σ-syntax; _×_; _,_; _,′_; proj₁; proj₂; <_,_>)
   open import Star using ( Starˡ; ε; _◅_; _◅◅_; ◅-injective′; fold-preorder
-                         ; concat-vec)
+                         ; concat-vec; length)
   import Star.TransitionMembership as ↝
   open import Data.Sum using (_⊎_; inj₁; inj₂)
   open import Data.Unit using (⊤; tt)
@@ -41,37 +54,20 @@ module Algorithm.Properties
   open import Function.Equality using (_⟨$⟩_)
   open import Function.Equivalence using (Equivalence; _⇔_)
   open import Function.Inverse using (Inverse; _↔_)
+  open import Function.Surjection using (Surjection; _↠_)
 
   import Level as L
 
-  open import Relation.Binary using (Preorder)
+  open import Relation.Binary using (Preorder; DecTotalOrder)
   import Relation.Binary.On as On
   open import Relation.Binary.PropositionalEquality as PEq
-    using (_≡_; _≢_; inspect; [_])
+    using (_≡_; _≢_; inspect; [_]; module ≡-Reasoning)
   open import Relation.Nullary using (Dec; yes; no; ¬_)
   open import Relation.Nullary.Negation using (¬?)
   open import Relation.Nullary.Product using (_×-dec_)
   import Relation.Unary as U
 
-  module Internals-jk (k : Alg-state × Helper-sets)
-                      (hi : Has-items (vertex-queue (proj₁ k))) where
-    open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)
-    open Helper-sets (proj₂ k) public renaming (D to Dₖ; R to Rₖ; N to Nₖ)
-
-    open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Nₖ hi public
-      renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
-                             ; D₁ to Dⱼ; R₂ to Rⱼ; N₁ to Nⱼ)
-      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices
-            ; new-weights; new-sets)
-
-  module Internals-jk-from-↝ {j k} (r : k ↝S j) = Internals-jk k (proj₁ r)
-
-  module Internals-ij = Internals-jk
-    renaming ( dⱼ to dᵢ; rⱼ to rᵢ; Sⱼ to Sᵢ; Dⱼ to Dᵢ; Rⱼ to Rᵢ; Nⱼ to Nᵢ
-             ; dₖ to dⱼ; rₖ to rⱼ; Sₖ to Sⱼ; Dₖ to Dⱼ; Rₖ to Rⱼ; Nₖ to Nⱼ)
-
-  module Internals-ij-from-↝ {i j} (r : j ↝S i) = Internals-ij j (proj₁ r)
-
+  {-
   D-grows-step :
     ∀ {i j} (r : j ↝S i) →
     let open Internals-ij j (proj₁ r) in
@@ -89,7 +85,7 @@ module Algorithm.Properties
             let open Helper-sets (proj₂ i) renaming (D to Dᵢ) in
             let open Helper-sets (proj₂ j) renaming (D to Dⱼ) in
             ∀ {q} → Dⱼ q ⊆ Dᵢ q
-  D-grows {_ , helper-sets Dᵢ _ _} ε {q} = id
+  D-grows {_ , helper-sets Dᵢ _ _ _ _} ε {q} = id
   D-grows (r@(hi , PEq.refl) ◅ rs) {q} =
     Pre.trans (D-grows rs {q}) (D-grows-step r {q})
     where module Pre = Preorder (⊆-preorder (Path s q))
@@ -223,7 +219,7 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    ↝.Any (λ { {j} {alg-state d r S , helper-sets D R N} (hi , eq) →
+    ↝.Any (λ { {j} {alg-state _ _ S , helper-sets _ R _ _ _} (hi , eq) →
              m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
     ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
@@ -271,3 +267,145 @@ module Algorithm.Properties
   Relaxed : ∀ {j k} (r : k ↝S j) {pe ne} → Edge pe ne → Set _
   Relaxed r {pe} {ne} e = pe ≡ dequeued × ne ∈ relaxed-vertices
     where open Internals-jk-from-↝ r
+
+  postulate with-sets-equivalent : ∀ countdown state hs → σ countdown state ≈A proj₁ (σS countdown (state , hs))
+  --with-sets-equivalent countdown state hs = ?
+
+  ---------------------------------------------------------------------------
+  -- Extractions, Insertions, and number of times the condition holds.
+
+  -- The number of times each vertex q is enqueued is less than card (P k q).
+  -- There is a surjection from P k q to Fin (I q).
+  insertions-finite :
+    ∀ {i} → Reachable-with-sets i →
+    let open Alg-state-abbrev (proj₁ i) in
+    let open Helper-sets (proj₂ i) in
+    ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
+  insertions-finite = {!!}
+
+  x+[y+z]=y+[x+z] : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
+  x+[y+z]=y+[x+z] x y z = begin
+    x ℕ.+ (y ℕ.+ z)  ≡⟨ PEq.sym (ℕS.+-assoc x y z) ⟩
+    (x ℕ.+ y) ℕ.+ z  ≡⟨ PEq.cong (ℕ._+ z) (ℕS.+-comm x y) ⟩
+    (y ℕ.+ x) ℕ.+ z  ≡⟨ ℕS.+-assoc y x z ⟩
+    y ℕ.+ (x ℕ.+ z)  ∎
+    where open ≡-Reasoning
+
+  extractions-≤ :
+    ∀ {i} → Reachable-with-sets i →
+    let open Alg-state-abbrev (proj₁ i) in
+    let open Helper-sets (proj₂ i) in
+    ∣ E ∣ ≤ ∣ List.length ∘ all-P k ∣
+  extractions-≤ {_ , helper-sets _ _ _ _ E} ε =
+    PEq.subst (_≤ ∣ List.length ∘ all-P k ∣) (PEq.sym (sum-0 n)) z≤n
+  extractions-≤ (r@(hi , PEq.refl) ◅ rs) = {!!}
+    where open Internals-ij-from-↝ r
+
+  extractions-suc :
+    ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+    ∣ Eᵢ ∣ ≡ suc ∣ Eⱼ ∣
+  extractions-suc r@(hi , PEq.refl) = appAt-sum-suc dequeued Eⱼ
+    where open Internals-ij-from-↝ r
+
+  count-S : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+            suc (count Sᵢ) ≡ enqueued-# ℕ.+ count Sⱼ
+  count-S r@(hi , PEq.refl) = begin
+    suc (count Sᵢ)
+      ≡⟨ PEq.cong suc (enqueue-+ enqueued-vertices _) ⟩
+    suc (enqueued-# ℕ.+ count S₁)
+      ≡⟨ PEq.sym (+-suc enqueued-# _) ⟩
+    enqueued-# ℕ.+ suc (count S₁)
+      ≡⟨ PEq.cong (enqueued-# ℕ.+_) (dequeue-pred Sⱼ hi) ⟩
+    enqueued-# ℕ.+ count Sⱼ
+      ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  ∣I∣ : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+        ∣ Iᵢ ∣ ≡ enqueued-# ℕ.+ ∣ Iⱼ ∣
+  ∣I∣ r@(hi , PEq.refl) = begin
+    ∣ Iᵢ ∣  ≡⟨ {!enqueued-#!} ⟩
+    enqueued-# ℕ.+ ∣ Iⱼ ∣  ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  1+I=E+S : ∀ {i} (rs : Reachable-with-sets i) →
+            let open Alg-state-abbrev (proj₁ i) in
+            let open Helper-sets (proj₂ i) in
+            suc ∣ I ∣ ≡ ∣ E ∣ ℕ.+ count S
+  1+I=E+S {i , is} ε = begin
+    suc ∣ I ∣          ≡⟨ PEq.cong suc (sum-0 n) ⟩
+    suc 0              ≡⟨ PEq.cong suc (PEq.sym empty-zero) ⟩
+    suc (count empty)  ≡⟨ PEq.sym (enqueue-suc _ empty) ⟩
+    count S            ≡⟨⟩
+    0 ℕ.+ count S      ≡⟨ PEq.cong (ℕ._+ count S) (PEq.sym (sum-0 n)) ⟩
+    ∣ E ∣ ℕ.+ count S  ∎
+    where
+    open ≡-Reasoning
+    open Alg-state-abbrev i
+    open Helper-sets is
+  1+I=E+S (r@(hi , PEq.refl) ◅ rs) = begin
+    suc ∣ Iᵢ ∣  ≡⟨ PEq.cong suc (∣I∣ r) ⟩
+    suc (enqueued-# ℕ.+ ∣ Iⱼ ∣)
+      ≡⟨ PEq.sym (+-suc enqueued-# (∣ Iⱼ ∣)) ⟩
+    enqueued-# ℕ.+ suc ∣ Iⱼ ∣
+      ≡⟨ PEq.cong (enqueued-# ℕ.+_) (1+I=E+S rs) ⟩
+    enqueued-# ℕ.+ (∣ Eⱼ ∣ ℕ.+ count Sⱼ)
+      ≡⟨ x+[y+z]=y+[x+z] enqueued-# (∣ Eⱼ ∣) (count Sⱼ) ⟩
+    ∣ Eⱼ ∣ ℕ.+ (enqueued-# ℕ.+ count Sⱼ)
+      ≡⟨ PEq.cong (∣ Eⱼ ∣ ℕ.+_) (PEq.sym (count-S r)) ⟩
+    ∣ Eⱼ ∣ ℕ.+ suc (count Sᵢ)
+      ≡⟨ +-suc (∣ Eⱼ ∣) (count Sᵢ) ⟩
+    suc ∣ Eⱼ ∣ ℕ.+ count Sᵢ
+      ≡⟨ PEq.cong (ℕ._+ count Sᵢ) (PEq.sym (extractions-suc r)) ⟩
+    ∣ Eᵢ ∣ ℕ.+ count Sᵢ
+      ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  {-
+  E≤I : ∀ {i} → Reachable-with-sets i →
+        let open Helper-sets (proj₂ i) in
+        ∀ q → E q ≤ I q
+  E≤I ε q = z≤n
+  E≤I (r@(hi , PEq.refl) ◅ rs) q = {!Eᵢ!}
+    where open Internals-ij-from-↝ r
+  -}
+
+  postulate E≤I : ∀ t → let open Helper-sets (proj₂ (σS t IS₀)) in
+                  ∀ q → E q ≤ I q
+
+  ∣E∣≤1+∣I∣ : ∀ {i} → Reachable-with-sets i →
+              let open Helper-sets (proj₂ i) in
+              ∣ E ∣ ≤ suc ∣ I ∣
+  ∣E∣≤1+∣I∣ rs = ≤″⇒≤ (ℕ.less-than-or-equal (PEq.sym (1+I=E+S rs)))
+
+  ∣E∣-time : ∀ {i} (rs : Reachable-with-sets i) →
+             let open Helper-sets (proj₂ i) in
+             ∣ E ∣ ≡ length rs
+  ∣E∣-time ε = sum-0 n
+  ∣E∣-time (r@(hi , PEq.refl) ◅ rs) = begin
+    ∣ Eᵢ ∣           ≡⟨ extractions-suc r ⟩
+    suc ∣ Eⱼ ∣       ≡⟨ PEq.cong suc (∣E∣-time rs) ⟩
+    suc (length rs)  ∎
+    where
+    open Internals-ij-from-↝ r
+    open ≡-Reasoning
+
+  postulate I≤L : ∀ t → let open Helper-sets (proj₂ (σS t IS₀)) in
+                  ∀ q → I q ≤ L q
+  -}
+
+  postulate L-no-suc : ∀ q t state hi → let open Internals-ij (σS t state) hi in
+                       T (not (conditon q)) → Lⱼ q ≡ Lᵢ q
+
+  postulate L-increase : ∀ q t state → Helper-sets.L (proj₂ (σS (suc t) state)) q ≤ suc (Helper-sets.L (proj₂ (σS t state)) q)
+
+  postulate D-inclusion : ∀ q t → let open Helper-sets (proj₂ (σS t IS₀)) in
+                          D q ⊆ all-P k q
+
+  postulate L-maximal : ∀ q t → let open Helper-sets (proj₂ (σS t IS₀)) in
+                        List.length (all-P k q) ≤ L q → all-P k q ⊆ D q

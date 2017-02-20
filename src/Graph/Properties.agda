@@ -25,7 +25,7 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     using (Star; ε; _◅_; _◅◅_; _⊑_; subpath; _⊏_; strict-subpath; Non-trivial;
            distinct-endpoints→non-trivial; ◅-injective′; statesₗ; statesᵣ;
            states)
-  open import Star.Properties {T = flip Edge}
+  open import Star.Properties
     using (⊑-poset; ⊑ε⇒≡ε; ◅-⊑; ¬⊏ε; ⊏x◅ε⇒≡ε)
   open import Data.Star.Properties using (◅◅-assoc)
   open import Data.Sum using (_⊎_; inj₁; inj₂; [_,_])
@@ -71,12 +71,12 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   singleton-cycle-free e π nt sub eq with ⊏x◅ε⇒≡ε sub
   singleton-cycle-free e .ε nt sub eq | PEq.refl , PEq.refl = nt
 
+  {-
   ¬-has-cycle-ε : ∀ {s} → ¬ Has-cycle {s} ε
   ¬-has-cycle-ε (has-cycle ε nt sub) = nt
   ¬-has-cycle-ε (has-cycle (e ◅ c) nt sub) with ⊑ε⇒≡ε sub
   ... | PEq.refl , PEq.refl , ()
 
-  {-
   q∈statesᵣ⇒Cycle-free⇒⊥ :
     ∀ {s q q′} {e : Edge q q′} {π : Path s q} →
     q′ ∈ statesₗ π → Cycle-free (e ◅ π) → ⊥
@@ -88,7 +88,6 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     go ρ e (f ◅ π) (here PEq.refl) cf =
       cf (e ◅ ε) tt (strict-subpath ρ (f ◅ π) PEq.refl (inj₂ tt)) PEq.refl
     go ρ e (f ◅ π) (there elem) cf = {!go (ρ ◅◅ e ◅ ε) f π elem!}
-  -}
 
   q∈statesᵣ⇒Has-cycle :
     ∀ {s q} {π : Path s q} → q ∈ statesᵣ π → Has-cycle π
@@ -106,7 +105,6 @@ module Graph.Properties {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     go ρ (e ◅ π) (there elem) =
       PEq.subst Has-cycle (◅◅-assoc ρ (e ◅ ε) π) (go (ρ ◅◅ e ◅ ε) π elem)
 
-  {-
   has-cycle? : ∀ {s q} (π : Path s q) → Dec (Has-cycle π)
   has-cycle? = {!!}
     where
