@@ -1,9 +1,11 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, TypeFamilies, AllowAmbiguousTypes #-}
 module Main where
+
+import Prelude hiding (elem)
 
 import Data.Graph
 
-type Q = [Vertex]
+-- Semiring
 
 class Semiring k where
   zero :: k
@@ -24,18 +26,18 @@ instance Semiring Weight where
 instance Ord Weight where
   a <= b = plus b a == a
 
-empty :: Q
-empty = []
+-- Queue
 
-enqueue :: Vertex -> Q -> Q
-enqueue = (:)
+class Queue q where
+  empty :: q
+  insert :: Vertex -> q -> q
+  extract :: q -> Maybe (Vertex, q)
+  elem :: Vertex -> q -> Bool
 
-dequeue :: Q -> Maybe (Vertex , Q)
-dequeue [] = Nothing
-dequeue (q : s) = Just (q , s)
+singleton :: (Queue q) => Vertex -> q
+singleton x = insert x empty
 
-contains :: Q -> Vertex -> Bool
-contains s q = elem q s
+-- Utils
 
 setAt :: [a] -> Int -> a -> [a]
 setAt [] _ y = []
@@ -48,27 +50,30 @@ fixMaybe f x =
        Nothing -> x
        Just fx -> fixMaybe f fx
 
-data AlgState k = AlgState [k] [k] Q
+-- Algorithm
 
-go :: forall k. (Eq k, Semiring k, Ord k) =>
+data AlgState k q =
+  AlgState { knownDistances :: [k], addedWeight :: [k], vertexQueue :: q }
+
+go :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
       Graph -> (Edge -> k) -> Vertex -> [k]
-go g w start = let AlgState d r s = result in d
+go g w start = let AlgState d _ _ = result in d
   where
   n :: Int
   n = length (vertices g)
 
-  initialState :: AlgState k
+  initialState :: AlgState k q
   initialState = AlgState d d s
     where
     d :: [k]
     d = setAt (replicate n zero) start one
 
-    s :: Q
-    s = enqueue start empty
+    s :: q
+    s = singleton start
 
-  doStep :: AlgState k -> Maybe (AlgState k)
+  doStep :: AlgState k q -> Maybe (AlgState k q)
   doStep (AlgState d r s) = do
-    (q , s) <- dequeue s
+    (q , s) <- extract s
     let r' = r !! q
     let rN = setAt r q zero
     let condition e = d !! (snd e) <= times r' (w e)
@@ -82,11 +87,11 @@ go g w start = let AlgState d r s = result in d
     let dN = newWeights d
     let rNN = newWeights rN
 
-    let enqueuedVertices = filter (not . contains s) (map snd relaxedEdges)
-    let sN = foldr enqueue s enqueuedVertices
+    let enqueuedVertices = filter (not . (`elem` s)) (map snd relaxedEdges)
+    let sN = foldr insert s enqueuedVertices
     return (AlgState dN rNN sN)
 
-  result :: AlgState k
+  result :: AlgState k q
   result = fixMaybe doStep initialState
 
 main :: IO ()
