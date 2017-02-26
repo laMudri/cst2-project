@@ -1,8 +1,9 @@
-{-# LANGUAGE ScopedTypeVariables, TypeFamilies, AllowAmbiguousTypes #-}
+{-# LANGUAGE ScopedTypeVariables, TypeFamilies, DeriveFunctor #-}
 module Main where
 
 import Prelude hiding (elem)
 
+import Data.Array
 import Data.Graph
 
 -- Semiring
@@ -13,11 +14,20 @@ class Semiring k where
   plus :: k -> k -> k
   times :: k -> k -> k
 
-newtype Weight = W (Maybe Int) deriving (Eq, Show)
+-- Maybe, but with Just x < Nothing
+data Topped a = Fin a | Top deriving (Show, Eq, Ord, Functor)
+
+instance Applicative Topped where
+  pure = Fin
+  Top <*> x = Top
+  Fin f <*> Top = Top
+  Fin f <*> Fin x = Fin (f x)
+
+newtype Weight = W (Topped Int) deriving (Eq, Show)
 
 instance Semiring Weight where
-  zero = W Nothing
-  one = W (Just 0)
+  zero = W Top
+  one = W (Fin 0)
   plus (W a) (W b) = W (min a b)
   times (W a) (W b) = W ((+) <$> a <*> b)
 
@@ -37,6 +47,13 @@ class Queue q where
 singleton :: (Queue q) => Vertex -> q
 singleton x = insert x empty
 
+instance (vertex ~ Vertex) => Queue [vertex] where
+  empty = []
+  insert = (:)
+  extract [] = Nothing
+  extract (x : xs) = Just (x , xs)
+  elem x = any (x ==)
+
 -- Utils
 
 setAt :: [a] -> Int -> a -> [a]
@@ -50,14 +67,60 @@ fixMaybe f x =
        Nothing -> x
        Just fx -> fixMaybe f fx
 
+data Phantom a = Ph
+
 -- Algorithm
 
 data AlgState k q =
   AlgState { knownDistances :: [k], addedWeight :: [k], vertexQueue :: q }
+  deriving (Show, Eq)
+
+--where
+n :: Graph -> (Edge -> k) -> Vertex -> Int
+n g w source = length (vertices g)
+
+initialState :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
+                Phantom q -> Graph -> (Edge -> k) -> Vertex ->
+                AlgState k q
+initialState ph g w source = AlgState d d s
+  where
+  d :: [k]
+  d = setAt (replicate (n g w source) zero) source one
+
+  s :: q
+  s = singleton source
+
+doStep :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
+          Phantom q -> Graph -> (Edge -> k) -> Vertex ->
+          AlgState k q -> Maybe (AlgState k q)
+doStep ph g w source (AlgState d r s) = do
+  (q , s) <- extract s
+  let r' = r !! q
+  let rN = setAt r q zero
+  let condition e = (d !! snd e) /= plus (d !! snd e) (times r' (w e))
+  let relaxedEdges = filter condition (zip [q, q..] (reachable g q))
+
+  let newWeights a = foldr (\ e a ->
+        setAt a (snd e) (plus (times r' (w e)) (a !! snd e)))
+                           a
+                           relaxedEdges
+
+  let dN = newWeights d
+  let rNN = newWeights rN
+
+  let enqueuedVertices = filter (not . (`elem` s)) (map snd relaxedEdges)
+  let sN = foldr insert s enqueuedVertices
+  return (AlgState dN rNN sN)
+
+result :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
+          Phantom q -> Graph -> (Edge -> k) -> Vertex ->
+          AlgState k q
+result ph g w source = fixMaybe (doStep ph g w source) (initialState ph g w source)
 
 go :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
-      Graph -> (Edge -> k) -> Vertex -> [k]
-go g w start = let AlgState d _ _ = result in d
+      Phantom q -> Graph -> (Edge -> k) -> Vertex -> [k]
+go ph g w source = let AlgState d _ _ = (result ph g w source) in d
+  {-
   where
   n :: Int
   n = length (vertices g)
@@ -66,10 +129,10 @@ go g w start = let AlgState d _ _ = result in d
   initialState = AlgState d d s
     where
     d :: [k]
-    d = setAt (replicate n zero) start one
+    d = setAt (replicate n zero) source one
 
     s :: q
-    s = singleton start
+    s = singleton source
 
   doStep :: AlgState k q -> Maybe (AlgState k q)
   doStep (AlgState d r s) = do
@@ -93,6 +156,45 @@ go g w start = let AlgState d _ _ = result in d
 
   result :: AlgState k q
   result = fixMaybe doStep initialState
+  -}
+
+-- Test data
+
+phantom :: Phantom [Vertex]
+phantom = Ph
+
+graph :: Graph
+graph = array (0 , 2) [ (i , [0 .. 2]) | i <- [0 .. 2] ]
+
+weight :: Edge -> Weight
+weight (0 , 0) = W $ Top
+weight (0 , 1) = W $ Fin 2
+weight (0 , 2) = W $ Fin 4
+weight (1 , 0) = W $ Fin 2
+weight (1 , 1) = W $ Top
+weight (1 , 2) = W $ Fin 1
+weight (2 , 0) = W $ Fin 4
+weight (2 , 1) = W $ Fin 1
+weight (2 , 2) = W $ Top
+
+source :: Vertex
+source = 0
+
+-- Debug
+
+n' :: Int
+n' = n graph weight source
+
+initialState' :: AlgState Weight [Vertex]
+initialState' = initialState phantom graph weight source
+
+doStep' :: AlgState Weight [Vertex] -> Maybe (AlgState Weight [Vertex])
+doStep' = doStep phantom graph weight source
+
+result' :: AlgState Weight [Vertex]
+result' = result phantom graph weight source
 
 main :: IO ()
-main = return ()
+main = do
+  let d = go phantom graph weight source
+  print d
