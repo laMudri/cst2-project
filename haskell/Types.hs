@@ -3,8 +3,9 @@ module Types where
 
 import Prelude hiding (elem)
 
-import Data.Array
+import Data.Array hiding ((//))
 import Data.Graph
+import Text.PrettyPrint.Boxes
 
 -- Semiring
 
@@ -15,7 +16,11 @@ class Semiring k where
   times :: k -> k -> k
 
 -- Maybe, but with Just x < Nothing
-data Topped a = Fin a | Top deriving (Show, Eq, Ord, Functor)
+data Topped a = Fin a | Top deriving (Eq, Ord, Functor)
+
+instance (Show a) => Show (Topped a) where
+  show (Fin x) = show x
+  show Top = "∞"
 
 instance Applicative Topped where
   pure = Fin
@@ -23,7 +28,9 @@ instance Applicative Topped where
   Fin f <*> Top = Top
   Fin f <*> Fin x = Fin (f x)
 
-newtype Weight = W (Topped Int) deriving (Eq, Show)
+newtype Weight = W (Topped Int) deriving (Eq)
+instance Show Weight where
+  show (W x) = show x
 
 instance Semiring Weight where
   zero = W Top
@@ -35,6 +42,22 @@ instance Semiring Weight where
 --  a <= b = plus b a == a
 instance Ord Weight where
   a <= b = plus b a == a
+
+showWeightMatrix :: Vertex -> (Edge -> Weight) -> String
+showWeightMatrix n w = render box
+  where
+  bss :: [[Box]]
+  bss = [ [ text (show (w (x , y)))
+          | x <- [0 .. pred n]
+          ]
+        | y <- [0 .. pred n]
+        ]
+
+  values :: Box
+  values = hsep 1 top (map (vcat right) bss)
+
+  box :: Box
+  box = (char '\\' <> hcat top (replicate (cols values) (char '-'))) // (vcat right (replicate (rows values) (char '|')) <> values)
 
 -- Queue
 

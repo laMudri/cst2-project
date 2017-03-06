@@ -3,11 +3,14 @@ module Main where
 
 import Prelude hiding (elem)
 
+import Control.Monad.Random.Lazy
 import Data.Array
 import Data.Graph
+import Data.Ratio
 
 import Types
 import Mohri
+import GenGraphs
 
 -- Test data
 
@@ -33,5 +36,8 @@ source = 0
 
 main :: IO ()
 main = do
-  let d = mohri phantom graph weight source
-  print d
+  let n = 60
+  w0 <- evalRandIO $ completeWeights (geo (1 % 120)) n
+  w1 <- evalRandIO $ bimodalWeights (geo (1 % 120)) n
+  let ds = map (\ w -> mohri phantom (completeGraph n) w 0) [ w0 , w1 ]
+  print ds
