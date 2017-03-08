@@ -16,11 +16,10 @@ class Semiring k where
   times :: k -> k -> k
 
 -- Maybe, but with Just x < Nothing
-data Topped a = Fin a | Top deriving (Eq, Ord, Functor)
-
-instance (Show a) => Show (Topped a) where
-  show (Fin x) = show x
-  show Top = "∞"
+data Topped a = Fin a | Top deriving (Eq, Ord, Functor, Show, Read)
+--instance (Show a) => Show (Topped a) where
+--  show (Fin x) = show x
+--  show Top = "∞"
 
 instance Applicative Topped where
   pure = Fin
@@ -28,9 +27,9 @@ instance Applicative Topped where
   Fin f <*> Top = Top
   Fin f <*> Fin x = Fin (f x)
 
-newtype Weight = W (Topped Int) deriving (Eq)
-instance Show Weight where
-  show (W x) = show x
+newtype Weight = W (Topped Int) deriving (Eq, Show, Read)
+--instance Show Weight where
+--  show (W x) = show x
 
 instance Semiring Weight where
   zero = W Top
@@ -58,6 +57,12 @@ showWeightMatrix n w = render box
 
   box :: Box
   box = (char '\\' <> hcat top (replicate (cols values) (char '-'))) // (vcat right (replicate (rows values) (char '|')) <> values)
+
+tabulate :: Vertex -> (Edge -> Weight) -> [[Weight]]
+tabulate n w = [ [ w (x , y) | y <- [0 .. pred n] ] | x <- [0 .. pred n] ]
+
+untabulate :: [[Weight]] -> (Edge -> Weight)
+untabulate l (x , y) = l !! x !! y
 
 -- Queue
 

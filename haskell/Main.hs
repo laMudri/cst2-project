@@ -10,7 +10,7 @@ import Data.Ratio
 
 import Types
 import Mohri
-import GenGraphs
+--import GenGraphs
 
 -- Test data
 
@@ -37,7 +37,12 @@ source = 0
 main :: IO ()
 main = do
   let n = 60
-  w0 <- evalRandIO $ completeWeights (geo (1 % 120)) n
-  w1 <- evalRandIO $ bimodalWeights (geo (1 % 120)) n
-  let ds = map (\ w -> mohri phantom (completeGraph n) w 0) [ w0 , w1 ]
-  print ds
+  testData <- readFile "test-data.txt"
+  let (n :: Vertex , g :: Graph , l :: [[Weight]]) = read testData
+  let w = untabulate l
+  --w0 <- evalRandIO $ completeWeights (geo (1 % 120)) n
+  --w1 <- evalRandIO $ bimodalWeights (geo (1 % 120)) n
+  --let ds = map (\ w -> mohri phantom (completeGraph n) w 0) [ w0 , w1 ]
+  --print ds
+  let d = mohri phantom g w 0
+  print d

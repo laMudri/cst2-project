@@ -35,8 +35,15 @@ bimodalWeights r n = do
   -- Vertices of the same parity are connected.
   -- Also, vertices n - 2 and n - 1 are connected.
   let w (x , y)
-        | x `mod` 2 == y `mod` 2 =   W . Fin $ ws !! (x + n * y)
+        | x `mod` 2 == y `mod` 2   = W . Fin $ ws !! (x + n * y)
         | x == n - 2 && y == n - 1 = W . Fin $ ws !! (x + n * y)
         | x == n - 1 && y == n - 2 = W . Fin $ ws !! (x + n * y)
         | otherwise                = W Top
   return w
+
+main :: IO ()
+main = do
+  let n = 60
+  let g = completeGraph n
+  w <- evalRandIO $ completeWeights (geo (1 % 120)) n
+  writeFile "test-data.txt" (show (n , g , tabulate n w))
