@@ -1,10 +1,13 @@
-{-# LANGUAGE TypeFamilies, DeriveFunctor #-}
+{-# LANGUAGE TypeFamilies, DeriveFunctor, MultiParamTypeClasses,
+    AllowAmbiguousTypes, FunctionalDependencies #-}
 module Types where
 
 import Prelude hiding (elem)
 
 import Data.Array hiding ((//))
 import Data.Graph
+import Data.OrdPSQ (OrdPSQ)
+import qualified Data.OrdPSQ as PSQ
 import Text.PrettyPrint.Boxes
 
 -- Semiring
@@ -68,16 +71,55 @@ untabulate l (x , y) = l !! x !! y
 
 class Queue q where
   empty :: q
+  singleton :: Vertex -> q
   insert :: Vertex -> q -> q
   extract :: q -> Maybe (Vertex, q)
   elem :: Vertex -> q -> Bool
 
-singleton :: (Queue q) => Vertex -> q
-singleton x = insert x empty
+  singleton x = insert x empty
 
+class Queue q => PriorityQueue w q | q -> w where
+  psingleton :: w -> Vertex -> q
+  pinsert :: w -> Vertex -> q -> q
+
+  psingleton w x = pinsert w x empty
+  pinsert _ = insert
+
+-- Basic LIFO
 instance (vertex ~ Vertex) => Queue [vertex] where
   empty = []
   insert = (:)
   extract [] = Nothing
   extract (x : xs) = Just (x , xs)
   elem x = any (x ==)
+
+-- Okazaki-style FIFO
+newtype Fifo a = Fifo ([a] , [a])
+
+fifoExtract :: Fifo a -> Maybe (a , Fifo a)
+fifoExtract (Fifo ([] , [])) = Nothing
+fifoExtract (Fifo ([] , back)) = fifoExtract (Fifo (reverse back , []))
+fifoExtract (Fifo (x : front , back)) = Just (x , Fifo (front , back))
+
+instance (vertex ~ Vertex) => Queue (Fifo vertex) where
+  empty = Fifo ([] , [])
+  insert x (Fifo (front , back)) = Fifo (x : front , back)
+  extract = fifoExtract
+  elem x (Fifo (front , back)) = any (x ==) front || any (x ==) back
+
+-- Dijkstra-style shortest-first queue
+-- Key is redundant, and just the associated vertex.
+instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
+      => Queue (OrdPSQ vertex weight vertex') where
+  empty = PSQ.empty
+  singleton x = PSQ.singleton x (W (Fin 0)) x
+  insert x = PSQ.insert x (W (Fin 0)) x
+  extract h = (\ (_ , _ , x , h) -> (x , h)) <$> PSQ.minView h
+  elem = PSQ.member
+
+newtype Id a = Id a
+
+instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
+      => PriorityQueue (Id weight) (OrdPSQ vertex weight vertex') where
+  psingleton (Id w) x = PSQ.singleton x w x
+  pinsert (Id w) x = PSQ.insert x w x

@@ -3,7 +3,7 @@ let
   inherit (pkgs) stdenv haskellPackages;
   inherit (haskellPackages) ghcWithPackages;
 
-  haskell-env = ghcWithPackages (h: with h; [ MonadRandom boxes ]);
+  haskell-env = ghcWithPackages (h: with h; [ MonadRandom boxes psqueues ]);
 
 in stdenv.mkDerivation {
   name = "dis-haskell";

@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-module Mohri where
+module MohriPriority where
 
 import Prelude hiding (elem)
 
@@ -29,9 +29,9 @@ data AlgState k q =
   AlgState { knownDistances :: [k], addedWeight :: [k], vertexQueue :: q }
   deriving (Show, Eq)
 
-mohri :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
-         Phantom q -> Graph -> (Edge -> k) -> Vertex -> [k]
-mohri ph g w source = let AlgState d _ _ = result in d
+mohrip :: forall k q. (Eq k, Semiring k, Ord k, PriorityQueue k q) =>
+          Phantom q -> Graph -> (Edge -> k) -> Vertex -> [k]
+mohrip ph g w source = let AlgState d _ _ = result in d
   where
   n :: Int
   n = length (vertices g)
@@ -43,7 +43,7 @@ mohri ph g w source = let AlgState d _ _ = result in d
     d = setAt (replicate n zero) source one
 
     s :: q
-    s = singleton source
+    s = psingleton one source
 
   doStep :: AlgState k q -> Maybe (AlgState k q)
   doStep (AlgState d r s) = do
@@ -62,7 +62,7 @@ mohri ph g w source = let AlgState d _ _ = result in d
     let rNN = newWeights rN
 
     let enqueuedVertices = filter (not . (`elem` s)) (map snd relaxedEdges)
-    let sN = foldr insert s enqueuedVertices
+    let sN = foldr (\ q' -> pinsert (w (q , q')) q') s enqueuedVertices
     return (AlgState dN rNN sN)
 
   result :: AlgState k q
