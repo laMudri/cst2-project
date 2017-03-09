@@ -31,7 +31,7 @@ module Graph.Cycle {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) (s : Fin n) wh
   open import Relation.Binary.PropositionalEquality as PEq
     using (_≡_; _≢_; →-to-⟶; module ≡-Reasoning)
   open import Relation.Nullary using (¬_; Dec; yes; no)
-  open import Relation.Nullary.Sigma using (Σ-dec)
+  --open import Relation.Nullary.Sigma using (Σ-dec)
 
   Cycle_occurs_times-in_ : ∀ {p n q} → Cycle q → ℕ → Path p n → Set
   Cycle c occurs n times-in π = c ⊑ π ↔ Fin n

@@ -5,6 +5,8 @@ module Main where
 
   open import Category.Monad
 
+  open import Coinduction
+
   open import Data.Bool using (Bool; false; true; T)
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties as FinP using ()
@@ -203,19 +205,25 @@ module Main where
   run i | no _ = i
   -}
 
+  open import Arguments
   open import IO
   open import IO.Primitive as Prim using ()
   open import Computation
+  open import Data.List using (List; []; _∷_; length)
   open import Data.Nat.Show as ℕS using ()
   open import Data.String hiding (show)
-  open import Data.Vec hiding (_++_)
+  open import Data.Vec hiding (_++_; toList)
 
   show : ∀ {n} → Vec (Maybe ℕ) n → String
-  show [] = "\n"
+  show [] = ""
   show (just x ∷ xs) = ℕS.show x ++ "\n" ++ show xs
   show (nothing ∷ xs) = "∞\n" ++ show xs
 
   {-# NON_TERMINATING #-}
   main : Prim.IO ⊤
   main = run $
-    putStr (show (Alg-state-abbrev.d (proj₁ (Terminates-result terminates))))
+    ♯ getArgs IO.>>= λ
+    { [] → ♯ putStrLn "Not enough arguments."
+    ; (x ∷ xs) →
+      ♯ putStr (show (Alg-state-abbrev.d (σ (length (toList x)) I₀)))
+    }
