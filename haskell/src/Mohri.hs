@@ -21,8 +21,6 @@ fixMaybe f x =
        Nothing -> x
        Just fx -> fixMaybe f fx
 
-data Phantom a = Ph
-
 -- Algorithm
 
 data AlgState k q =

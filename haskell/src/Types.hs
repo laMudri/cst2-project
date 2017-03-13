@@ -1,5 +1,5 @@
 {-# LANGUAGE TypeFamilies, DeriveFunctor, MultiParamTypeClasses,
-    AllowAmbiguousTypes, FunctionalDependencies #-}
+    AllowAmbiguousTypes, FunctionalDependencies, FlexibleInstances #-}
 module Types where
 
 import Prelude hiding (elem)
@@ -119,9 +119,11 @@ instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
   extract h = (\ (_ , _ , x , h) -> (x , h)) <$> PSQ.minView h
   elem = PSQ.member
 
-newtype Id a = Id a
-
 instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
-      => PriorityQueue (Id weight) (OrdPSQ vertex weight vertex') where
-  psingleton (Id w) x = PSQ.singleton x w x
-  pinsert (Id w) x = PSQ.insert x w x
+      => PriorityQueue weight (OrdPSQ vertex weight vertex') where
+  psingleton w x = PSQ.singleton x w x
+  pinsert w x = PSQ.insert x w x
+
+-- Utilities
+
+data Phantom a = Ph

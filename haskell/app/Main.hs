@@ -5,6 +5,7 @@ import Prelude hiding (elem)
 
 import Data.Array
 import Data.Graph
+import Data.OrdPSQ (OrdPSQ)
 import Data.Ratio
 
 import System.Environment
@@ -12,11 +13,11 @@ import System.Environment
 import Types
 import Mohri
 import MohriPriority
-import Dijkstra
+--import Dijkstra
 
 -- Test data
 
-phantom :: Phantom [Vertex]
+phantom :: Phantom (OrdPSQ Vertex Weight Vertex)
 phantom = Ph
 
 main :: IO ()
@@ -27,6 +28,6 @@ main = do
   testData <- readFile filename
   let (n :: Vertex , g :: Graph , l :: [[Weight]]) = read testData
   let w = untabulate l
-  --let d = mohri phantom g w 0
-  let d = dijkstra g w 0
+  let d = mohrip phantom g w 0
+  --let d = dijkstra g w 0
   print d
