@@ -8,21 +8,6 @@ import Data.Graph
 
 import Types
 
--- Utils
-
-setAt :: [a] -> Int -> a -> [a]
-setAt [] _ y = []
-setAt (x : xs) 0 y = y : xs
-setAt (x : xs) i y = x : setAt xs (i - 1) y
-
-fixMaybe :: (a -> Maybe a) -> a -> a
-fixMaybe f x =
-  case f x of
-       Nothing -> x
-       Just fx -> fixMaybe f fx
-
--- Algorithm
-
 data AlgState k q =
   AlgState { knownDistances :: [k], addedWeight :: [k], vertexQueue :: q }
   deriving (Show, Eq)
