@@ -13,7 +13,7 @@ import System.Environment
 import Types
 import Mohri
 import MohriPriority
---import Dijkstra
+import Dijkstra
 
 -- Test data
 
@@ -28,6 +28,6 @@ main = do
   testData <- readFile filename
   let (n :: Vertex , g :: Graph , l :: [[Weight]]) = read testData
   let w = untabulate l
-  let d = mohrip phantom g w 0
+  let d = dijkstra phantom g w 0
   --let d = dijkstra g w 0
   print d
