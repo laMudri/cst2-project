@@ -10,6 +10,7 @@ import Data.OrdPSQ (OrdPSQ)
 import qualified Data.OrdPSQ as PSQ
 import Text.PrettyPrint.Boxes
 
+--------------------------------------------------------------------------------
 -- Semiring
 
 class Semiring k where
@@ -67,6 +68,7 @@ tabulate n w = [ [ w (x , y) | y <- [0 .. pred n] ] | x <- [0 .. pred n] ]
 untabulate :: [[Weight]] -> (Edge -> Weight)
 untabulate l (x , y) = l !! x !! y
 
+--------------------------------------------------------------------------------
 -- Queue
 
 class Queue q where

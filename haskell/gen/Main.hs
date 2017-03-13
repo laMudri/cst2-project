@@ -1,8 +1,11 @@
-module GenGraphs where
+{-# LANGUAGE TupleSections #-}
+module Main where
 
 import Control.Monad.Random.Lazy
 import Data.Graph
 import Data.Ratio
+import System.Environment
+import Text.Read
 import Types
 
 geo :: (MonadRandom m, Integral int) => Rational -> m int
@@ -41,9 +44,31 @@ bimodalWeights r n = do
         | otherwise                = W Top
   return w
 
+data Alg = C | B
+
+defAlg = C
+defN = 60
+defFilename = "test-data.txt"
+
+readArgs'' :: [String] -> Maybe String
+readArgs'' [] = return defFilename
+readArgs'' (arg : args) = return arg
+
+readArgs' :: [String] -> Maybe (Int , String)
+readArgs' [] = return (defN , defFilename)
+readArgs' (arg : args) = (,) <$> readMaybe arg <*> readArgs'' args
+
+readArgs :: [String] -> Maybe (Alg , (Int , String))
+readArgs [] = return (defAlg , (defN , defFilename))
+readArgs ("c" : args) = (C ,) <$> readArgs' args
+readArgs ("b" : args) = (B ,) <$> readArgs' args
+readArgs (_ : args) = Nothing
+
 main :: IO ()
 main = do
-  let n = 60
+  args <- getArgs
+  let Just (alg , (n , filename)) = readArgs args
   let g = completeGraph n
-  w <- evalRandIO $ completeWeights (geo (1 % 120)) n
-  writeFile "test-data.txt" (show (n , g , tabulate n w))
+  let weightAlg = case alg of { C -> completeWeights; B -> bimodalWeights }
+  w <- evalRandIO $ weightAlg (geo (1 % 120)) n
+  writeFile filename (show (n , g , tabulate n w))

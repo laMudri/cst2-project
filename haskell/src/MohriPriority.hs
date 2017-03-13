@@ -50,11 +50,11 @@ mohrip ph g w source = let AlgState d _ _ = result in d
     (q , s) <- extract s
     let r' = r !! q
     let rN = setAt r q zero
-    let condition e = d !! (snd e) > times r' (w e)
+    let condition e = d !! (snd e) > r' `times` w e
     let relaxedEdges = filter condition (zip [q, q..] (reachable g q))
 
     let newWeights a = foldr (\ e a ->
-          setAt a (snd e) (plus (times r' (w e)) (a !! snd e)))
+          setAt a (snd e) ((r' `times` w e) `plus` (a !! snd e)))
                              a
                              relaxedEdges
 
@@ -62,7 +62,8 @@ mohrip ph g w source = let AlgState d _ _ = result in d
     let rNN = newWeights rN
 
     let enqueuedVertices = filter (not . (`elem` s)) (map snd relaxedEdges)
-    let sN = foldr (\ q' -> pinsert (w (q , q')) q') s enqueuedVertices
+    let sN = foldr (\ q' -> pinsert (dN !! q') q') s
+                   enqueuedVertices
     return (AlgState dN rNN sN)
 
   result :: AlgState k q
