@@ -7,6 +7,7 @@ import Data.Array
 import Data.Graph
 import Data.OrdPSQ (OrdPSQ)
 import qualified Data.OrdPSQ as PSQ
+import Data.Proxy
 import Data.Set (Set)
 import qualified Data.Set as S
 
@@ -20,7 +21,7 @@ data AlgState k q =
   deriving (Show, Eq)
 
 dijkstra :: forall k q. (Eq k, Semiring k, Ord k, PriorityQueue k q) =>
-            Phantom q -> Graph -> (Edge -> k) -> Vertex -> [k]
+            Proxy q -> Graph -> (Edge -> k) -> Vertex -> [k]
 dijkstra ph g w source = let AlgState d _ _ = result in d
   where
   n :: Int

@@ -5,6 +5,7 @@ import Prelude hiding (elem)
 
 import Data.Array
 import Data.Graph
+import Data.Proxy
 
 import Types
 
@@ -13,7 +14,7 @@ data AlgState k q =
   deriving (Show, Eq)
 
 mohri :: forall k q. (Eq k, Semiring k, Ord k, Queue q) =>
-         Phantom q -> Graph -> (Edge -> k) -> Vertex -> [k]
+         Proxy q -> Graph -> (Edge -> k) -> Vertex -> [k]
 mohri ph g w source = let AlgState d _ _ = result in d
   where
   n :: Int

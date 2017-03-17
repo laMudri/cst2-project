@@ -6,6 +6,7 @@ import Prelude hiding (elem)
 import Data.Array
 import Data.Graph
 import Data.OrdPSQ (OrdPSQ)
+import Data.Proxy
 import Data.Ratio
 
 import System.Environment
@@ -17,11 +18,11 @@ import Dijkstra
 
 -- Test data
 
-phantom :: Phantom [Vertex]
-phantom = Ph
+phantom :: Proxy [Vertex]
+phantom = Proxy
 
-phantomp :: Phantom (OrdPSQ Vertex Weight Vertex)
-phantomp = Ph
+phantomp :: Proxy (OrdPSQ Vertex Weight Vertex)
+phantomp = Proxy
 
 main :: IO ()
 main = do

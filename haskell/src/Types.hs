@@ -126,8 +126,6 @@ instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
 
 -- Utilities
 
-data Phantom a = Ph
-
 setAt :: [a] -> Int -> a -> [a]
 setAt [] _ y = []
 setAt (x : xs) 0 y = y : xs
