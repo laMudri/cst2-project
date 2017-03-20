@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, DataKinds #-}
 module Main where
 
 import Prelude hiding (elem)
@@ -15,6 +15,7 @@ import Types
 import Mohri
 import MohriPriority
 import Dijkstra
+import Mohri.KShortest
 
 -- Test data
 
@@ -32,7 +33,7 @@ main = do
   testData <- readFile filename
   let (n :: Vertex , g :: Graph , l :: [[Weight]]) = read testData
   let w = untabulate l
-  let d0 = mohri phantom g w 0
-  let d1 = mohrip phantomp g w 0
-  let d2 = dijkstra phantomp g w 0
-  print [d0, d1, d2]
+  print $ mohri phantom g w 0
+  print $ mohrip phantomp g w 0
+  print $ dijkstra phantomp g w 0
+  print $ mohriKShortest (Proxy :: Proxy 20) phantom g w 0
