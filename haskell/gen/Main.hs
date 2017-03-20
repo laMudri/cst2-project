@@ -44,7 +44,10 @@ bimodalWeights r n = do
         | otherwise                = W Top
   return w
 
-data Alg = C | B
+uniformWeights :: Edge -> Weight
+uniformWeights _ = W $ Fin 1
+
+data Alg = C | B | U
 
 defAlg = C
 defN = 60
@@ -62,6 +65,7 @@ readArgs :: [String] -> Maybe (Alg , (Int , String))
 readArgs [] = return (defAlg , (defN , defFilename))
 readArgs ("c" : args) = (C ,) <$> readArgs' args
 readArgs ("b" : args) = (B ,) <$> readArgs' args
+readArgs ("u" : args) = (U ,) <$> readArgs' args
 readArgs (_ : args) = Nothing
 
 main :: IO ()
