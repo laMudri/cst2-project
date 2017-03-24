@@ -16,3 +16,20 @@ One language aiming to do this is Agda\cite{Norell07}, which I use for the bulk 
 
 The other main component of the project is shortest distance problems.
 In a shortest distance problem, we are given a weighted graph and a source vertex, and required to give, for each vertex, the shortest distance from the source to that vertex.
+Simpler versions of the problem have well known solutions.
+For example, when we can guarantee that all distances are positive numbers, Dijkstra's algorithm will give us shortest distances.
+However, for cases where the weights are less well behaved, there is still ongoing research.
+
+All shortest distance problems can be described by a semiring and a class of graphs whose weights are elements of the semiring.
+A semiring is an algebraic structure comprising a set $\mathbb K$, elements $\bar 0$ and $\bar 1$, and binary operators $\oplus$ and $\otimes$.
+$\bar 0$ is the identity for $\oplus$, and $\bar 1$ is the identity for $\otimes$.
+Furthermore, both operators are associative, $\oplus$ is commutative, and $\otimes$ distributes over $\oplus$ (though this is sometimes relaxed).
+The connection to shortest distance algorithms is that $\otimes$ represents composition of distances along a path, and $\oplus$ represents the choice of the shortest amongst two distances.
+Then, for distances $a$ and $b$, we say that $a \leq b$ iff $a \oplus b = a$ -- that is, out of $a$ and $b$, $a$ is chosen by $\oplus$ as shortest.
+In the standard setup for Dijkstra's algorithm, $\mathbb K$ (the set of weights) is $\mathbb N \cup \{ \infty \}$, $\bar 0$ (the least-chosen distance) is $\infty$, $\bar 1$ (the trivial distance) is $0$, $\oplus$ (the choice operator) is $\min$, and $\otimes$ (the composition operator) is $+$.
+
+The problem for which I implement a solution has the distinction that the distance choice operator $\oplus$ is not selective
+This means that we don't always have either $a \oplus b = a$ or $a \oplus b = b$, or equivalently $a \leq b$ or $b \leq a$, as we would have if $\oplus$ were $\min$ on natural numbers.
+The problem also allows for negative weights, with the condition that there is a natural number $k$ such that for any cycle $c$ in the graph, a path that goes around $c$ more than $k$ times will not improve on a path that goes around $c$ only $k$ times.
+An algorithm for this is given and proven correct in a 2002 paper by Mohri\cite{mohri02}.
+However, the proof is technical and unintuitive, and we would like to be surer that it is actually correct.
