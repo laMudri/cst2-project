@@ -47,7 +47,7 @@ bimodalWeights r n = do
 uniformWeights :: Edge -> Weight
 uniformWeights _ = W $ Fin 1
 
-data Alg = C | B | U
+data Alg = C | B | U deriving (Show)
 
 defAlg = C
 defN = 60
@@ -68,6 +68,7 @@ readArgs ("b" : args) = (B ,) <$> readArgs' args
 readArgs ("u" : args) = (U ,) <$> readArgs' args
 readArgs (_ : args) = Nothing
 
+{-
 main :: IO ()
 main = do
   args <- getArgs
@@ -76,3 +77,29 @@ main = do
   let weightAlg = case alg of { C -> completeWeights; B -> bimodalWeights }
   w <- evalRandIO $ weightAlg (geo (1 % 120)) n
   writeFile filename (show (n , g , tabulate n w))
+-}
+
+produceGraph :: (Alg , Int , Rational , String) -> IO ()
+produceGraph (alg , n , p , filename) = do
+  let g = completeGraph n
+  let rv = geo p
+  let weightAlg =
+       case alg of
+            C -> completeWeights rv n
+            B -> bimodalWeights rv n
+            U -> return uniformWeights
+  w <- evalRandIO weightAlg
+  writeFile filename (show (n , g , tabulate n w))
+
+main :: IO ()
+main = do
+  mapM_ produceGraph $ do
+    n <- [50, 100 .. 450]
+    alg <- [C, B, U]
+    p <- case alg of { U ->  return 1; _ -> map (\ i -> 1 % 2 ^ i) [1 .. 8] }
+    let filename =
+         "data/test-"
+           ++ show alg ++ "-"
+           ++ show n ++ "-"
+           ++ show (denominator p) ++ ".txt"
+    return (alg , n , p , filename)
