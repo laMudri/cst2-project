@@ -79,6 +79,42 @@ main = do
   writeFile filename (show (n , g , tabulate n w))
 -}
 
+data Nat = Z | S Nat
+nat :: Vertex -> Nat
+nat 0 = Z
+nat n = S (nat (n - 1))
+
+showForAgda :: Vertex -> (Edge -> Weight) -> String
+showForAgda n w = "module TestData where\n\nG : Graph " ++ show n ++ body
+  where
+  body :: String
+  body = concat (map ("\n" ++) (equations ++ absurds))
+
+  equations :: [String]
+  equations = [ lhs x y ++ " = " ++ rhs (w (x , y))
+              | x <- [0 .. pred n], y <- [0 .. pred n]
+              ]
+
+  absurds :: [String]
+  absurds = ["G " ++ absurdFin (nat n) ++ " _", "G _ " ++ absurdFin (nat n)]
+
+  absurdFin :: Nat -> String
+  absurdFin Z = "()"
+  absurdFin (S Z) = "suc ()"
+  absurdFin (S x) = "suc (" ++ absurdFin x ++ ")"
+
+  lhs :: Vertex -> Vertex -> String
+  lhs x y = "G " ++ showFin (nat x) ++ " " ++ showFin (nat y)
+
+  showFin :: Nat -> String
+  showFin Z = "zero"
+  showFin (S Z) = "suc zero"
+  showFin (S x) = "suc (" ++ showFin x ++ ")"
+
+  rhs :: Weight -> String
+  rhs (W (Fin x)) = "just " ++ show x
+  rhs (W Top) = "nothing"
+
 produceGraph :: (Alg , Int , Rational , String) -> IO ()
 produceGraph (alg , n , p , filename) = do
   let g = completeGraph n

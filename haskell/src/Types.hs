@@ -111,15 +111,15 @@ instance (vertex ~ Vertex) => Queue (Fifo vertex) where
 
 -- Dijkstra-style shortest-first queue
 -- Key is redundant, and just the associated vertex.
-instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
+instance (vertex ~ Vertex, Semiring weight, Ord weight, vertex' ~ Vertex)
       => Queue (OrdPSQ vertex weight vertex') where
   empty = PSQ.empty
-  singleton x = PSQ.singleton x (W (Fin 0)) x
-  insert x = PSQ.insert x (W (Fin 0)) x
+  singleton x = PSQ.singleton x one x
+  insert x = PSQ.insert x one x
   extract h = (\ (_ , _ , x , h) -> (x , h)) <$> PSQ.minView h
   elem = PSQ.member
 
-instance (vertex ~ Vertex, weight ~ Weight, vertex' ~ Vertex)
+instance (vertex ~ Vertex, Semiring weight, Ord weight, vertex' ~ Vertex)
       => PriorityQueue weight (OrdPSQ vertex weight vertex') where
   psingleton w x = PSQ.singleton x w x
   pinsert w x = PSQ.insert x w x
