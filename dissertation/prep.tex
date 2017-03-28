@@ -1,1 +1,38 @@
 % Target: 1512 words
+\subsection{Agda}
+Formal verification is becoming an increasingly important part of maintaining large software systems.
+It has long been commonplace for compilers to verify some level of correctness of programs -- specifically, a compiler for a statically typed language will check the types of the program it is given.
+If the type checker successfully checks an expression $e$ against a type $A$, we have a guarantee that when we evaluate $e$, any resulting value we get will be in a form specified by the definition of $A$.
+
+With finer-grained types, we can have more thorough guarantees of correctness.
+A type we can express in nearly all modern programming languages is the type of lists with at least one element.
+We can encode this as a structure containing a value of element type and a (possibly empty) list of the remaining elements.
+Using this non-empty list type justifies the use of functions which pick an element from a list, such as \texttt{head}, which picks the first element of a list.
+\texttt{head} cannot be well behaved on an empty list because it has no first element to pick.
+It must thus either return a \texttt{null} reference, throw an error, or explicitly state that it might not produce a value.
+
+Dependent types are a relatively new feature to appear in programming languages, though they have a history stretching back to at least the 1970s\cite{martin-lof:aitot} and practical use in proof assistants since Coq\cite{CoqProofAssistant}, first released in 1989.
+In a dependent type system, arbitrary expressions may appear in types, and thus we can make guarantees about those expressions which are checked by the type checker.
+In theory, this makes programming languages with dependent types suitable for both writing programs and proving them correct.
+One language aiming to do this is Agda\cite{Norell07}, which I use for the bulk of this project.
+
+\subsection{Shortest distance problems}
+The other main component of the project is shortest distance problems.
+In a shortest distance problem, we are given a weighted graph and a source vertex, and required to give, for each vertex, the shortest distance from the source to that vertex.
+Simpler versions of the problem have well known solutions.
+For example, when we can guarantee that all distances are positive numbers, Dijkstra's algorithm will give us shortest distances.
+However, for cases where the weights are less well behaved, there is still ongoing research.
+
+All shortest distance problems can be described by a semiring and a class of graphs whose weights are elements of the semiring.
+A semiring is an algebraic structure comprising a set $\mathbb K$, elements $\bar 0$ and $\bar 1$, and binary operators $\oplus$ and $\otimes$.
+$\bar 0$ is the identity for $\oplus$, and $\bar 1$ is the identity for $\otimes$.
+Furthermore, both operators are associative, $\oplus$ is commutative, and $\otimes$ distributes over $\oplus$ (though this is sometimes relaxed).
+The connection to shortest distance algorithms is that $\otimes$ represents composition of distances along a path, and $\oplus$ represents the choice of the shortest amongst two distances.
+Then, for distances $a$ and $b$, we say that $a \leq b$ iff $a \oplus b = a$ -- that is, out of $a$ and $b$, $a$ is chosen by $\oplus$ as shortest.
+In the standard setup for Dijkstra's algorithm, $\mathbb K$ (the set of weights) is $\mathbb N \cup \{ \infty \}$, $\bar 0$ (the least-chosen distance) is $\infty$, $\bar 1$ (the trivial distance) is $0$, $\oplus$ (the choice operator) is $\min$, and $\otimes$ (the composition operator) is $+$.
+
+The problem for which I implement a solution has the distinction that the distance choice operator $\oplus$ is not selective
+This means that we don't always have either $a \oplus b = a$ or $a \oplus b = b$, or equivalently $a \leq b$ or $b \leq a$, as we would have if $\oplus$ were $\min$ on natural numbers.
+The problem also allows for negative weights, with the condition that there is a natural number $k$ such that for any cycle $c$ in the graph, a path that goes around $c$ more than $k$ times will not improve on a path that goes around $c$ only $k$ times.
+An algorithm for this is given and proven correct in a 2002 paper by Mohri\cite{mohri02}.
+However, the proof is technical and unintuitive, and we would like to be surer that it is actually correct.
