@@ -3,7 +3,8 @@ let
   inherit (pkgs) stdenv texlive;
 
   tex-env = texlive.combine {
-    inherit (texlive) scheme-small geometry enumitem latexmk import texcount;
+    inherit (texlive) scheme-small geometry enumitem latexmk import texcount makecell
+      ucs bbm xifthen ifmtarg polytable lazylist cm-super babel-greek greek-fontenc cbfonts textgreek;
   };
 
 in stdenv.mkDerivation {
