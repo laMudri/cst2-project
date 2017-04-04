@@ -4,6 +4,7 @@ let
 
   tex-env = texlive.combine {
     inherit (texlive) scheme-small geometry enumitem latexmk import texcount makecell
+      #minted ifplatform xstring
       ucs bbm xifthen ifmtarg polytable lazylist cm-super babel-greek greek-fontenc cbfonts textgreek;
   };
 
