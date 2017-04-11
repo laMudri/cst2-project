@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, KindSignatures, ScopedTypeVariables, GADTs #-}
+{-# LANGUAGE DataKinds, KindSignatures, ScopedTypeVariables #-}
 module KSemiring where
 
 import Types
