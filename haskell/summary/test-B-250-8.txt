@@ -1,0 +1,13 @@
+mycc_dijkstra,3827,6199844912
+mycc_mohri,6692,10271858328
+mycc_mohriKShortest12,26070,29876751944
+mycc_mohriKShortest16,38740,42949887224
+mycc_mohriKShortest20,56133,60714568120
+mycc_mohriKShortest4,12049,16163126952
+mycc_mohriKShortest8,16849,20601812048
+mycc_mohrip,1757,2674878872
+mycc_mohripKShortest12,13234,14738173384
+mycc_mohripKShortest16,20479,22039550960
+mycc_mohripKShortest20,30521,32367126464
+mycc_mohripKShortest4,4464,5898633432
+mycc_mohripKShortest8,7886,9397312832
