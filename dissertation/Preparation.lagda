@@ -1,3 +1,7 @@
+\documentclass{article}
+
+\begin{document}
+
 \chapter{Preparation}
 
 \iffalse
@@ -6,11 +10,36 @@ module Preparation where
 \end{code}
 \fi
 
-\section{Agda}
+In this chapter, I give an overview of the main concepts used in the remainder of this report.
+In \hyperref[sec:agda]{Section \ref*{sec:agda}}, I introduce the programming language Agda, which I use to formalise the theory underpinning the shortest distance algorithm.
+Then, in \hyperref[sec:shortest-distance-problems]{Section \ref*{sec:shortest-distance-problems}}, I give an informal introduction to the use of semirings in shortest distance problems.
+This is also where I state and discuss the algorithm of Mohri, which is the focus of this project.
+Third, in \hyperref[sec:haskell]{Section \ref*{sec:haskell}}, I give a summary of the Haskell features I use in the performance testing code that will be novel to a reader familiar with a statically typed functional programming language like ML, but not Haskell specifically.
+Finally, in \hyperref[sec:requirements-analysis]{Section \ref*{sec:requirements-analysis}}, I clarify how the implementation is split into distinct sections, and what tools are used for implementation and organisation.
 
-Dependent typing, the ability for types to make reference to values, makes it much easier to give programs expressive types which capture the behaviour of the program.
-Because types are checked by the compiler, this gives us a flexible way to verify the behaviour of programs.
-Agda is a programming language with full support for dependent types.
+\section{Agda}\label{sec:agda}
+
+%Dependent typing, the ability for types to make reference to values, makes it much easier to give programs expressive types which capture the behaviour of the program.
+%Because types are checked by the compiler, this gives us a flexible way to verify the behaviour of programs.
+%Agda is a programming language with full support for dependent types.
+
+Dependent typing, the ability for types to make reference to values, offers several new possibilities in software engineering.
+For one, dependent types allow us to use in programming some concepts from mathematics that are otherwise difficult to express.
+For example, mathematics often makes use of vectors over a set $X$ of some fixed length $n$, denoted $X^n$.
+In most programming languages, we are either restricted to special cases such as 2-element and 3-element vectors, or use lists of arbitrary length.
+The latter leaves us without compile-time checks that, for example, the two operands in a vector addition have the same length.
+
+Also, dependent types give us the tools to give precise types to many of the programs we want to write.
+To see this, we consider again difficulties in using lists of arbitrary length.
+A function we often define on lists is an indexing function, which returns the $i$th element of a list.
+However, this function can fail at runtime with an ``index out of bounds'' error if $i$ is too large for the list.
+This means that whenever we use an indexing function, we must consider what would happen if $i$ were out of bounds, or else risk a runtime error.
+Dependent types give us a second option.
+We can instead use an indexing function that requires a proof that $i$ is in bounds (that $i$ is less than the length of the list) and then never throws an error.
+With dependent types, we can form a type of such proofs, which give us machine-checked assertions about our programs.
+
+Agda is a pure functional programming language with full support for dependent types.
+It is intended to be a practical tool for both programming and proving, both of which I introduce in this section.
 
 \subsection{Programming in Agda}
 
@@ -62,6 +91,9 @@ data Vec {a : Level} (A : Set a) : ℕ → Set a where
   _∷_  : {n : ℕ} → A → Vec A n →  Vec A (suc n)
 \end{code}
 
+The constructors for \AgdaDatatype{Vec} state that, for any type \AgdaArgument{A}, \AgdaInductiveConstructor{[]} (the empty list) is a vector of length 0, and given an element \AgdaArgument{x} \AgdaSymbol{:} \AgdaArgument{A} and a vector \AgdaArgument{xs} of length $n$, \AgdaArgument{x} \AgdaSymbol{∷} \AgdaArgument{xs} (the vector formed by appending \AgdaArgument{x} to the front of \AgdaArgument{xs}) is a vector of length $1 + n$.
+When reading aloud, \AgdaInductiveConstructor{[]} is read ``nil'' and \AgdaInductiveConstructor{∷} is read ``cons''.
+
 Several new things are introduced here.
 First, we import the \AgdaPostulate{Level} type.
 Earlier, I mentioned that \AgdaPrimitiveType{Set} is the type of all simple datatypes.
@@ -73,10 +105,10 @@ In this case, we take an implicit \AgdaPostulate{Level} parameter so as to be po
 
 We can also note the difference between \emph{parameters} \AgdaArgument{a} and \AgdaArgument{A}, appearing before the colon, and the \emph{index} of type \AgdaDatatype{ℕ}, appearing after the colon but to the left of an arrow.
 %\AgdaArgument{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every mention of \AgdaDatatype{Vec} in the definition must be applied to \AgdaArgument{A} exactly.
-\AgdaArgument{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every constructor produces a value with arbitrary parameter value.
+\AgdaArgument{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every constructor produces a value with the same fixed value of the parameter.
 In contrast, indices allow specific values to come from constructors, as seen by the index taking the values \AgdaInductiveConstructor{zero} and \AgdaInductiveConstructor{suc} \AgdaArgument{n} at in the result type of each constructor respectively.
 It is an important distinction that parameters are named, and their names are available throughout the definition.
-On the other hand, even though indices can be named, they are only available until the \AgdaKeyword{where} keyword.
+On the other hand, even though indices can be named, the names are only available until the \AgdaKeyword{where} keyword.
 The distinction comes about mainly because of Agda's explicit handling of levels.
 Parameters do not have to be quantified over by constructors, so do not affect the level of the resulting type.
 On the other hand, indices have to be quantified over, meaning that the resulting type has to be in a universe strictly larger than the universe of any indices that are used.
@@ -228,6 +260,40 @@ We use the following definition.
 To prove a negation $\neg A$, we assume $A$ and derive a contradiction.
 Producing a proof of $\bot$ is a contradiction, so this is just like proving the implication $A \implies \bot$.
 
+Notice that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaArgument{A} is not the same as \AgdaArgument{A}.
+Indeed, these are not even equivalent, in the sense that there are values of \AgdaArgument{A} such that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaArgument{A} is provable, but \AgdaArgument{A} is not.
+The former says that we can refute any refutation of \AgdaArgument{A}, whereas the latter says that we have a proof of \AgdaArgument{A}.
+An example of where the two differ is given in the following.
+
+\begin{code}
+module UsingSet {ℓ : Level} (X : Set ℓ) where
+  ¬¬lem : ¬ ¬ (X ⊎ (¬ X))
+  ¬¬lem f = ¬¬X ¬X
+    where
+    ¬X : ¬ X
+    ¬X x = f (inj₁ x)
+
+    ¬¬X : ¬ ¬ X
+    ¬¬X g = f (inj₂ g)
+
+  -- Not provable:
+  -- lem : X ⊎ (¬ X)
+  -- lem = ?
+\end{code}
+
+In the first proof, we note that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaSymbol{(}\AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{))} is just \AgdaSymbol{(}\AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥}, i.e., a function which takes a function \AgdaArgument{f} \AgdaSymbol{:} \AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥} and returns an inhabitant of \AgdaDatatype{⊥}.
+But we can split \AgdaArgument{f} into two functions of types \AgdaArgument{X} \AgdaSymbol{→} \AgdaDatatype{⊥} and \AgdaFunction{¬} \AgdaArgument{X} \AgdaSymbol{→} \AgdaDatatype{⊥}
+These contradict each other, producing the required inhabitant of \AgdaDatatype{⊥}.
+
+On the other hand, the second proof fails.
+We can argue why there is no such proof by an appeal to computability.
+An Agda program must run on a computer, so Agda is no more powerful than a Turing machine.
+In particlar, an Agda program cannot solve the halting problem.
+We can encode a Turing machine programs and configurations in Agda, and produce a family of types \AgdaArgument{H} indexed on a program-configuration pair \AgdaArgument{M} which is inhabited exactly when \AgdaArgument{M} halts.
+If we could prove \AgdaFunction{lem}, then we would have a proof of \AgdaArgument{H M} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaArgument{H M}\AgdaSymbol{)} for arbitrary \AgdaArgument{M}.
+But this would actually give us either some proof that \AgdaArgument{H M} holds or some proof that \AgdaFunction{¬} \AgdaArgument{H M} holds, and we can test which is given.
+This solves the halting problem, so a proof of \AgdaFunction{lem} is impossible.
+
 \subsection{Modules}
 
 Agda has a distinctive module system.
@@ -253,7 +319,7 @@ module VecDefinitions {a} (A : Set a) where
 
 In a parameter list, \AgdaArgument{a} and \AgdaSymbol{\{}\AgdaArgument{a}\AgdaSymbol{\}} are abbreviations for explicit and implicit parameters, respectively, \AgdaArgument{a} with inferred type.
 In this case, the inferred type is \AgdaPrimitiveType{Level}.
-Similar is done with declarations, but we require the symbol \AgdaSymbol{∀}.
+Similar can be achieved in type signatures using the \AgdaSymbol{∀} symbol, as shown.
 In each case, the inferred type for \AgdaArgument{n} is \AgdaDatatype{ℕ}.
 
 The thing to notice in this example is that \AgdaArgument{a} and \AgdaArgument{A} are parameters to the module, and available to every definition inside the module.
@@ -287,8 +353,8 @@ index₁ (fsuc i)  (x ∷ xs) = index₁ i xs
 
 \subsubsection{Modules for polymorphism}\label{sec:modules-for-polymorphism}
 
-A less obvious use of the module system is when dealing with algebraic structures.
-We typically define a new algebraic structures using a record, similar to how structures are defined as sets of tuples in mathematics.
+Another use of the module system is when dealing with algebraic structures.
+We typically define new algebraic structures using a record, similar to how structures are defined using tuples in mathematics.
 As an example, I use the \emph{functor} structure, which is parallel to the \texttt{Functor} typeclass from Haskell.
 
 \begin{code}
@@ -313,13 +379,23 @@ vec-functor a n = record
   vmap f (x ∷ xs) = f x ∷ vmap f xs
 \end{code}
 
+This says that for a fixed level \AgdaArgument{a} and length \AgdaArgument{n}, vectors of that length form a functor (at level \AgdaArgument{a}).
+The function \AgdaFunction{vmap} is defined recursively to apply \AgdaArgument{f} to each element of the vector it is given.
+We need to define it for arbitrary \AgdaArgument{m} because the length of the list changes as we recurse into it.
+We can think of \AgdaFunction{vmap} as a family of functions, with \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaInductiveConstructor{suc} \AgdaArgument{m}\AgdaSymbol{\}} defined in terms of \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaArgument{m}\AgdaSymbol{\}}.
+Defining \AgdaField{map} as \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaArgument{n}\AgdaSymbol{\}} picks out the function that acts upon vectors of length \AgdaArgument{n}.
+
 We can also write definitions generic in the \AgdaDatatype{RawFunctor} supplied using parametrised modules, as in the previous section.
-Conveniently, Agda has a way of converting a record value into a module, using the name of the record followed by the value.
+%Conveniently, Agda has a way of converting a record value into a module, using the name of the record followed by the value.
+Conveniently, for each declaration of a record type \AgdaDatatype{R}, Agda makes a module with the same name and a single parameter \AgdaArgument{r} \AgdaSymbol{:} \AgdaDatatype{R}.
+The definitions in that module are the fields in the record, taking their values from \AgdaArgument{r}.
 This makes record types and record values act like ML signatures and structures, respectively.
+
+In the following, \AgdaField{F} and \AgdaField{map} are put into scope when we open the module \AgdaModule{RawFunctor} \AgdaArgument{RF}.
 
 \begin{code}
 module RawFunctorUtils {a} (RF : RawFunctor a) where
-  open RawFunctor RF  -- This puts `F' and `map' in scope.
+  open RawFunctor RF
 
   replace-all : ∀ {A B} → B → F A → F B
   replace-all b = map (λ _ → b)
@@ -334,13 +410,12 @@ zeroify {n = n} xs = replace-all zero xs
   open RawFunctorUtils (vec-functor lzero n)
 \end{code}
 
-\section{Shortest distance problems}
+\section{Shortest distance problems}\label{sec:shortest-distance-problems}
 
-The other main component of the project is shortest distance problems.
 In a shortest distance problem, we are given a weighted graph and a source vertex, and required to give, for each vertex, the shortest distance from the source to that vertex.
 Simpler versions of the problem have well known solutions.
 For example, when we can guarantee that all distances are positive numbers, Dijkstra's algorithm will give us shortest distances.
-However, for cases where the weights are less well behaved, there is still ongoing research.
+However, for cases where the weights are less well behaved, there is still ongoing research~\cite{Griffin10}.
 
 \subsection{Semirings}
 
@@ -372,13 +447,18 @@ We say that a tuple $(\mathbb K, \bar 0, \bar 1, \oplus, \otimes)$, with $\bar 0
 \end{enumerate}
 
 Semirings, also known as \emph{rigs} (from the mnemonic ``ri\textbf{n}g without \textbf{n}egation'') occur often in computer science, given that they abstract a common notion of having two interacting irreversible binary operations.
+As the notation suggests, an example of a semiring is $(\mathbb N, 0, 1, +, \times)$
+We can replace $\mathbb N$ by $\mathbb Z$, $\mathbb Q$, $\mathbb R$, and $\mathbb C$, still getting a semiring for each.
+Completely separate from these, the set of regular languages forms a semiring, where $\bar 0$ is the empty language, $\bar 1$ is the language containing only the empty string, $\oplus$ is the alternation operator $|$, and $\otimes$ is concatenation of regular expressions representing the languages.
+There is a similar semiring for arbitrary formal languages.
+
 Sometimes some of the conditions are dropped, particularly the conditions that $\bar 0$ is an annihilator and that $\bar 1$ is an identity element.
 For algebraic routing problems, we need to enforce more conditions.
 Agda's standard library~\cite{stdlib} already contains a definition for \AgdaDatatype{Semiring} in the \AgdaModule{Algebra} module.
 
-\subsection{Algebraic routing problems}
+\subsection{Algebraic routing problems}\label{sec:algebraic-routing-problems}
 
-Most shortest distance problems can be described by a semiring and a class of graphs whose weights are elements of the semiring.
+Many shortest distance problems can be described by a semiring and a class of graphs whose weights are elements of the semiring.
 Here, $\otimes$ represents composition of distances along a path, and $\oplus$ represents the choice of the shortest amongst two distances.
 Then, for distances $a$ and $b$, we say that $a \leq b$ iff $a \oplus b = a$ --- that is, out of $a$ and $b$, $a$ is chosen by $\oplus$ as shortest.
 In the standard setup for Dijkstra's algorithm~\cite{Dijkstra1959}, $\mathbb K$ (the set of weights) is $\mathbb N \cup \{ \infty \}$, $\bar 0$ (the least-chosen distance) is $\infty$, $\bar 1$ (the trivial distance) is $0$, $\oplus$ (the choice operator) is $\min$, and $\otimes$ (the composition operator) is $+$.
@@ -399,7 +479,7 @@ In the standard setup for Dijkstra's algorithm~\cite{Dijkstra1959}, $\mathbb K$ 
 \end{table}
 
 The abstraction of the semiring framework lets us consider related problems.
-\autoref{tab:problems} gives three example problems and their corresponding semirings.
+\hyperref[tab:problems]{Table \ref*{tab:problems}} gives three example problems and their corresponding semirings.
 The problem for which I implement a solution has the distinction that the distance choice operator $\oplus$ is not selective.
 This means that we don't always have either $a \oplus b = a$ or $a \oplus b = b$, or equivalently $a \leq b$ or $b \leq a$, as we would have if $\oplus$ were $\min$ or $\max$.
 The problem also allows for negative weights, with the condition that there is a natural number $k$ such that for any cycle $c$ in the graph, a path that goes around $c$ more than $k$ times will not improve on a path that goes around $c$ only $k$ times.
@@ -407,172 +487,103 @@ An algorithm for this is given and proven correct in a 2002 paper by Mohri~\cite
 
 \subsection{Mohri's algorithm}
 
-%However, the proof is technical and unintuitive, and we would like to be surer that it is actually correct.
+We start by giving a definition of what it means for a semiring to be $k$-closed on a graph.
+Let $\mathbb K$ be a semiring, $k$ be a natural number, and $G$ be a graph weighted by elements of $\mathbb K$.
+Let $w[\pi]$ denote the weight of a path $\pi$, that is, the $\otimes$-product of the weights of the edges in $\pi$, in order.
+Then, $\mathbb K$ is \emph{$k$-closed for $G$} iff, for any cycle $\pi$ in $G$, the following holds.
 
-\section{Haskell}
+\begin{align*}
+  \bigoplus_{n=0}^{k+1} w[\pi]^n = \bigoplus_{n=0}^{k} w[\pi]^n
+\end{align*}
 
-Haskell is a pure functional programming language predating Agda.
-It has a syntax similar to that of Agda, though, being a programming language and not a proof assistant, source files usually only use ASCII characters.
-Haskell does not have dependent types, and so introduces a syntactic distinction between the value level and the type level, including having separate namespaces for each level.
-However, modern Haskell has several features inspired by dependent types, some of which are used in this project.
+Here, for $a$ in $\mathbb K$ and natural number $n$, $a^n = \bigotimes_{i=1}^{n} a$.
+This means that $w[\pi]^n$ is the cost of going $n$ times around the cycle $\pi$.
+Recalling that $\oplus$ acts like a choice operator between weights, our $k$-closedness property states that in a choice of going $k+1$ times around $\pi$ and going $k$ or fewer times around $\pi$, we will always choose to go around $k$ or fewer times.
 
-The code in this section constitutes a valid Haskell file.
-The following is the first few lines of the file.
+If this condition did not hold for any $k$, there would be some cycle $\pi$ such that going around it again would improve the weight of any path.
+An example of this is having a negative-weight cycle in a classical shortest distance problem.
+Thus, we can say that $k$-closedness on the graph is a minimal precondition for shortest distances being reflective of actual finite paths.
 
-\begin{lstlisting}
-{-# LANGUAGE DataKinds, KindSignatures, ScopedTypeVariables #-}
-module Scratch where
+Next, we define what ``shortest distance'' means.
+In doing this, we consider $P(q)$, the set of all paths from a fixed source vertex $s$ to $q$.
+Note that in any graph containing a cycle, $P(q)$ will be countably infinite, as going around a cycle $n$ times gives a new path for each $n$.
+We write the shortest distance from $s$ to $q$ as $\delta(s, q)$, and define it in the following, where $Q$ is the set of vertices in the graph.
 
-import Prelude hiding (Functor(..), Applicative(..), map, (++), replicate)
+\begin{align*}
+\delta(s, s) &= \bar 1 \\
+\forall q \in Q \setminus \{s\}.~\delta(s, q) &= \bigoplus_{\pi \in P(q)} w[\pi]
+\end{align*}
 
-import Data.Proxy
-import GHC.TypeLits
-\end{lstlisting}
+Mohri does not define the notion of an infinite sum, but I will as part of the Implementation.
+All we need to know at the moment is that if $\mathbb K$ is $k$-closed on $G$, we can limit the paths under consideration to $P_k(q)$, which is the set of all paths in $P(q)$ such that any cycle is only repeated at most $k$ times.
+This is because going $k+1$ times around a cycle $c$ would not give a shorter distance than just going $k$ times around $c$, so we don't need to consider any paths where a cycle is repeated more than $k$ times.
+Crucially, $P_k(q)$ is finite, so $\bigoplus_{\pi \in P_k(q)} w[\pi]$ is well defined.
 
-\subsection{Type classes}
+Finally, we can define the algorithm I will be working with.
+I reproduce it verbatim from the original paper.
 
-Whereas in Agda, we describe and use algebraic structures using dependent records and parametrised modules, Haskell's \emph{type class} system is dedicated to this purpose.
-A type class can be compared to an interface from object-oriented programming, and gives a way to associate certain definitions with ad-hoc classes of types.
-Using the example from \autoref{sec:modules-for-polymorphism}, we can define \texttt{Functor} by the following.
+\begin{codebox}
+\Procname{$\proc{Generic-Single-Source-Shortest-Distance}~(G,s)$}
+\li \For $i \gets 1$ \To $|Q|$
+\li   \Do
+      $d[i] \gets r[i] \gets \bar 0$
+      \End
+\li $d[s] \gets r[s] \gets \bar 1$
+\li $S \gets \{s\}$
+\li \While $S \neq \emptyset$
+\li   \Do
+      $q \gets \mathit{head}(S)$
+\li   $\proc{Dequeue}(S)$
+\li   $r' \gets r[q]$
+\li   $r[q] \gets \bar 0$
+\li   \For each $e \in E[q]$
+\li     \Do
+        \If $d[n[e]] \neq d[n[e]] \oplus (r' \otimes w[e])$
+\li       \Then
+          $d[n[e]] \gets d[n[e]] \oplus (r' \otimes w[e])$
+\li       $r[n[e]] \gets r[n[e]] \oplus (r' \otimes w[e])$
+\li       \If $n[e] \notin S$
+\li         \Then
+            $\textsc{Enqueue}(S, n[e])$
+            \End
+          \End
+        \End
+      \End
+\li $d[s] \gets \bar 1$
+\end{codebox}
 
-\begin{lstlisting}
-class Functor f where
-  map :: (a -> b) -> (f a -> f b)
-\end{lstlisting}
+In this algorithm, $G$ is the graph and $s$ is the source vertex in that graph.
+$S$ is a queue of vertices, which can have arbitrary queueing discipline.
+A vertex $q$ is said to be \emph{relaxed} when lines 6-15 have been run on it, so $S$ contains the vertices which are candidates for relaxation.
+The array $d$ stores our shortest distance estimates.
+When the algorithm terminates, $d[q]$ will be the shortest distance from $s$ to $q$.
+$r[q]$ records the shortest distance $\oplus$-added to $d[q]$ since $q$ was last relaxed.
 
-Note that Haskell uses double colon in a similar way to Agda's single colon.
-It also doesn't explicitly quantify over type variables \texttt{a} and \texttt{b}; they are assumed to be universally quantified over the given type signature.
-This code states that a type-level function (a mapping from inhabitants of \texttt{*}, similar to Agda's \AgdaPrimitiveType{Set}, to inhabitants of \texttt{*}) \texttt{f} is a \texttt{Functor} if we can produce a function \texttt{map} that polymorphically takes functions of type \texttt{a -> b} to functions of type \texttt{f a -> f b}.
+We also have some helper functions.
+$p[e]$ and $n[e]$ are respectively the start and end vertices of the edge $e$.
+$E[q]$ is the set of edges starting at $q$, i.e., those edges $e$ such that $p[e] = q$.
+This is only ever iterated over, so can be implemented as a linked list.
+The order of $E[q]$ matters only for the order in which vertices are added to $S$.
+In the algorithm, $w$ is used only on edges, rather than paths.
+Finally, we have the three queue operations, $\mathit{head}$, $\proc{Dequeue}$, and $\proc{Enqueue}$, with which the reader is assumed to be familiar.
 
-We provide such an \texttt{f}, we give an instance of the class.
-Before that, I will define an alternative \texttt{List} type to the one provided as standard, without the syntactic sugar.
+The initialisation section (lines 1-4) says that our first shortest distance estimate is that the distance from $s$ to $s$ is trivial, and for $q \neq s$, the distance from $s$ to $q$ is the least wanted distance.
+At this point, $r = d$ because no relaxation has yet happened.
+We also start off the algorithm at the source vertex by enqueueing $s$ only.
 
-\begin{lstlisting}
-data List a = Nil | Cons a (List a)
-\end{lstlisting}
+Lines 6-7 take a vertex $q$ from $S$.
+Line 8 records the best distance $\oplus$-added to $d[q]$ since the last relaxation of $q$, before line 9 resets $r[q]$ to the least-chosen distance $\bar 0$.
 
-Haskell datatype definitions are similar to ML datatype definitions, with largely inessential differences.
-The definition above says that, for all types \texttt{a}, \texttt{Nil} is an inhabitant of \texttt{List a}, and given \texttt{x :: a} and \texttt{xs :: List a}, \texttt{Cons x xs} is an inhabitant of \texttt{List a}.
+Using the definition of $\leq$ given in \hyperref[sec:algebraic-routing-problems]{Section \ref*{sec:algebraic-routing-problems}}, we can rewrite the test on line 11 as $d[n[e]] \nleq r' \otimes w[e]$.
+We can also read the condition directly as saying that when we choose between $d[n[e]]$ and $r' \otimes w[e]$, we don't just get $d[n[e]]$, and $r' \otimes w[e]$ is somehow helping.
+Rememebering how we set $r'$, $r' \otimes w[e]$ is the shortest distance added from $s$ to $q$ since last time $q$ was relaxed, composed with the distance of the edge $e$.
 
-Our \texttt{Functor} instance of \texttt{List} is as follows.
+If the test on line 11 succeeds, we $\oplus$-add $r' \otimes w[e]$ to our shortest distance estimate for $q$, and correspondingly $\oplus$-add this to $r[n[e]]$.
+Finally, just as in Dijkstra's algorithm, we add any vertices with updated distance estimate to the queue on lines 14-15.
 
-\begin{lstlisting}
-instance Functor List where
-  map f Nil = Nil
-  map f (Cons x xs) = Cons (f x) (map f xs)
-\end{lstlisting}
+At first, it is not obvious that this algorithm terminates, or that when it does terminate, it gives a correct result.
+Mohri provides a proof that the algorithm does indeed terminate with the correct result, though the lemmas leading up to the main theorem are unintuitive, and the proof is difficult to follow.
 
-\texttt{map} on \texttt{List} is a function that takes a function \texttt{f} and applies \texttt{f} to each element of the list, producing a new list with potentially distinct element type.
+\input{lhs/Preparation}
 
-In using this type class, we notice something different than what we had in Agda.
-Firstly, the class definition automatically makes \texttt{map} globally available, so we don't need to open a module to access it.
-\texttt{map} is given the type \texttt{(Functor f) => (a -> b) -> (f a -> f b)}, where \texttt{(Functor f)} is a \emph{constraint}.
-Whenever \texttt{map} is used, the type checker will first infer the values of type variables \texttt{a}, \texttt{b}, and \texttt{f}, and then check that there is a declared instance of \texttt{Functor f} to satisfy the constraint.
-In a utility function, like the following, we pass on the class constraint by mentioning it in the type of the function.
-
-\begin{lstlisting}
-replaceAll :: (Functor f) => b -> f a -> f b
-replaceAll x = map (\ _ -> x)
-\end{lstlisting}
-
-To use the \texttt{Functor List} instance, we can write something similar, noting that \texttt{f} being \texttt{List} is enough to satisfy the \texttt{Functor f} constraint on any utility functions.
-
-\begin{lstlisting}
-zeroify :: List a -> List Integer
-zeroify xs = replaceAll 0 xs
-\end{lstlisting}
-
-We form hierarchies of type classes by listing prerequisites of new classes.
-For example, we can introduce \emph{applicative functors}, which extend functors with some new members.
-
-\begin{lstlisting}
-class (Functor f) => Applicative f where
-  pure  :: a -> f a
-  (<*>) :: f (a -> b) -> f a -> f b
-\end{lstlisting}
-
-Instances of classes with prerequisites differ from other instances only in that the prerequisite instances must have been given beforehand.
-We need an append function \texttt{++} before we can write the desired instance.
-
-\begin{lstlisting}
-(++) :: List a -> List a -> List a
-Nil         ++ ys = ys
-(Cons x xs) ++ ys = Cons x (xs ++ ys)
-
-instance Applicative List where
-  pure x = Cons x Nil
-
-  Nil         <*> xs = Nil
-  (Cons f fs) <*> xs = map f xs ++ (fs <*> xs)
-\end{lstlisting}
-
-Note that this is another use of \texttt{map} specialised to \texttt{List}.
-The instance here says that \texttt{pure} makes a singleton of the element it is given, and \texttt{(<*>)} (pronounced ``ap'') applies each function of the left argument to each element of the right argument.
-
-\subsection{Values in types}
-
-Haskell does not support dependent types like Agda does.
-However, modern Haskell has some features that give an approximation of dependent types that we can use to express programs more clearly.
-To demonstrate this, I will define a type of lists which carry a natural number at the type level, which is intended to be the length of the list.
-
-To achieve this, I need to enable various language extensions.
-The \texttt{DataKinds} extension allows any datatype to be used as a \emph{kind}, a type of types.
-Usually, the only kinds in Haskell are \texttt{*}, containing all datatypes, and for kinds \texttt{k} and \texttt{k'}, we have the kind \texttt{k -> k'}, the kind of type-level functions from \texttt{k} to \texttt{k'}.
-With \texttt{DataKinds}, for each type, a corresponding kind is introduced, thus allowing values of the type to be used in place of types.
-Together with this is \texttt{KindSignatures}, which allows annotation of type variables and type expressions with kinds, just like how normal variables and expressions can be annotated with types.
-Finally, we have \texttt{ScopedTypeVariables}, which I will explain later.
-With these, we can write a type definition.
-
-\begin{lstlisting}
-data Vec (n :: Nat) a = MkVec (List a)
-\end{lstlisting}
-
-Unlike with the Agda definition, we note that the length of the list is not checked against the type index by the compiler, as we can pair any \texttt{n} with any list.
-If we wanted to enforce the invariant that \texttt{n} is the length of the list, we would do so by hiding the constructor and only exporting functions which maintain the invariant.
-
-This definition already makes use of the first two language extensions.
-\texttt{Nat} is a datatype defined in \texttt{GHC.TypeLits}, and is lifted up to be a kind using \texttt{DataKinds}.
-Then, we need \texttt{KindSignatures} to state that \texttt{n} should be a natural number, not a type.
-
-We can give this the same functor instance as \texttt{List} for any particlar \texttt{n}.
-
-\begin{lstlisting}
-instance Functor (Vec n) where
-  map f (MkVec xs) = MkVec (map f xs)
-\end{lstlisting}
-
-However, for the applicative functor instance, we need to do something different.
-The applicative functor instance for \texttt{List} has a \texttt{pure} that always returns a list of length 1, and an \texttt{(<*>)} that returns a list whose length is the product of the lengths of the input lists.
-Because we have some fixed \texttt{n}, we want \texttt{pure} and \texttt{(<*>)} to deal only with vectors of length \texttt{n}.
-We do this as follows.
-
-\begin{lstlisting}
-replicate :: Integer -> a -> List a
-replicate 0 x = Nil
-replicate n x = Cons x (replicate (n - 1) x)
-
-ap :: List (a -> b) -> List a -> List b
-ap Nil         Nil         = Nil
-ap (Cons f fs) (Cons x xs) = Cons (f x) (fs <*> xs)
-ap _           _           = error "Lists of different length"
-
-instance (KnownNat n) => Applicative (Vec n) where
-  pure x = MkVec (replicate n' x)
-    where
-    n' :: Integer
-    n' = natVal (Proxy :: Proxy n)
-
-  MkVec fs <*> MkVec xs = MkVec (ap fs xs)
-\end{lstlisting}
-
-There are several specifics in this example.
-The class \texttt{KnownNat} comes from \texttt{GHC.TypeLits}, and represents the index \texttt{n} being available at run-time.
-\texttt{natVal} is a method of this type class, and gives access to the natural number value as a built-in \texttt{Integer}.
-\texttt{KnownNat n} is a prerequisite of the instance, meaning that \texttt{Vec n} forms an applicative functor whenever we are guaranteed to know \texttt{n} at run-time.
-
-The token \texttt{Proxy} occurs twice in the definition of \texttt{pure}: once as a value constructor, to the left of the double-colon; and once as a type constructor, to the right of the double-colon.
-Where \texttt{a} is some type-level value, \texttt{Proxy a} is a type with a single inhabitant \texttt{Proxy}.
-The proxy value here carries the type-level value \texttt{n} into \texttt{natVal}, eventually giving us a value-level value.
-\texttt{n} is in scope here due to \texttt{ScopedTypeVariables}, it being shared throughout the instance definition.
-
-\section{Requirements analysis}
+\end{document}

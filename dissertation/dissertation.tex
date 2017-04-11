@@ -9,8 +9,14 @@
 \usepackage{makecell}
 \usepackage{verbatim}
 \usepackage{docmute}   % only needed to allow inclusion of proposal.tex
+\usepackage{import}
+\usepackage{clrscode3e}%
 
-\usepackage{agda}
+\renewcommand{\gets}{\leftarrow}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+
+\usepackage{latex/agda}
 \usepackage{ucs}
 \usepackage[utf8x]{inputenc}
 \usepackage{amsmath}
@@ -23,6 +29,13 @@
 
 \DeclareUnicodeCharacter{"2237}{::}
 
+\usepackage{amstext}
+\usepackage{stmaryrd}
+\usepackage{polytable}
+
+\input{lhs-preamble}
+%include polycode.fmt
+
 \raggedbottom                           % try to avoid widows and orphans
 \sloppy
 \clubpenalty1000%
@@ -31,7 +44,7 @@
 \renewcommand{\baselinestretch}{1.1}    % adjust line spacing to make
                                         % more readable
 
-\newcommand{\mytitle}{Formalising a semiring framework for shortest-distance problems}
+\newcommand{\mytitle}{On the correctness and performance of a shortest distance algorithm}
 
 \lstset{
   basicstyle=\footnotesize,
@@ -107,6 +120,7 @@ I, James Wood of Robinson College, being a candidate for Part II of the Computer
 \include{Introduction}
 
 \include{./latex/Preparation}
+%\include{./lhs/Preparation}
 
 \include{./latex/Implementation}
 
