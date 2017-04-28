@@ -1,0 +1,9 @@
+graph type,n,p,algorithm,time,alloc
+B,50,1,dijkstra,0.02925,0.05097
+B,100,1,dijkstra,0.218875,0.38342
+B,150,1,dijkstra,0.805625,1.26579
+B,200,1,dijkstra,1.9725,2.96352
+B,250,1,dijkstra,3.817375,5.74525
+B,300,1,dijkstra,6.77075,9.88093
+B,350,1,dijkstra,10.9075,15.63288
+B,400,1,dijkstra,16.169875,23.28041

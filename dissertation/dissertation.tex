@@ -10,7 +10,15 @@
 \usepackage{verbatim}
 \usepackage{docmute}   % only needed to allow inclusion of proposal.tex
 \usepackage{import}
-\usepackage{clrscode3e}%
+\usepackage{clrscode3e}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{etextools}
+\usepackage{bbding}
+\usepackage{subcaption}
+
+\usepgfplotslibrary{units}
+\usetikzlibrary{pgfplots.units}
 
 \renewcommand{\gets}{\leftarrow}
 %\usepackage{algorithm}
@@ -28,6 +36,9 @@
 \usepackage{autofe}
 
 \DeclareUnicodeCharacter{"2237}{::}
+\DeclareUnicodeCharacter{"220E}{\RectangleBold}
+\DeclareUnicodeCharacter{"25C5}{\ensuremath{\vartriangleleft}}
+\DeclareUnicodeCharacter{"02E1}{\textsuperscript{l}}
 
 \usepackage{amstext}
 \usepackage{stmaryrd}
@@ -124,7 +135,7 @@ I, James Wood of Robinson College, being a candidate for Part II of the Computer
 
 \include{./latex/Implementation}
 
-\include{Evaulation}
+\include{Evaluation}
 
 \include{Conclusion}
 

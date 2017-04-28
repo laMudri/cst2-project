@@ -9,7 +9,7 @@
 
 Haskell is a pure functional programming language predating Agda.
 It has a syntax similar to that of Agda, though, being a programming language and not a proof assistant, source files usually only use ASCII characters.
-Haskell does not have dependent types, and so introduces a syntactic distinction between the value level and the type level, including having separate namespaces for each level.
+Haskell does not have dependent types, and so introduces a syntactic distinction between the term level and the type level, including having separate namespaces for each level.
 However, modern Haskell has several features inspired by dependent types, some of which are used in this project.
 
 The code in this section constitutes a valid Haskell file.
@@ -41,7 +41,7 @@ Haskell also allows expressions to be annotated with types using the double colo
 In contrast to Agda, in Haskell we do not explicitly quantify over type variables @a@ and @b@; they are assumed to be universally quantified over the given type signature.
 This code states that a type-level function (a mapping from inhabitants of @*@, similar to Agda's \AgdaPrimitiveType{Set}, to inhabitants of @*@) @f@ is a @Functor@ if we can produce a function @map@ that polymorphically takes functions of type @a -> b@ to functions of type @f a -> f b@.
 
-We provide such an @f@, we give an instance of the class.
+To provide such an @f@, we give an \emph{instance} of the @Functor@ class.
 Before that, I will define an alternative @List@ type to the one provided as standard, without the syntactic sugar.
 
 \begin{code}

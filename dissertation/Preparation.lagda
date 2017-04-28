@@ -14,7 +14,7 @@ In this chapter, I give an overview of the main concepts used in the remainder o
 In \hyperref[sec:agda]{Section \ref*{sec:agda}}, I introduce the programming language Agda, which I use to formalise the theory underpinning the shortest distance algorithm.
 Then, in \hyperref[sec:shortest-distance-problems]{Section \ref*{sec:shortest-distance-problems}}, I give an informal introduction to the use of semirings in shortest distance problems.
 This is also where I state and discuss the algorithm of Mohri, which is the focus of this project.
-Third, in \hyperref[sec:haskell]{Section \ref*{sec:haskell}}, I give a summary of the Haskell features I use in the performance testing code that will be novel to a reader familiar with a statically typed functional programming language like ML, but not Haskell specifically.
+Third, in \hyperref[sec:haskell]{Section \ref*{sec:haskell}}, I give a summary of the Haskell features I use in the performance testing code that may be novel to a reader familiar with a statically typed functional programming language like ML, but not Haskell specifically.
 Finally, in \hyperref[sec:requirements-analysis]{Section \ref*{sec:requirements-analysis}}, I clarify how the implementation is split into distinct sections, and what tools are used for implementation and organisation.
 
 \section{Agda}\label{sec:agda}
@@ -24,10 +24,10 @@ Finally, in \hyperref[sec:requirements-analysis]{Section \ref*{sec:requirements-
 %Agda is a programming language with full support for dependent types.
 
 Dependent typing, the ability for types to make reference to values, offers several new possibilities in software engineering.
-For one, dependent types allow us to use in programming some concepts from mathematics that are otherwise difficult to express.
+For one, dependent types allow us to use a wider range of mathematical concepts when programming.
 For example, mathematics often makes use of vectors over a set $X$ of some fixed length $n$, denoted $X^n$.
 In most programming languages, we are either restricted to special cases such as 2-element and 3-element vectors, or use lists of arbitrary length.
-The latter leaves us without compile-time checks that, for example, the two operands in a vector addition have the same length.
+The latter leaves us without compile-time checks that, for example, the two operands in a vector addition have the same dimension.
 
 Also, dependent types give us the tools to give precise types to many of the programs we want to write.
 To see this, we consider again difficulties in using lists of arbitrary length.
@@ -41,10 +41,10 @@ With dependent types, we can form a type of such proofs, which give us machine-c
 Agda is a pure functional programming language with full support for dependent types.
 It is intended to be a practical tool for both programming and proving, both of which I introduce in this section.
 
-\subsection{Programming in Agda}
+\subsection{Programming in Agda}\label{sec:programming-in-agda}
 
-An example that demonstrates dependent types is \AgdaDatatype{Fin} \AgdaArgument{n}, a type containing exactly \AgdaArgument{n} inhabitants, corresponding to the natural numbers less than \AgdaArgument{n}.
-The description ``dependent'' applies because \AgdaArgument{n} is a value (a natural number) appearing in a type \AgdaDatatype{Fin} \AgdaArgument{n}.
+An example that demonstrates dependent types is \AgdaDatatype{Fin} \AgdaBound{n}, a type containing exactly \AgdaBound{n} inhabitants, corresponding to the natural numbers less than \AgdaBound{n}.
+The description ``dependent'' applies because \AgdaBound{n} is a value (a natural number) appearing in a type \AgdaDatatype{Fin} \AgdaBound{n}.
 First, we will see how to implement the non-dependent type of natural numbers encoded in unary.
 
 \begin{code}
@@ -68,12 +68,12 @@ data Fin : ℕ → Set where
 \end{code}
 
 This defines \AgdaDatatype{Fin} as a function that takes a natural number (element of \AgdaDatatype{ℕ}) and produces a small type (element of \AgdaPrimitiveType{Set}).
-Specifically, there is a constructor \AgdaInductiveConstructor{fzero} that makes an element of this type for any number greater than 0 (because $0 < 1$ but $0 \nless 0$), and there is a constructor \AgdaInductiveConstructor{fsuc} that takes a number less than \AgdaArgument{n} and produces a new number less than \AgdaInductiveConstructor{suc} \AgdaArgument{n}.
-As in most programming languags of the Haskell/ML~\cite{Haskell2010}\cite{Milner1990}\cite{ocaml} style, the arrow of the function type associates rightward, so the type of \AgdaInductiveConstructor{fsuc} is read as \AgdaSymbol{\{}\AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{ℕ}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaDatatype{Fin} \AgdaBound{n} \AgdaSymbol{→} \AgdaDatatype{Fin} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{))}.
-Furthermore, in Agda, the arrow can be a \emph{binder}, meaning that as well as having simple functions of type \AgdaArgument{A} \AgdaSymbol{→} \AgdaArgument{B}, we can have dependent functions of type \AgdaSymbol{(}\AgdaArgument{a} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaArgument{B}, where \AgdaArgument{B} can be parametrised by \AgdaArgument{a}.
-This is what we have with \AgdaArgument{n} in both constructors.
-The curly braces, rather than round brackets, around \AgdaArgument{n} \AgdaSymbol{:} \AgdaDatatype{ℕ} signify that \AgdaArgument{n} is \emph{implicit}, so when we call either of the constructors, we don't have to write out this argument.
-This has the effect of making \AgdaDatatype{Fin} \AgdaArgument{n} values look like natural numbers, except for their type and the `f's in the constructor names.
+Specifically, there is a constructor \AgdaInductiveConstructor{fzero} that makes an element of this type for any number greater than 0 (because $0 < 1$ but $0 \nless 0$), and there is a constructor \AgdaInductiveConstructor{fsuc} that takes a number less than \AgdaBound{n} and produces a new number less than \AgdaInductiveConstructor{suc} \AgdaBound{n}.
+As in most programming languages of the Haskell/ML~\cite{Haskell2010}\cite{Milner1990}\cite{ocaml} style, the arrow of the function type associates rightward, so the type of \AgdaInductiveConstructor{fsuc} is read as \AgdaSymbol{\{}\AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{ℕ}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaDatatype{Fin} \AgdaBound{n} \AgdaSymbol{→} \AgdaDatatype{Fin} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{))}.
+Furthermore, in Agda, the arrow can be a \emph{binder}, meaning that as well as having simple functions of type \AgdaBound{A} \AgdaSymbol{→} \AgdaBound{B}, we can have dependent functions of type \AgdaSymbol{(}\AgdaBound{a} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{B}, where \AgdaBound{B} can be parametrised by \AgdaBound{a}.
+This is what we have with \AgdaBound{n} in both constructors.
+The curly braces, rather than round brackets, around \AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{ℕ} signify that \AgdaBound{n} is \emph{implicit}, so when we call either of the constructors, we don't have to write out this argument.
+This has the effect of making \AgdaDatatype{Fin} \AgdaBound{n} values look like natural numbers, except for their type and the `f's in the constructor names.
 
 Implicit arguments are filled in by unification.
 If no value can be inferred, or there is not enough information to disambiguate between multiple inferred values, type checking fails.
@@ -91,7 +91,7 @@ data Vec {a : Level} (A : Set a) : ℕ → Set a where
   _∷_  : {n : ℕ} → A → Vec A n →  Vec A (suc n)
 \end{code}
 
-The constructors for \AgdaDatatype{Vec} state that, for any type \AgdaArgument{A}, \AgdaInductiveConstructor{[]} (the empty list) is a vector of length 0, and given an element \AgdaArgument{x} \AgdaSymbol{:} \AgdaArgument{A} and a vector \AgdaArgument{xs} of length $n$, \AgdaArgument{x} \AgdaSymbol{∷} \AgdaArgument{xs} (the vector formed by appending \AgdaArgument{x} to the front of \AgdaArgument{xs}) is a vector of length $1 + n$.
+The constructors for \AgdaDatatype{Vec} state that, for any type \AgdaBound{A}, \AgdaInductiveConstructor{[]} (the empty list) is a vector of length 0, and given an element \AgdaBound{x} \AgdaSymbol{:} \AgdaBound{A} and a vector \AgdaBound{xs} of length $n$, \AgdaBound{x} \AgdaSymbol{∷} \AgdaBound{xs} (the vector formed by appending \AgdaBound{x} to the front of \AgdaBound{xs}) is a vector of length $1 + n$.
 When reading aloud, \AgdaInductiveConstructor{[]} is read ``nil'' and \AgdaInductiveConstructor{∷} is read ``cons''.
 
 Several new things are introduced here.
@@ -100,13 +100,13 @@ Earlier, I mentioned that \AgdaPrimitiveType{Set} is the type of all simple data
 The technical term for these is \emph{small types}, and \AgdaPrimitiveType{Set} is known as the smallest universe.
 In more complex situations than those discussed so far, we encounter larger types, the first example being \AgdaPrimitiveType{Set} itself.
 To say that \AgdaPrimitiveType{Set} has type \AgdaPrimitiveType{Set} is known to give rise to Hurkens' paradox~\cite{Hurkens1995}, an inconsistency comparable to Russell's paradox in set theory.
-Instead, we say that \AgdaPrimitiveType{Set} is an abbreviation for \AgdaPrimitiveType{Set} \AgdaPrimitive{lzero}, and for any \AgdaArgument{ℓ} \AgdaSymbol{:} \AgdaDatatype{Level}, the type of \AgdaPrimitiveType{Set} \AgdaArgument{ℓ} is \AgdaPrimitiveType{Set} \AgdaSymbol{(}\AgdaPrimitive{lsuc} \AgdaArgument{ℓ}\AgdaSymbol{)}.
+Instead, we say that \AgdaPrimitiveType{Set} is an abbreviation for \AgdaPrimitiveType{Set} \AgdaPrimitive{lzero}, and for any \AgdaBound{ℓ} \AgdaSymbol{:} \AgdaDatatype{Level}, the type of \AgdaPrimitiveType{Set} \AgdaBound{ℓ} is \AgdaPrimitiveType{Set} \AgdaSymbol{(}\AgdaPrimitive{lsuc} \AgdaBound{ℓ}\AgdaSymbol{)}.
 In this case, we take an implicit \AgdaPostulate{Level} parameter so as to be polymorphic over types of all levels.
 
-We can also note the difference between \emph{parameters} \AgdaArgument{a} and \AgdaArgument{A}, appearing before the colon, and the \emph{index} of type \AgdaDatatype{ℕ}, appearing after the colon but to the left of an arrow.
-%\AgdaArgument{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every mention of \AgdaDatatype{Vec} in the definition must be applied to \AgdaArgument{A} exactly.
-\AgdaArgument{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every constructor produces a value with the same fixed value of the parameter.
-In contrast, indices allow specific values to come from constructors, as seen by the index taking the values \AgdaInductiveConstructor{zero} and \AgdaInductiveConstructor{suc} \AgdaArgument{n} at in the result type of each constructor respectively.
+We can also note the difference between \emph{parameters} \AgdaBound{a} and \AgdaBound{A}, appearing before the colon, and the \emph{index} of type \AgdaDatatype{ℕ}, appearing after the colon but to the left of an arrow.
+%\AgdaBound{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every mention of \AgdaDatatype{Vec} in the definition must be applied to \AgdaBound{A} exactly.
+\AgdaBound{A} being a parameter in this definition of \AgdaDatatype{Vec} means that every constructor produces a value with the same fixed value of the parameter.
+In contrast, indices allow specific values to come from constructors, as seen by the index taking the values \AgdaInductiveConstructor{zero} and \AgdaInductiveConstructor{suc} \AgdaBound{n} at in the result type of each constructor respectively.
 It is an important distinction that parameters are named, and their names are available throughout the definition.
 On the other hand, even though indices can be named, the names are only available until the \AgdaKeyword{where} keyword.
 The distinction comes about mainly because of Agda's explicit handling of levels.
@@ -115,13 +115,13 @@ On the other hand, indices have to be quantified over, meaning that the resultin
 
 Finally, I have introduced the \emph{mixfix operator} \AgdaInductiveConstructor{\_∷\_}.
 The underscores signify places for arguments to go when the function is applied.
-So, to use \AgdaInductiveConstructor{\_∷\_} on \AgdaArgument{x} \AgdaSymbol{:} \AgdaArgument{A} and \AgdaArgument{xs} \AgdaSymbol{:} \AgdaDatatype{Vec} \AgdaArgument{A} \AgdaArgument{n}, we would write \AgdaArgument{x} \AgdaInductiveConstructor{∷} \AgdaArgument{xs}.
+So, to use \AgdaInductiveConstructor{\_∷\_} on \AgdaBound{x} \AgdaSymbol{:} \AgdaBound{A} and \AgdaBound{xs} \AgdaSymbol{:} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{n}, we would write \AgdaBound{x} \AgdaInductiveConstructor{∷} \AgdaBound{xs}.
 About syntax, identifiers are very free in form, and can contain almost any Unicode character.
-It is common to have variables named like \AgdaArgument{a≤b} or \AgdaArgument{x∈[x]} (both without spaces).
+It is common to have variables named like \AgdaBound{a≤b} or \AgdaBound{x∈[x]} (both without spaces).
 It also means that spaces around infix operators are nearly always necessary.
 
-With these types defined, we can move on to producing values with types using these datatypes.
-An interesting example is a function that returns the \AgdaArgument{i}th element of a vector.
+With these types defined, we can produce functions for manipulating and using vectors.
+An interesting example is a function that returns the \AgdaBound{i}th element of a vector.
 
 \begin{code}
 index : {a : Level} → {A : Set a} → {n : ℕ} → Fin n → Vec A n → A
@@ -129,8 +129,8 @@ index fzero     (x ∷ xs) = x
 index (fsuc i)  (x ∷ xs) = index i xs
 \end{code}
 
-This defines the function \AgdaFunction{index} recursively by pattern matching on its first argument \AgdaArgument{i}.
-It is important that we never pattern match on \AgdaInductiveConstructor{[]}, and we can see why that is by looking at the implicit argument \AgdaArgument{n}.
+This defines the function \AgdaFunction{index} recursively by pattern matching on its first argument \AgdaBound{i}.
+It is important that we never pattern match on \AgdaInductiveConstructor{[]}, and we can see why that is by looking at the implicit argument \AgdaBound{n}.
 
 \begin{code}
 index′ : {a : Level} → {A : Set a} → {n : ℕ} → Fin n → Vec A n → A
@@ -138,21 +138,27 @@ index′ {n = suc n} fzero     (x ∷ xs) = x
 index′ {n = suc n} (fsuc i)  (x ∷ xs) = index i xs
 \end{code}
 
-Both constructors of \AgdaDatatype{Fin} produce a value of type \AgdaDatatype{Fin} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaArgument{n}\AgdaSymbol{)} for some \AgdaArgument{n}.
-So, when we pattern match on a \AgdaDatatype{Fin} \AgdaArgument{n} argument, we know that in both cases, \AgdaArgument{n} is of the form \AgdaInductiveConstructor{suc} \AgdaArgument{n}.
-With this noted, we see what constructors make a value of type \AgdaDatatype{Vec} \AgdaArgument{A} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaArgument{n}\AgdaSymbol{)}.
+Both constructors of \AgdaDatatype{Fin} produce a value of type \AgdaDatatype{Fin} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)} for some \AgdaBound{n}.
+So, when we pattern match on a \AgdaDatatype{Fin} \AgdaBound{n} argument, we know that in both cases, \AgdaBound{n} is of the form \AgdaInductiveConstructor{suc} \AgdaBound{n}.
+With this noted, we see what constructors make a value of type \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)}.
 The only one is \AgdaInductiveConstructor{\_∷\_}, so this is the only constructor for which we need a case.
 
 \AgdaFunction{index} is a useful function to have for programming.
-For a vector of length \AgdaArgument{n}, it can only take indices less than \AgdaArgument{n}.
+For a vector of length \AgdaBound{n}, it can only take indices less than \AgdaBound{n}.
 The function always produces a value, and in particlar will never throw an out-of-bounds exception.
 Functions that could fail need to be explicitly annotated.
 With expressive types, it is usually possible to narrow the domain (restrict the preconditions) or widen the codomain (relax the postconditions) such that a potentially failing function no longer fails.
 
-\subsection{Proving in Agda}
+\subsection{Proofs in Agda}
+
+Most of the work of this project goes into producing proofs.
+Though Agda's proof language is the same as its programming language, expressing propositions and proofs is sufficiently different from programming that it has a separate section.
+I begin by introducing how datatypes can be used to represent logical connectives, and then introduce practical proofs.
+
+\subsubsection{Logical connectives}
 
 One kind of failure that Agda avoids is non-termination.
-Unrestricted recursion can be used to cause inconsistency.
+Non-termination, resulting from unrestricted recursion, can be used to cause inconsistency.
 To see what inconsistency means, we must first have some notion of falsity.
 
 \begin{code}
@@ -190,22 +196,22 @@ Generally, a record will have zero or more fields (demonstrated by \AgdaDatatype
 It is trivial to provide no fields, so \AgdaDatatype{⊤} is inhabited by just \AgdaInductiveConstructor{tt}.
 
 To flesh out the Curry-Howard correspondence, we will look at the logical connectives.
-We have already seen the types corresponding to implication and universal quantification --- these are non-dependent functions (\AgdaArgument{A} \AgdaSymbol{→} \AgdaArgument{B}) and dependent functions (\AgdaSymbol{(}\AgdaArgument{x} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaArgument{B}), respectively.
+We have already seen the types corresponding to implication and universal quantification --- these are non-dependent functions (\AgdaBound{A} \AgdaSymbol{→} \AgdaBound{B}) and dependent functions (\AgdaSymbol{(}\AgdaBound{x} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{B}), respectively.
 To see why, we compare how the proposition can be proved and used with how the type can be constructed and deconstructed.
 To prove a universal quantification $\forall x \in A. B$, where $B$ can mention $x$, we take arbitrary $x \in A$ and prove $B$ for this $x$.
 If we have assumed $\forall x \in A. B$, we can put this to use by providing some specific $a \in A$, concluding that $B$ holds when $x$ is replaced by $a$.
-In dependent type theory, types take the place of both sets and propositions, so having an element $a$ of set $A$ and a proof $b$ of proposition $B$ are translated to \AgdaArgument{a} being an inhabitant of \AgdaArgument{A} and \AgdaArgument{b} being an inhabitant of \AgdaArgument{B}, respectively.
-This means that to produce an inhabitant of \AgdaSymbol{(}\AgdaArgument{x} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaArgument{B}, we take an arbitrary inhabitant \AgdaArgument{x} of \AgdaArgument{A} as a function argument and return some inhabitant of \AgdaArgument{B} at this value of \AgdaArgument{x}.
-To use one of these proofs, we use function application, which, from our proof \AgdaArgument{f} \AgdaSymbol{:} \AgdaSymbol{(}\AgdaArgument{x} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaArgument{B} and \AgdaArgument{a} \AgdaSymbol{:} \AgdaArgument{A}, gives us an inhabitant of \AgdaArgument{B} at \AgdaArgument{a}.
+In dependent type theory, types take the place of both sets and propositions, so having an element $a$ of set $A$ and a proof $b$ of proposition $B$ are translated to \AgdaBound{a} being an inhabitant of \AgdaBound{A} and \AgdaBound{b} being an inhabitant of \AgdaBound{B}, respectively.
+This means that to produce an inhabitant of \AgdaSymbol{(}\AgdaBound{x} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{B}, we take an arbitrary inhabitant \AgdaBound{x} of \AgdaBound{A} as a function argument and return some inhabitant of \AgdaBound{B} at this value of \AgdaBound{x}.
+To use one of these proofs, we use function application, which, from our proof \AgdaBound{f} \AgdaSymbol{:} \AgdaSymbol{(}\AgdaBound{x} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{B} and \AgdaBound{a} \AgdaSymbol{:} \AgdaBound{A}, gives us an inhabitant of \AgdaBound{B} at \AgdaBound{a}.
 
 To prove an implication $A \implies B$, we assume $A$ and then prove $B$.
 We can reword this to say that to prove $A \implies B$, we take an arbitrary proof of $A$ and produce a proof of $B$.
-This is how, in type theory, implication is a special case of universal quantification where the proposition \AgdaArgument{B} does not mention the proof of the hypothesis \AgdaArgument{a} \AgdaSymbol{:} \AgdaArgument{A} (though its proof might).
+This is how, in type theory, implication is a special case of universal quantification where the proposition \AgdaBound{B} does not mention the proof of the hypothesis \AgdaBound{a} \AgdaSymbol{:} \AgdaBound{A} (though its proof might).
 
 Other logical connectives can be defined as datatypes.
 I start with \emph{disjunction}, logical \emph{or}.
 With this definition, I begin to introduce some of the notational abbreviations provided by Agda.
-Specifically, in a parameter list, \AgdaSymbol{\{}\AgdaArgument{a} \AgdaArgument{b} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{\}} is short for \AgdaSymbol{\{}\AgdaArgument{a} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{\}} \AgdaSymbol{\{}\AgdaArgument{b} \AgdaSymbol{:} \AgdaArgument{A}\AgdaSymbol{\}}, and similar when the curly braces are replaced by round brackets.
+Specifically, in a parameter list, \AgdaSymbol{\{}\AgdaBound{a} \AgdaBound{b} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{\}} is short for \AgdaSymbol{\{}\AgdaBound{a} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{\}} \AgdaSymbol{\{}\AgdaBound{b} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{\}}, and similar when the curly braces are replaced by round brackets.
 
 \begin{code}
 data _⊎_ {a b : Level} (A : Set a) (B : Set b) : Set (a ⊔ b) where
@@ -215,10 +221,10 @@ data _⊎_ {a b : Level} (A : Set a) (B : Set b) : Set (a ⊔ b) where
 
 \AgdaDatatype{\_⊎\_} is a \emph{tagged union} or \emph{sum} type, known as \texttt{Either} in Haskell or \texttt{result} in ML.
 To prove a disjunction $A \vee B$, we must either prove $A$ or prove $B$; and when given a proof of $A \vee B$, we can consider the cases of $A$ holding or $B$ holding.
-Similarly, to give an inhabitant of \AgdaArgument{A} \AgdaDatatype{⊎} \AgdaArgument{B}, we produce either \AgdaInductiveConstructor{inj₁} \AgdaArgument{a} for \AgdaArgument{a} \AgdaSymbol{:} \AgdaArgument{A}, or \AgdaInductiveConstructor{inj₂} \AgdaArgument{b} for \AgdaArgument{b} \AgdaSymbol{:} \AgdaArgument{B}; and given a value of type \AgdaArgument{A} \AgdaDatatype{⊎} \AgdaArgument{B}, we can use pattern matching to branch based on whether it was introduced by \AgdaInductiveConstructor{inj₁} or \AgdaInductiveConstructor{inj₂}.
+Similarly, to give an inhabitant of \AgdaBound{A} \AgdaDatatype{⊎} \AgdaBound{B}, we produce either \AgdaInductiveConstructor{inj₁} \AgdaBound{a} for \AgdaBound{a} \AgdaSymbol{:} \AgdaBound{A}, or \AgdaInductiveConstructor{inj₂} \AgdaBound{b} for \AgdaBound{b} \AgdaSymbol{:} \AgdaBound{B}; and given a value of type \AgdaBound{A} \AgdaDatatype{⊎} \AgdaBound{B}, we can use pattern matching to branch based on whether it was introduced by \AgdaInductiveConstructor{inj₁} or \AgdaInductiveConstructor{inj₂}.
 
-Notice here that for \AgdaArgument{A} at level \AgdaArgument{a} and \AgdaArgument{B} at level \AgdaArgument{b}, the formed sum type \AgdaArgument{A} \AgdaDatatype{⊎} \AgdaArgument{B} has level \AgdaArgument{a} \AgdaPrimitive{⊔} \AgdaArgument{b} --- the maximum level of \AgdaArgument{a} and \AgdaArgument{b}.
-Intuitively, this ensures that whether the sum value contains a value of type \AgdaArgument{A} (via \AgdaInductiveConstructor{inj₁}) or a value of type \AgdaArgument{B} (via \AgdaInductiveConstructor{inj₂}), the type will be big enough to contain either.
+Notice here that for \AgdaBound{A} at level \AgdaBound{a} and \AgdaBound{B} at level \AgdaBound{b}, the formed sum type \AgdaBound{A} \AgdaDatatype{⊎} \AgdaBound{B} has level \AgdaBound{a} \AgdaPrimitive{⊔} \AgdaBound{b} --- the maximum level of \AgdaBound{a} and \AgdaBound{b}.
+Intuitively, this ensures that whether the sum value contains a value of type \AgdaBound{A} (via \AgdaInductiveConstructor{inj₁}) or a value of type \AgdaBound{B} (via \AgdaInductiveConstructor{inj₂}), the type will be big enough to contain either.
 Usually, levels are uninteresting, and we keep them around merely to ensure consistency.
 
 Next comes existential quantification.
@@ -234,11 +240,11 @@ record Σ {a b : Level} (A : Set a) (B : A → Set b) : Set (a ⊔ b) where
 \AgdaDatatype{Σ} is a \emph{dependent sum} type.
 To prove $\exists x \in A. B$, where $B$ can mention $x$, we give some element $a$ of $A$, and then prove $B$ with each occurrence of $x$ replaced by $a$.
 When we assume that $\exists x \in A. B$, we assume that we have some $a \in A$ and that $B$ holds when $x$ is replaced by $a$.
-To give an inhabitant of \AgdaDatatype{Σ} \AgdaArgument{A} \AgdaArgument{B}, we must produce an inhabitant \AgdaArgument{a} of \AgdaArgument{A} and an inhabitant \AgdaArgument{b} of \AgdaArgument{B} \AgdaArgument{a}, remembering that \AgdaArgument{B} is a \emph{function} from \AgdaArgument{A} to \AgdaPrimitiveType{Set} \AgdaArgument{b}, arranging these in the expression \AgdaArgument{a} \AgdaInductiveConstructor{,} \AgdaArgument{b}.
-Similarly, when taking an inhabitant of \AgdaDatatype{Σ} \AgdaArgument{A} \AgdaArgument{B}, pattern matching gives us an inhabitant \AgdaArgument{a} of \AgdaArgument{A} and an inhabitant \AgdaArgument{b} of \AgdaArgument{B} \AgdaArgument{a}.
+To give an inhabitant of \AgdaDatatype{Σ} \AgdaBound{A} \AgdaBound{B}, we must produce an inhabitant \AgdaBound{a} of \AgdaBound{A} and an inhabitant \AgdaBound{b} of \AgdaBound{B} \AgdaBound{a}, remembering that \AgdaBound{B} is a \emph{function} from \AgdaBound{A} to \AgdaPrimitiveType{Set} \AgdaBound{b}, arranging these in the expression \AgdaBound{a} \AgdaInductiveConstructor{,} \AgdaBound{b}.
+Similarly, when taking an inhabitant of \AgdaDatatype{Σ} \AgdaBound{A} \AgdaBound{B}, pattern matching gives us an inhabitant \AgdaBound{a} of \AgdaBound{A} and an inhabitant \AgdaBound{b} of \AgdaBound{B} \AgdaBound{a}.
 
 The type for logical conjunction, \AgdaDatatype{\_×\_}, known as the \emph{product} type and whose values are known as \emph{pairs} or \emph{tuples}, can be defined in terms of \AgdaDatatype{Σ}.
-We set the second argument \AgdaArgument{B} of \AgdaDatatype{Σ} to be a constant function.
+We set the second argument \AgdaBound{B} of \AgdaDatatype{Σ} to be a constant function.
 Note that Agda allows use of $\lambda$-notation when producing anonymous functions, and the underscore stands in place of an unused argument.
 
 \begin{code}
@@ -260,44 +266,101 @@ We use the following definition.
 To prove a negation $\neg A$, we assume $A$ and derive a contradiction.
 Producing a proof of $\bot$ is a contradiction, so this is just like proving the implication $A \implies \bot$.
 
-Notice that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaArgument{A} is not the same as \AgdaArgument{A}.
-Indeed, these are not even equivalent, in the sense that there are values of \AgdaArgument{A} such that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaArgument{A} is provable, but \AgdaArgument{A} is not.
-The former says that we can refute any refutation of \AgdaArgument{A}, whereas the latter says that we have a proof of \AgdaArgument{A}.
+Notice that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaBound{A} is not the same as \AgdaBound{A}.
+Indeed, these are not even equivalent, in the sense that there are values of \AgdaBound{A} such that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaBound{A} is provable, but \AgdaBound{A} is not.
+The former says that we can refute any refutation of \AgdaBound{A}, whereas the latter says that we have a proof of \AgdaBound{A}.
 An example of where the two differ is given in the following.
 
 \begin{code}
-module UsingSet {ℓ : Level} (X : Set ℓ) where
-  ¬¬lem : ¬ ¬ (X ⊎ (¬ X))
-  ¬¬lem f = ¬¬X ¬X
-    where
-    ¬X : ¬ X
-    ¬X x = f (inj₁ x)
+¬¬lem : {ℓ : Level} → {X : Set ℓ} → ¬ ¬ (X ⊎ (¬ X))
+¬¬lem {X = X} f = ¬¬X ¬X
+  where
+  ¬X : ¬ X
+  ¬X x = f (inj₁ x)
 
-    ¬¬X : ¬ ¬ X
-    ¬¬X g = f (inj₂ g)
+  ¬¬X : ¬ ¬ X
+  ¬¬X g = f (inj₂ g)
 
-  -- Not provable:
-  -- lem : X ⊎ (¬ X)
-  -- lem = ?
+-- Not provable:
+-- lem : {ℓ : Level} → {X : Set ℓ} → X ⊎ (¬ X)
+-- lem = ?
 \end{code}
 
-In the first proof, we note that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaSymbol{(}\AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{))} is just \AgdaSymbol{(}\AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥}, i.e., a function which takes a function \AgdaArgument{f} \AgdaSymbol{:} \AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥} and returns an inhabitant of \AgdaDatatype{⊥}.
-But we can split \AgdaArgument{f} into two functions of types \AgdaArgument{X} \AgdaSymbol{→} \AgdaDatatype{⊥} and \AgdaFunction{¬} \AgdaArgument{X} \AgdaSymbol{→} \AgdaDatatype{⊥}
+In the first proof, we note that \AgdaFunction{¬} \AgdaFunction{¬} \AgdaSymbol{(}\AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{))} is just \AgdaSymbol{(}\AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥}, i.e., a function which takes a function \AgdaBound{f} \AgdaSymbol{:} \AgdaBound{X} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{X}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaDatatype{⊥} and returns an inhabitant of \AgdaDatatype{⊥}.
+But we can split \AgdaBound{f} into two functions of types \AgdaBound{X} \AgdaSymbol{→} \AgdaDatatype{⊥} and \AgdaFunction{¬} \AgdaBound{X} \AgdaSymbol{→} \AgdaDatatype{⊥}
 These contradict each other, producing the required inhabitant of \AgdaDatatype{⊥}.
 
 On the other hand, the second proof fails.
 We can argue why there is no such proof by an appeal to computability.
 An Agda program must run on a computer, so Agda is no more powerful than a Turing machine.
 In particlar, an Agda program cannot solve the halting problem.
-We can encode a Turing machine programs and configurations in Agda, and produce a family of types \AgdaArgument{H} indexed on a program-configuration pair \AgdaArgument{M} which is inhabited exactly when \AgdaArgument{M} halts.
-If we could prove \AgdaFunction{lem}, then we would have a proof of \AgdaArgument{H M} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaArgument{H M}\AgdaSymbol{)} for arbitrary \AgdaArgument{M}.
-But this would actually give us either some proof that \AgdaArgument{H M} holds or some proof that \AgdaFunction{¬} \AgdaArgument{H M} holds, and we can test which is given.
+We can encode Turing machine programs and configurations in Agda, and produce a family of types \AgdaBound{H} indexed on a program-configuration pair \AgdaBound{M} which is inhabited exactly when \AgdaBound{M} halts.
+If we could prove \AgdaFunction{lem}, then we would have a proof of \AgdaBound{H M} \AgdaDatatype{⊎} \AgdaSymbol{(}\AgdaFunction{¬} \AgdaBound{H M}\AgdaSymbol{)} for arbitrary \AgdaBound{M}.
+But this would actually give us either some proof that \AgdaBound{H M} holds or some proof that \AgdaFunction{¬} \AgdaBound{H M} holds, and we can test which is given.
 This solves the halting problem, so a proof of \AgdaFunction{lem} is impossible.
+
+\subsubsection{Mathematics}
+
+A common relation to use in mathematics is equality.
+We can define a polymorphic notion of equality as follows.
+
+\begin{code}
+data _≡_ {a : Level} {A : Set a} (x : A) : A → Set where
+  refl : x ≡ x
+\end{code}
+
+This says that, for any \AgdaBound{x}, \AgdaBound{x} \AgdaDatatype{≡\_} is a type family inhabited only at \AgdaBound{x} itself.
+\AgdaInductiveConstructor{refl} is short for ``reflexivity'', so the defining fact about \AgdaDatatype{\_≡\_} is that each \AgdaBound{x} is related to itself.
+There are other properties we can prove of equality, typically using dependent pattern matching, as seen in the definition of \AgdaFunction{index} in Section \ref{sec:programming-in-agda}.
+One such property is that, for equal \AgdaBound{x} and \AgdaBound{y}, \AgdaBound{f} \AgdaBound{x} and \AgdaBound{f} \AgdaBound{y} are also equal --- or colloquially, doing the same thing to both sides of an equation preserves equality.
+
+\begin{code}
+cong : {a b : Level} → {A : Set a} → {B : Set b} →
+       (f : A → B) → {x y : A} → x ≡ y → f x ≡ f y
+cong f {x} {.x} refl = refl
+\end{code}
+
+We pattern match on the proof of \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{y}, which forces \AgdaBound{y} to be \AgdaBound{x}.
+This is shown in the implicit arguments, where the dot before the second \AgdaBound{x} denotes that the second \AgdaBound{x} is an expression, with its value forced by the pattern matching.
+With \AgdaBound{y} set to \AgdaBound{x}, we are required to prove \AgdaBound{f} \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{f} \AgdaBound{x}, for which reflexivity about \AgdaBound{f} \AgdaBound{x} suffices.
+
+Finally, we can use this equality relation with induction.
+Proof by induction is the basic strategy when proving properties of a recursive function.
+To build an example, I will introduce a recursively defined addition function on natural numbers.
+
+\begin{code}
+add : ℕ → ℕ → ℕ
+add zero     n = n
+add (suc m)  n = suc (add m n)
+\end{code}
+
+First, we note that the equality we defined is up to $\beta$-equivalence -- that is, terms are equated if they evaluate to the same term.
+\AgdaFunction{add} is defined recursively on its first argument, and in particular, \AgdaFunction{add} \AgdaInductiveConstructor{zero} \AgdaBound{n} evaluates to \AgdaBound{n}.
+
+\begin{code}
+0+ : (n : ℕ) → add zero n ≡ n
+0+ n = refl
+\end{code}
+
+However, for free variable \AgdaBound{n}, \AgdaFunction{add} \AgdaBound{n} \AgdaInductiveConstructor{zero} does not evaluate to \AgdaBound{n}, so we must instead prove by induction that for any concrete \AgdaBound{n}, we do have the equality.
+
+\begin{code}
++0 : (n : ℕ) → add n zero ≡ n
++0 zero = refl
++0 (suc n) = cong suc (+0 n)
+\end{code}
+
+For the base case with \AgdaBound{n} set to \AgdaInductiveConstructor{zero}, we have to prove \AgdaFunction{add} \AgdaInductiveConstructor{zero} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaInductiveConstructor{zero}.
+This follows by computation.
+
+In the step case, with \AgdaBound{n} set to \AgdaInductiveConstructor{suc} \AgdaBound{n}, we are required to prove \AgdaFunction{add} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaInductiveConstructor{suc} \AgdaBound{n}.
+Computation on the lefthand side gives us \AgdaInductiveConstructor{suc} \AgdaSymbol{(}\AgdaFunction{add} \AgdaBound{n} \AgdaInductiveConstructor{zero}\AgdaSymbol{)}.
+We know by induction that \AgdaFunction{add} \AgdaBound{n} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaSymbol{n}, and applying \AgdaInductiveConstructor{suc} to both sides of this equation (using \AgdaFunction{cong}) gives the required result.
 
 \subsection{Modules}
 
 Agda has a distinctive module system.
-Modules serve dual purpose --- both grouping together related definitions and offering a method of ad-hoc polymorphism.
+Modules serve a dual purpose --- both grouping together related definitions and offering a method of ad-hoc polymorphism.
 Both of these purposes rely on the fact that modules can be parametrised, as will be seen.
 
 \subsubsection{Modules for convenience}
@@ -317,12 +380,12 @@ module VecDefinitions {a} (A : Set a) where
   tail (x ∷ xs) = xs
 \end{code}
 
-In a parameter list, \AgdaArgument{a} and \AgdaSymbol{\{}\AgdaArgument{a}\AgdaSymbol{\}} are abbreviations for explicit and implicit parameters, respectively, \AgdaArgument{a} with inferred type.
+In a parameter list, \AgdaBound{a} and \AgdaSymbol{\{}\AgdaBound{a}\AgdaSymbol{\}} are abbreviations for explicit and implicit parameters, respectively, \AgdaBound{a} with inferred type.
 In this case, the inferred type is \AgdaPrimitiveType{Level}.
 Similar can be achieved in type signatures using the \AgdaSymbol{∀} symbol, as shown.
-In each case, the inferred type for \AgdaArgument{n} is \AgdaDatatype{ℕ}.
+In each case, the inferred type for \AgdaBound{n} is \AgdaDatatype{ℕ}.
 
-The thing to notice in this example is that \AgdaArgument{a} and \AgdaArgument{A} are parameters to the module, and available to every definition inside the module.
+Note in this example that \AgdaBound{a} and \AgdaBound{A} are parameters to the module, and available to every definition inside the module.
 This reduces the boilerplate code usually required in introducing the level and element type for each declaration.
 
 To use the definitions in this module, we can either open the module directly or fill in the parameters when opening the module.
@@ -333,7 +396,7 @@ open VecDefinitions
 open VecDefinitions ℕ
 \end{code}
 
-The first of these introduces \AgdaFunction{index″}, \AgdaFunction{head}, and \AgdaFunction{tail} into scope, but expecting \AgdaArgument{a} and \AgdaArgument{A} as arguments before the rest of the arguments.
+The first of these introduces \AgdaFunction{index″}, \AgdaFunction{head}, and \AgdaFunction{tail} into scope, but expecting \AgdaBound{a} and \AgdaBound{A} as arguments before the rest of the arguments.
 It is as if we had declared \AgdaFunction{index″} as follows.
 
 \begin{code}
@@ -364,7 +427,7 @@ record RawFunctor (a : Level) : Set (lsuc a) where
     map  : ∀ {A B} → (A → B) → (F A → F B)
 \end{code}
 
-This says that a \AgdaDatatype{RawFunctor} is made up of a function \AgdaField{F} between types and a function \AgdaField{map} taking an \AgdaArgument{A} \AgdaSymbol{→} \AgdaArgument{B} function and producing an \AgdaField{F} \AgdaArgument{A} \AgdaSymbol{→} \AgdaField{F} \AgdaArgument{B} function.
+This says that a \AgdaDatatype{RawFunctor} is made up of a function \AgdaField{F} between types and a function \AgdaField{map} taking an \AgdaBound{A} \AgdaSymbol{→} \AgdaBound{B} function and producing an \AgdaField{F} \AgdaBound{A} \AgdaSymbol{→} \AgdaField{F} \AgdaBound{B} function.
 We can see that our \AgdaDatatype{Vec} type family can be used to create a \AgdaDatatype{RawFunctor}.
 
 \begin{code}
@@ -379,19 +442,19 @@ vec-functor a n = record
   vmap f (x ∷ xs) = f x ∷ vmap f xs
 \end{code}
 
-This says that for a fixed level \AgdaArgument{a} and length \AgdaArgument{n}, vectors of that length form a functor (at level \AgdaArgument{a}).
-The function \AgdaFunction{vmap} is defined recursively to apply \AgdaArgument{f} to each element of the vector it is given.
-We need to define it for arbitrary \AgdaArgument{m} because the length of the list changes as we recurse into it.
-We can think of \AgdaFunction{vmap} as a family of functions, with \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaInductiveConstructor{suc} \AgdaArgument{m}\AgdaSymbol{\}} defined in terms of \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaArgument{m}\AgdaSymbol{\}}.
-Defining \AgdaField{map} as \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaArgument{n}\AgdaSymbol{\}} picks out the function that acts upon vectors of length \AgdaArgument{n}.
+This says that for a fixed level \AgdaBound{a} and length \AgdaBound{n}, vectors of that length form a functor (at level \AgdaBound{a}).
+The function \AgdaFunction{vmap} is defined recursively to apply \AgdaBound{f} to each element of the vector it is given.
+We need to define it for arbitrary \AgdaBound{m} because the length of the list changes as we recurse into it.
+We can think of \AgdaFunction{vmap} as a family of functions, with \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaInductiveConstructor{suc} \AgdaBound{m}\AgdaSymbol{\}} defined in terms of \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaBound{m}\AgdaSymbol{\}}.
+Defining \AgdaField{map} as \AgdaFunction{vmap} \AgdaSymbol{\{}\AgdaBound{n}\AgdaSymbol{\}} picks out the function that acts upon vectors of length \AgdaBound{n}.
 
 We can also write definitions generic in the \AgdaDatatype{RawFunctor} supplied using parametrised modules, as in the previous section.
 %Conveniently, Agda has a way of converting a record value into a module, using the name of the record followed by the value.
-Conveniently, for each declaration of a record type \AgdaDatatype{R}, Agda makes a module with the same name and a single parameter \AgdaArgument{r} \AgdaSymbol{:} \AgdaDatatype{R}.
-The definitions in that module are the fields in the record, taking their values from \AgdaArgument{r}.
+Conveniently, for each declaration of a record type \AgdaDatatype{R}, Agda makes a module with the same name and a single parameter \AgdaBound{r} \AgdaSymbol{:} \AgdaDatatype{R}.
+The definitions in that module are the fields in the record, taking their values from \AgdaBound{r}.
 This makes record types and record values act like ML signatures and structures, respectively.
 
-In the following, \AgdaField{F} and \AgdaField{map} are put into scope when we open the module \AgdaModule{RawFunctor} \AgdaArgument{RF}.
+In the following, \AgdaField{F} and \AgdaField{map} are put into scope when we open the module \AgdaModule{RawFunctor} \AgdaBound{RF}.
 
 \begin{code}
 module RawFunctorUtils {a} (RF : RawFunctor a) where
@@ -415,11 +478,31 @@ zeroify {n = n} xs = replace-all zero xs
 In a shortest distance problem, we are given a weighted graph and a source vertex, and required to give, for each vertex, the shortest distance from the source to that vertex.
 Simpler versions of the problem have well known solutions.
 For example, when we can guarantee that all distances are positive numbers, Dijkstra's algorithm will give us shortest distances.
-However, for cases where the weights are less well behaved, there is still ongoing research~\cite{Griffin10}.
+However, for cases where the weights are less well behaved, there is still ongoing research (see, e.g.~\cite{Griffin10}).
 
 \subsection{Semirings}
 
-We say that a tuple $(\mathbb K, \bar 0, \bar 1, \oplus, \otimes)$, with $\bar 0, \bar 1 : \mathbb K$ and $\oplus, \otimes : \mathbb K \times \mathbb K \to \mathbb K$, is a semiring if it satisfies the following properties.
+\begin{table}[t]
+  \begin{tabularx}{\linewidth}{l|X|X}
+    property & definition & example
+    \\ \hline
+    $*$ is associative & $(a * b) * c = a * (b * c)$ & addition
+    \\ \hline
+    $*$ is commutative & $a * b = b * a$ & addition
+    \\ \hline
+    $*$ is idempotent & $a * a = a$ & binary $\min$ operator
+    \\ \hline
+    $1$ is the identity of $*$ & $1 * a = a = a * 1$ & 1 for multiplication
+    \\ \hline
+    $0$ is the annihilator of $*$ & $0 * a = 0 = a * 0$ & 0 for multiplication
+    \\ \hline
+    $*$ distributes over $\bullet$ & $a * (b \bullet c) = (a * b) \bullet (a * c)$ and $(b \bullet c) * a = (b * a) \bullet (c * a)$ & multiplication distributes over addition
+  \end{tabularx}
+  \caption{Glossary of algebraic properties. $a$, $b$, and $c$ are universally quantified throughout.}
+  \label{tab:properties}
+\end{table}
+
+We say that a tuple $(\mathbb K, \bar 0, \bar 1, \oplus, \otimes)$, with $\bar 0, \bar 1 : \mathbb K$ and $\oplus, \otimes : \mathbb K \times \mathbb K \to \mathbb K$, is a semiring if it satisfies the following properties, in terms of the definitions in Table \ref{tab:properties}.
 \begin{enumerate}
   \item
     $(\mathbb K, \bar 0, \oplus)$ forms a commutative monoid.
@@ -443,14 +526,13 @@ We say that a tuple $(\mathbb K, \bar 0, \bar 1, \oplus, \otimes)$, with $\bar 0
     $\otimes$ distributes over $\oplus$.
   \item
     $\bar 0$ is the annihilator for $\otimes$.
-    That is, for all $a : \mathbb K$, $\bar 0 \otimes a = \bar 0$ and $a \otimes \bar 0 = \bar 0$.
 \end{enumerate}
 
 Semirings, also known as \emph{rigs} (from the mnemonic ``ri\textbf{n}g without \textbf{n}egation'') occur often in computer science, given that they abstract a common notion of having two interacting irreversible binary operations.
 As the notation suggests, an example of a semiring is $(\mathbb N, 0, 1, +, \times)$
 We can replace $\mathbb N$ by $\mathbb Z$, $\mathbb Q$, $\mathbb R$, and $\mathbb C$, still getting a semiring for each.
-Completely separate from these, the set of regular languages forms a semiring, where $\bar 0$ is the empty language, $\bar 1$ is the language containing only the empty string, $\oplus$ is the alternation operator $|$, and $\otimes$ is concatenation of regular expressions representing the languages.
-There is a similar semiring for arbitrary formal languages.
+The set of regular languages also forms a semiring, where $\bar 0$ is the empty language, $\bar 1$ is the language containing only the empty string, $\oplus$ is the alternation operator $|$, and $\otimes$ is concatenation of regular expressions representing the languages.
+There is a similar semiring for arbitrary formal languages~\cite{Droste2009}.
 
 Sometimes some of the conditions are dropped, particularly the conditions that $\bar 0$ is an annihilator and that $\bar 1$ is an identity element.
 For algebraic routing problems, we need to enforce more conditions.
@@ -484,6 +566,7 @@ The problem for which I implement a solution has the distinction that the distan
 This means that we don't always have either $a \oplus b = a$ or $a \oplus b = b$, or equivalently $a \leq b$ or $b \leq a$, as we would have if $\oplus$ were $\min$ or $\max$.
 The problem also allows for negative weights, with the condition that there is a natural number $k$ such that for any cycle $c$ in the graph, a path that goes around $c$ more than $k$ times will not improve on a path that goes around $c$ only $k$ times.
 An algorithm for this is given and proven correct in a 2002 paper by Mohri~\cite{Mohri02}, who describes and defines rigorously the condition as $\mathbb K$ being $k$-closed on graph $G$.
+This will be explained in the following section.
 
 \subsection{Mohri's algorithm}
 
@@ -520,7 +603,7 @@ This is because going $k+1$ times around a cycle $c$ would not give a shorter di
 Crucially, $P_k(q)$ is finite, so $\bigoplus_{\pi \in P_k(q)} w[\pi]$ is well defined.
 
 Finally, we can define the algorithm I will be working with.
-I reproduce it verbatim from the original paper.
+I reproduce it verbatim from Section 3.1 of~\cite{Mohri02}.
 
 \begin{codebox}
 \Procname{$\proc{Generic-Single-Source-Shortest-Distance}~(G,s)$}
@@ -575,14 +658,14 @@ Lines 6-7 take a vertex $q$ from $S$.
 Line 8 records the best distance $\oplus$-added to $d[q]$ since the last relaxation of $q$, before line 9 resets $r[q]$ to the least-chosen distance $\bar 0$.
 
 Using the definition of $\leq$ given in \hyperref[sec:algebraic-routing-problems]{Section \ref*{sec:algebraic-routing-problems}}, we can rewrite the test on line 11 as $d[n[e]] \nleq r' \otimes w[e]$.
-We can also read the condition directly as saying that when we choose between $d[n[e]]$ and $r' \otimes w[e]$, we don't just get $d[n[e]]$, and $r' \otimes w[e]$ is somehow helping.
+We can also read the condition directly as saying that when we $\oplus$-choose between $d[n[e]]$ and $r' \otimes w[e]$, the resulting choice is not $d[n[e]]$, and thus better (shorter) than $d[n[e]]$.
 Rememebering how we set $r'$, $r' \otimes w[e]$ is the shortest distance added from $s$ to $q$ since last time $q$ was relaxed, composed with the distance of the edge $e$.
 
 If the test on line 11 succeeds, we $\oplus$-add $r' \otimes w[e]$ to our shortest distance estimate for $q$, and correspondingly $\oplus$-add this to $r[n[e]]$.
 Finally, just as in Dijkstra's algorithm, we add any vertices with updated distance estimate to the queue on lines 14-15.
 
-At first, it is not obvious that this algorithm terminates, or that when it does terminate, it gives a correct result.
-Mohri provides a proof that the algorithm does indeed terminate with the correct result, though the lemmas leading up to the main theorem are unintuitive, and the proof is difficult to follow.
+%At first, it is not obvious that this algorithm terminates, or that when it does terminate, it gives a correct result.
+%Mohri provides a proof that the algorithm does indeed terminate with the correct result, though the lemmas leading up to the main theorem are unintuitive, and the proof is difficult to follow.
 
 \input{lhs/Preparation}
 
