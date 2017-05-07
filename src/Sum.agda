@@ -41,13 +41,13 @@ module Sum {c ℓ} (K : Semiring c ℓ) where
     let (N , lx , ly) , eqx , eqy = equalise Nx Ny in
     begin
       x
-    ≈⟨ sym (convergesx lx) ⟩
+        ≈⟨ sym (convergesx lx) ⟩
       ∑ (take (lx ℕ.+ Nx) as)
-    ≡⟨ PEq.cong (λ n → ∑ (take n as)) eqx ⟩
+        ≡⟨ PEq.cong (λ n → ∑ (take n as)) eqx ⟩
       ∑ (take N as)
-    ≡⟨ PEq.cong (λ n → ∑ (take n as)) (PEq.sym eqy) ⟩
+        ≡⟨ PEq.cong (λ n → ∑ (take n as)) (PEq.sym eqy) ⟩
       ∑ (take (ly ℕ.+ Ny) as)
-    ≈⟨ convergesy ly ⟩
+        ≈⟨ convergesy ly ⟩
       y
     ∎
     where

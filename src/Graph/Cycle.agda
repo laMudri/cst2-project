@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Semiring as S
 open import Graph as G
 open import Data.Fin as F using (Fin)

@@ -13,7 +13,7 @@ module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
        (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
        {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
-  open import Algorithm K De Q G s
+  open import Algorithm {c} {n} {ℓ} {ℓ′} K De Q G s
   open Semiring K renaming (Carrier to C)
   open QueueDiscipline Q renaming (Carrier to Qc)
   open import Queue.Properties Q
@@ -67,7 +67,6 @@ module Algorithm.Properties
   open import Relation.Nullary.Product using (_×-dec_)
   import Relation.Unary as U
 
-  {-
   D-grows-step :
     ∀ {i j} (r : j ↝S i) →
     let open Internals-ij j (proj₁ r) in
@@ -219,8 +218,9 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    ↝.Any (λ { {j} {alg-state _ _ S , helper-sets _ R _ _ _} (hi , eq) →
-             m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
+    ↝.Any (λ { {j} {k , ks} (hi , eq) →
+             let open Alg-state-abbrev k; module KS = Helper-sets ks in
+             m ≡ proj₁ (dequeue S hi) × π ∈ KS.R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
     ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
     where
@@ -276,12 +276,12 @@ module Algorithm.Properties
 
   -- The number of times each vertex q is enqueued is less than card (P k q).
   -- There is a surjection from P k q to Fin (I q).
-  insertions-finite :
-    ∀ {i} → Reachable-with-sets i →
-    let open Alg-state-abbrev (proj₁ i) in
-    let open Helper-sets (proj₂ i) in
-    ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
-  insertions-finite = {!!}
+  postulate
+    insertions-finite :
+      ∀ {i} → Reachable-with-sets i →
+      let open Alg-state-abbrev (proj₁ i) in
+      let open Helper-sets (proj₂ i) in
+      ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
 
   x+[y+z]=y+[x+z] : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
   x+[y+z]=y+[x+z] x y z = begin
@@ -291,6 +291,7 @@ module Algorithm.Properties
     y ℕ.+ (x ℕ.+ z)  ∎
     where open ≡-Reasoning
 
+  {-
   extractions-≤ :
     ∀ {i} → Reachable-with-sets i →
     let open Alg-state-abbrev (proj₁ i) in
@@ -300,6 +301,7 @@ module Algorithm.Properties
     PEq.subst (_≤ ∣ List.length ∘ all-P k ∣) (PEq.sym (sum-0 n)) z≤n
   extractions-≤ (r@(hi , PEq.refl) ◅ rs) = {!!}
     where open Internals-ij-from-↝ r
+  -}
 
   extractions-suc :
     ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
@@ -322,14 +324,15 @@ module Algorithm.Properties
     open Internals-ij-from-↝ r
     open ≡-Reasoning
 
-  ∣I∣ : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
-        ∣ Iᵢ ∣ ≡ enqueued-# ℕ.+ ∣ Iⱼ ∣
-  ∣I∣ r@(hi , PEq.refl) = begin
-    ∣ Iᵢ ∣  ≡⟨ {!enqueued-#!} ⟩
-    enqueued-# ℕ.+ ∣ Iⱼ ∣  ∎
-    where
-    open Internals-ij-from-↝ r
-    open ≡-Reasoning
+  postulate
+    ∣I∣ : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+          ∣ Iᵢ ∣ ≡ enqueued-# ℕ.+ ∣ Iⱼ ∣
+  --∣I∣ r@(hi , PEq.refl) = begin
+  --  ∣ Iᵢ ∣  ≡⟨ {!enqueued-#!} ⟩
+  --  enqueued-# ℕ.+ ∣ Iⱼ ∣  ∎
+  --  where
+  --  open Internals-ij-from-↝ r
+  --  open ≡-Reasoning
 
   1+I=E+S : ∀ {i} (rs : Reachable-with-sets i) →
             let open Alg-state-abbrev (proj₁ i) in
@@ -397,10 +400,11 @@ module Algorithm.Properties
 
   postulate I≤L : ∀ t → let open Helper-sets (proj₂ (σS t IS₀)) in
                   ∀ q → I q ≤ L q
-  -}
 
+  {-
   postulate L-no-suc : ∀ q t state hi → let open Internals-ij (σS t state) hi in
                        T (not (conditon q)) → Lⱼ q ≡ Lᵢ q
+  -}
 
   postulate L-increase : ∀ q t state → Helper-sets.L (proj₂ (σS (suc t) state)) q ≤ suc (Helper-sets.L (proj₂ (σS t state)) q)
 

@@ -11,41 +11,37 @@ module Semiring.Properties {c ℓ} (K : Semiring c ℓ) where
   import Relation.Binary.PartialOrderReasoning as POR
 
   -- Lemma 1: the natural order is a partial order
-  infix 4 _≤K_
-  _≤K_ : Rel C ℓ
-  a ≤K b = a + b ≈ a
+  ≤K-isPartialOrder : Idempotent → IsPartialOrder _≈_ _≤K_
+  ≤K-isPartialOrder idempotent = record
+    { isPreorder = record
+      { isEquivalence = isEquivalence
+      ; reflexive = λ {a} {b} a≈b → begin
+          a + b  ≈⟨ +-cong refl (sym a≈b) ⟩
+          a + a  ≈⟨ idempotent a ⟩
+          a      ∎
+      ; trans = λ {a} {b} {c} a+b≈a b+c≈b → begin
+          a + c        ≈⟨ +-cong (sym a+b≈a) refl ⟩
+          (a + b) + c  ≈⟨ +-assoc a b c ⟩
+          a + (b + c)  ≈⟨ +-cong refl b+c≈b ⟩
+          a + b        ≈⟨ a+b≈a ⟩
+          a            ∎
+      }
+    ; antisym = λ {a} {b} a+b≈a b+a≈b → begin
+        a      ≈⟨ sym a+b≈a ⟩
+        a + b  ≈⟨ +-comm a b ⟩
+        b + a  ≈⟨ b+a≈b ⟩
+        b      ∎
+    }
+    where open EqReasoning setoid
+
+  ≤K-poset : Idempotent → Poset c ℓ ℓ
+  ≤K-poset idempotent = record
+    { _≈_ = _≈_
+    ; _≤_ = _≤K_
+    ; isPartialOrder = ≤K-isPartialOrder idempotent
+    }
 
   abstract
-    ≤K-isPartialOrder : Idempotent → IsPartialOrder _≈_ _≤K_
-    ≤K-isPartialOrder idempotent = record
-      { isPreorder = record
-        { isEquivalence = isEquivalence
-        ; reflexive = λ {a} {b} a≈b → begin
-            a + b  ≈⟨ +-cong refl (sym a≈b) ⟩
-            a + a  ≈⟨ idempotent a ⟩
-            a      ∎
-        ; trans = λ {a} {b} {c} a+b≈a b+c≈b → begin
-            a + c        ≈⟨ +-cong (sym a+b≈a) refl ⟩
-            (a + b) + c  ≈⟨ +-assoc a b c ⟩
-            a + (b + c)  ≈⟨ +-cong refl b+c≈b ⟩
-            a + b        ≈⟨ a+b≈a ⟩
-            a            ∎
-        }
-      ; antisym = λ {a} {b} a+b≈a b+a≈b → begin
-          a      ≈⟨ sym a+b≈a ⟩
-          a + b  ≈⟨ +-comm a b ⟩
-          b + a  ≈⟨ b+a≈b ⟩
-          b      ∎
-      }
-      where open EqReasoning setoid
-
-    ≤K-poset : Idempotent → Poset c ℓ ℓ
-    ≤K-poset idempotent = record
-      { _≈_ = _≈_
-      ; _≤_ = _≤K_
-      ; isPartialOrder = ≤K-isPartialOrder idempotent
-      }
-
     -- Lemma 2: the natural order makes the semiring negative and monotonic.
     natural-order-negative : (i : Idempotent) → Negative _≤K_
     natural-order-negative idempotent = begin
@@ -145,6 +141,11 @@ module Semiring.Properties {c ℓ} (K : Semiring c ℓ) where
 
       ≤0 : ∀ c → c ≤ 0#
       ≤0 = negative→monotonic→≤0 _≤_ po neg mono
+
+    ≤K0 : Idempotent → ∀ c → c ≤K 0#
+    ≤K0 idem = negative→monotonic→≤0 _≤K_ (≤K-isPartialOrder idem)
+                                          (natural-order-negative idem)
+                                          (natural-order-monotonic idem)
 
     -- Lemma 3: bounded implies idempotent
     bounded→idempotent : Bounded → Idempotent

@@ -79,8 +79,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     q = proj₁ qS₁ ; S₁ = proj₂ qS₁
     r′ = lookup q r
     r₁ = r [ q ]≔ 0#
-    conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
-    relaxed-vertices = filter conditon (toList (allFin n))
+    condition = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
+    relaxed-vertices = filter condition (toList (allFin n))
     enqueued-vertices = filter (λ q′ → not (contains q′ S)) relaxed-vertices
 
     new-weights : Vec C n → Vec C n
@@ -100,8 +100,9 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   σ : ℕ → Alg-state → Alg-state
   σ ℕ.zero state = state
   σ (ℕ.suc t) (alg-state d r S) with count S | inspect count S
-  ... | ℕ.zero | [ eq ] = alg-state d r S
-  ... | ℕ.suc c | [ eq ] = σ t (do-step (alg-state d r S) (PEq.subst Is-suc (PEq.sym eq) is-suc))
+  ... | ℕ.zero | _ = alg-state d r S
+  ... | ℕ.suc c | [ eq ] = σ t (do-step (alg-state d r S) hi)
+    where hi = PEq.subst Is-suc (PEq.sym eq) is-suc
 
   I₀ : Alg-state
   I₀ = alg-state d d S
@@ -151,11 +152,11 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     E₁ = appAt q ℕ.suc E
     r′ = lookup q r ; R′ = R q
     r₁ = r [ q ]≔ 0# ; R₁ = R ⟨ q ⟩≔ []
-    conditon = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
-    relaxed-vertices = filter conditon (toList (allFin n))
-    L₁ = appWhen conditon ℕ.suc L
+    condition = λ q′ → not ⌊ lookup q′ d ≤? r′ * G q q′ ⌋
+    relaxed-vertices = filter condition (toList (allFin n))
+    L₁ = appWhen condition ℕ.suc L
     enqueued-vertices = filter (λ q′ → not (contains q′ S)) relaxed-vertices
-    I₁ = appWhen (λ q′ → conditon q′ ∧ not (contains q′ S)) ℕ.suc I
+    I₁ = appWhen (λ q′ → condition q′ ∧ not (contains q′ S)) ℕ.suc I
 
     new-weights : Vec C n → Vec C n
     new-weights w = tabulate (λ q′ → case any (_F≟_ q′) relaxed-vertices of λ
@@ -164,9 +165,9 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
       })
 
     new-sets : Path-family → Path-family
-    new-sets H q′ = case any (_F≟_ q′) relaxed-vertices of λ
-      { (yes p) → map (λ π → edge ◅ π) R′ ++ H q′
-      ; (no ¬p) → H q′
+    new-sets W q′ = case any (_F≟_ q′) relaxed-vertices of λ
+      { (yes p) → map (λ π → edge ◅ π) R′ ++ W q′
+      ; (no ¬p) → W q′
       }
 
     d₁ = new-weights d ; D₁ = new-sets D
@@ -177,11 +178,15 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   i ↝S j = ∃ λ hi → do-step-with-sets i hi ≡ j
 
   σS : ℕ → Alg-state × Helper-sets → Alg-state × Helper-sets
-  σS ℕ.zero state = state
-  σS (ℕ.suc t) state,hs with σS t state,hs
-  ... | (state′ , hs′) with Has-items? (Alg-state-abbrev.S state′)
-  ...   | no _ = state′ , hs′
-  ...   | yes hi = do-step-with-sets (state′ , hs′) hi
+  σS ℕ.zero state,hs = state,hs
+  σS (ℕ.suc t) (alg-state d r S , hs) with count S | inspect count S
+  ... | ℕ.zero | _ = alg-state d r S , hs
+  ... | ℕ.suc c | [ eq ] = σS t (do-step-with-sets (alg-state d r S , hs) hi)
+    where hi = PEq.subst Is-suc (PEq.sym eq) is-suc
+  --σS (ℕ.suc t) state,hs with σS t state,hs
+  --... | (state′ , hs′) with Has-items? (Alg-state-abbrev.S state′)
+  --...   | no _ = state′ , hs′
+  --...   | yes hi = do-step-with-sets (state′ , hs′) hi
 
   IS₀ : Alg-state × Helper-sets
   IS₀ = I₀ , helper-sets D D L L L
@@ -206,8 +211,8 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
     open DoStepWithSets dₖ rₖ Sₖ Dₖ Rₖ Lₖ Iₖ Eₖ hi public
       renaming (q to dequeued; d₁ to dⱼ; r₂ to rⱼ; S₂ to Sⱼ
                              ; D₁ to Dⱼ; R₂ to Rⱼ; L₁ to Lⱼ; I₁ to Iⱼ; E₁ to Eⱼ)
-      using ( r₁; S₁; R₁; r′; R′; conditon; relaxed-vertices; enqueued-vertices
-            ; new-weights; new-sets)
+      using ( r₁; S₁; R₁; r′; R′; condition
+            ; relaxed-vertices; enqueued-vertices; new-weights; new-sets)
 
     relaxed-# : ℕ
     relaxed-# = length relaxed-vertices

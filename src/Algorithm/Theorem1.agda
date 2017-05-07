@@ -84,7 +84,7 @@ module Algorithm.Theorem1
   L≤Pₖq q ℕ.zero = z≤n
   L≤Pₖq q (suc t) with σS t IS₀ | inspect (σS t) IS₀
   ... | (state′ , hs′) | [ eq ] with Has-items? (Alg-state-abbrev.S state′)
-  ...   | no ¬hi = PEq.subst (λ x → Helper-sets.L x q ≤ List.length (all-P k q)) (PEq.cong proj₂ eq) (L≤Pₖq q t)
+  ...   | no ¬hi = {!PEq.subst (λ x → Helper-sets.L x q ≤ List.length (all-P k q)) (PEq.cong proj₂ eq) (L≤Pₖq q t)!}
   ...   | yes hi with suc (Helper-sets.L hs′ q) ℕ.≤? List.length (all-P k q)
   ...     | yes p = {!trans {!L-increase q t IS₀!} (L≤Pₖq q t)!}
     where open DecTotalOrder ℕ.decTotalOrder

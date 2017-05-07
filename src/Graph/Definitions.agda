@@ -118,6 +118,43 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
   vertex→n-is-suc : Fin n → ∃ λ n-1 → n ≡ ℕ.suc n-1
   vertex→n-is-suc = ≢0→suc n ∘′ vertex→n≢0
 
+  all-paths-of-suc-length-from-to : ∀ (l : ℕ) q q′ → List⁺ (Path q q′)
+  all-paths-of-suc-length-from-to ℕ.zero q q′ = return (edge ◅ ε)
+    where open RawMonad List⁺.monad
+  all-paths-of-suc-length-from-to (ℕ.suc l) q q″ =
+    all-vertices >>= λ q′ →
+    all-paths-of-suc-length-from-to l q q′ >>= λ π →
+    return (edge ◅ π)
+    where
+    open RawMonad List⁺.monad
+
+    n-is-suc : ∃ λ n-1 → n ≡ ℕ.suc n-1
+    n-is-suc = vertex→n-is-suc q
+
+    n-1 : ℕ
+    n-1 = proj₁ n-is-suc
+
+    all-vertices : List⁺ (Fin n)
+    all-vertices =
+      subst (λ m → List⁺ (Fin m)) (PEq.sym (proj₂ n-is-suc)) $
+            List⁺.fromVec (Vec.tabulate {ℕ.suc n-1} id)
+
+  all-non-ε-paths-from-to : ∀ q q′ → Colist (Path q q′)
+  all-non-ε-paths-from-to q q′ =
+    Colist.concat (Colist.map (λ l → all-paths-of-suc-length-from-to l q q′)
+                              (all-ℕs-from 0))
+    where
+    all-ℕs-from : ℕ → Colist ℕ
+    all-ℕs-from i = i ∷ ♯ all-ℕs-from (ℕ.suc i)
+
+  all-paths-from-to : ∀ q q′ → Colist (Path q q′)
+  all-paths-from-to q q′ with q ≟ q′
+  all-paths-from-to q .q | yes PEq.refl = ε ∷ ♯ all-non-ε-paths-from-to q q
+  all-paths-from-to q q′ | no ¬p = all-non-ε-paths-from-to q q′
+
+  shortest-distance : ∀ q q′ → C → Set _
+  shortest-distance q q′ = ∑∞ (Colist.map path-weight (all-paths-from-to q q′))
+
   all-paths-of-length-from : ∀ (l : ℕ) q → List⁺ (Path-from q)
   all-paths-of-length-from ℕ.zero q = return (q , ε)
     where open RawMonad List⁺.monad
@@ -140,27 +177,6 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
       subst (λ m → List⁺ (Fin m)) (PEq.sym (proj₂ n-is-suc)) $
             List⁺.fromVec (Vec.tabulate {ℕ.suc n-1} id)
 
-  all-paths-of-suc-length-from-to : ∀ (l : ℕ) q q′ → List⁺ (Path q q′)
-  all-paths-of-suc-length-from-to ℕ.zero q q′ = return (edge ◅ ε)
-    where open RawMonad List⁺.monad
-  all-paths-of-suc-length-from-to (ℕ.suc l) q q″ =
-    all-vertices >>= λ q′ →
-    all-paths-of-suc-length-from-to l q q′ >>= λ π →
-    return (edge ◅ π)
-    where
-    open RawMonad List⁺.monad
-
-    n-is-suc : ∃ λ n-1 → n ≡ ℕ.suc n-1
-    n-is-suc = vertex→n-is-suc q
-
-    n-1 : ℕ
-    n-1 = proj₁ n-is-suc
-
-    all-vertices : List⁺ (Fin n)
-    all-vertices =
-      subst (λ m → List⁺ (Fin m)) (PEq.sym (proj₂ n-is-suc)) $
-            List⁺.fromVec (Vec.tabulate {ℕ.suc n-1} id)
-
   all-paths-from : (q : Fin n) → Colist (Path-from q)
   all-paths-from q =
     Colist.concat (Colist.map (λ l → all-paths-of-length-from l q)
@@ -168,22 +184,6 @@ module Graph.Definitions {c ℓ n} {K : Semiring c ℓ} (G : Graph K n) where
     where
     all-ℕs-from : ℕ → Colist ℕ
     all-ℕs-from i = i ∷ ♯ all-ℕs-from (ℕ.suc i)
-
-  all-non-ε-paths-from-to : ∀ q q′ → Colist (Path q q′)
-  all-non-ε-paths-from-to q q′ =
-    Colist.concat (Colist.map (λ l → all-paths-of-suc-length-from-to l q q′)
-                              (all-ℕs-from 0))
-    where
-    all-ℕs-from : ℕ → Colist ℕ
-    all-ℕs-from i = i ∷ ♯ all-ℕs-from (ℕ.suc i)
-
-  all-paths-from-to : ∀ q q′ → Colist (Path q q′)
-  all-paths-from-to q q′ with q ≟ q′
-  all-paths-from-to q .q | yes PEq.refl = ε ∷ ♯ all-non-ε-paths-from-to q q
-  all-paths-from-to q q′ | no ¬p = all-non-ε-paths-from-to q q′
-
-  shortest-distance : ∀ q q′ → C → Set _
-  shortest-distance q q′ = ∑∞ (Colist.map path-weight (all-paths-from-to q q′))
 
   -- Definition 8: k-closed on a graph
   _ClosedOnG : ℕ → Set _

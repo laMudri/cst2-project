@@ -17,7 +17,7 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
 
   open import Level
 
-  open import Relation.Binary using (Rel; _Preserves_⟶_; _Preserves₂_⟶_⟶_)
+  open import Relation.Binary using (Rel; _Preserves_⟶_; _Preserves₂_⟶_⟶_; IsTotalOrder)
   import Relation.Binary.EqReasoning as EqReasoning
   open import Relation.Binary.PropositionalEquality as PEq using (cong)
   open import Relation.Nullary using (Dec)
@@ -85,6 +85,14 @@ module Semiring.Definitions {c ℓ} (K : Semiring c ℓ) where
         ∀ {as bs s a b} → ∑∞ (product-with _*_ as bs) s →
                           ∑∞ (toColist as) a → ∑∞ (toColist bs) b → s ≈ a * b
 
+  -- Lemma 1 (definition): the natural order
+  infix 4 _≤K_
+  _≤K_ : Rel C ℓ
+  a ≤K b = a + b ≈ a
+
   -- Has decidable equality, so we can use it in the algorithm
   Decidable : Set _
   Decidable = ∀ a b → Dec (a ≈ b)
+
+  TotallyOrdered : Set _
+  TotallyOrdered = IsTotalOrder _≈_ _≤K_
