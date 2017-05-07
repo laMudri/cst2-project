@@ -17,9 +17,10 @@ open import Data.Colist using (Colist; []; _∷_)
   renaming (take to take-BoundedVec)
 open import Data.Fin using (Fin)
 open import Data.List using (List; []; _∷_)
+open import Data.List.NonEmpty using (List⁺; _∷_)
 open import Data.Nat as ℕ using (ℕ)
 open import Data.Product
-open import Data.Star
+open import Data.Star hiding (concat)
 
 open import Function
 
@@ -29,24 +30,32 @@ open import Level as L
 
 open import Relation.Binary using (Rel)
 import Relation.Binary.EqReasoning as EqR
-open import Relation.Binary.PropositionalEquality as PEq using (_≡_)
+open import Relation.Binary.PropositionalEquality as PEq using (_≡_; subst₂)
 \end{code}
 \fi
 
-The majority of the work of this project has gone into the Agda implementation of Mohri's algorithm.
-There is very little in the way of existing libraries to use, and the Agda implementation aims to be correct.
+In this chapter, I discuss both the Agda and Haskell implementations of Mohri's algorithm.
+The majority of the work of this project has gone into the Agda implementation.
+Much effort has been spent to write it in a way that allows it to be proven correct.
 In contrast, the Haskell implementation can be applied to problems that will cause the algorithm to not terminate (those situations where the semiring is not $k$-closed on the graph, for example).
 The division of work is reflected in the extent to which each implementation is documented in this chapter.
 
 For the Agda implementation, the work reflects the structure of Mohri's paper~\cite{Mohri02}.
-I start in \hyperref[sec:semirings]{Section \ref*{sec:semirings}} by formalising the required semiring theory.
+I start in \hyperref[sec:semirings]{Section \ref*{sec:semirings}} by formalising the required semiring theory, with the definition of infinite summation and hence shortest distance being a particular achievement.
 Then, in \hyperref[sec:graphs]{Section \ref*{sec:graphs}}, I rigorously define the graph notions required, such as (weighted) graphs, paths, and shortest distance.
 In \hyperref[sec:queues]{Section \ref*{sec:queues}}, I give a formalisation of queues, whose properties were never explicitly stated in the original paper.
-With this preparation done, \hyperref[sec:algorithm]{Section \ref*{sec:algorithm}} presents the translated algorithm and proofs about it.
+\hyperref[sec:reflexive-transitive-closures]{Section \ref*{sec:reflexive-transitive-closures}} expands on the use of reflexive-transitive closures as mentioned in \hyperref[sec:graphs]{Section \ref*{sec:graphs}}, and puts them to the new use of encoding computation paths of the algorithm.
+With this preparation done, \hyperref[sec:algorithm]{Section \ref*{sec:algorithm}} presents the translated algorithm, and \hyperref[sec:proofs-about-the-algorithm]{Section \ref*{sec:proofs-about-the-algorithm}} presents a proof about this algorithm.
 Finally for this section of the project, I discuss the verification of a $k$-closed semiring and the actual running of the program.
 
 After this, I explain interesting parts of the Haskell implementation in \hyperref[sec:haskell-implementation]{Section \ref*{sec:haskell-implementation}}.
 To finish off, \hyperref[sec:test-data-generation]{Section \ref*{sec:test-data-generation}} discusses the generation of data used in performance testing.
+
+The direction of the project has changed from what was proposed.
+Originally, the aim was to implement Mohri's algorithm and prove it correct, following the proof of Theorem 1 in~\cite{Mohri02}.
+However, I encountered various difficulties in formalising the proofs.
+Presented in the following is the development of the underlying theory, culminating in an implementation of the algorithm and proof of Lemma 6.
+In view of the difficulties, I focus more on the unverified Haskell implementation and the performance testing on that.
 
 \section{Semirings}\label{sec:semirings}
 
@@ -234,6 +243,9 @@ Given how short this definition is, it is practical to show the definition of \A
   Bounded = FP.Zero 1# _+_
 \end{code}
 
+This follows the definition of boundedness given in Table \ref{tab:properties} --- a semiring is bounded if $\bar 1$ is an annihilator for $\oplus$, meaning that, for all $a$, $\bar 1 \oplus a = \bar 1$.
+The Agda standard library uses the name \AgdaFunction{Zero} rather than \AgdaFunction{Annihilator}.
+
 To use these in a new module, we open both \AgdaModule{Semiring} and \AgdaModule{Definitions} instantiated at the same semiring \AgdaBound{K}.
 Then, we can write in a more natural and convenient way the statement that a bounded semiring is idempotent.
 
@@ -251,15 +263,37 @@ I start this section motivated by the task of proving \AgdaFunction{lemma3}, as 
 I aim to do this in a way that produces a proof recognisably similar to a traditional written proof, so as to make the proof understandable at a high level.
 Thus, we first consult the proof of Lemma 3 given in section 1 of~\cite{Mohri02}, and elaborate it to a level required for formalisation.
 
-A semiring is \emph{bounded} if, for each element $a$, $\bar 1 \oplus a = \bar 1$.
-A semiring is \emph{idempotent} if, for each element $a$, $a \oplus a = a$.
-I show that the former implies the latter as follows.
-We start by considering $a \oplus a$.
-By distributivity and the fact that $\bar 1$ is the identity for $\otimes$, $a \oplus a = a \otimes (\bar 1 \oplus \bar 1)$ for arbitrary $a$.
-We know that, for each $a$, $\bar 1 \oplus a = \bar 1$, so, in particular, $\bar 1 \oplus \bar 1 = \bar 1$.
-This gives us $a \otimes (\bar 1 \oplus \bar 1) = a \otimes \bar 1$.
-Finally, $\bar 1$ is the identity for $\otimes$, so $a \otimes \bar 1 = a$.
-By the transitivity of equality, we have $a \oplus a = a \otimes (\bar 1 \oplus \bar 1) = a \otimes \bar 1 = a$, as required.
+Given the assumption of boundedness, I show idempotency by the following series of equations.
+
+\begin{align*}
+&a \oplus a
+\\
+&\quad =\langle \bar 1\text{ is the identity of }\otimes \rangle
+\\
+&(\bar 1 \otimes a) \oplus (\bar 1 \otimes a)
+\\
+&\quad =\langle \otimes\text{ distributes over }\oplus \rangle
+\\
+&(\bar 1 \oplus \bar 1) \otimes a
+\\
+&\quad =\langle \text{by boundedness, }\bar 1 \oplus \bar 1 = \bar 1 \rangle
+\\
+&\bar 1 \otimes a
+\\
+&\quad =\langle 1\text{ is the identity of }\otimes \rangle
+\\
+&a
+\\
+&\quad \text{\qed}
+\end{align*}
+
+%I show that being bounded implies being idempotent as follows.
+%We start by considering $a \oplus a$.
+%By distributivity and the fact that $\bar 1$ is the identity for $\otimes$, $a \oplus a = a \otimes (\bar 1 \oplus \bar 1)$ for arbitrary $a$.
+%We know that, for each $a$, $\bar 1 \oplus a = \bar 1$, so, in particular, $\bar 1 \oplus \bar 1 = \bar 1$.
+%This gives us $a \otimes (\bar 1 \oplus \bar 1) = a \otimes \bar 1$.
+%Finally, $\bar 1$ is the identity for $\otimes$, so $a \otimes \bar 1 = a$.
+%By the transitivity of equality, we have $a \oplus a = a \otimes (\bar 1 \oplus \bar 1) = a \otimes \bar 1 = a$, as required.
 
 To transcribe this into Agda, I make use of combinators defined in the module \AgdaModule{Relation.Binary.EqReasoning} (which are renamings of definitions made in \AgdaModule{Relation.Binary.PreorderReasoning}).
 A proof by series of equations starts with the \AgdaFunction{begin\_} operator, which extracts a proof term from an equational reasoning proof.
@@ -292,9 +326,11 @@ The promised example follows.
 
 The direction of the proof is set out to the left in the chain of equivalent expressions.
 To the right are the proofs that the expression on one line is equivalent to the expression on the next.
-I do not have the space to explain these proofs, but of interest is that the hypothesis \AgdaBound{bounded} is used on the third line, and lets us say that \AgdaField{1\# + 1\# ≈ 1\#}.
+%I do not have the space to explain these proofs, but of interest is that the hypothesis \AgdaBound{bounded} is used on the third line, and lets us say that \AgdaField{1\# + 1\# ≈ 1\#}.
 
-\subsection{Infinite sums}
+Todo: explain.
+
+\subsection{Infinite sums}\label{sec:infinite-sums}
 
 Definition of finite sums is unproblematic.
 Specifically, I define that a list of elements can be summed together using the following.
@@ -308,14 +344,13 @@ Specifically, I define that a list of elements can be summed together using the 
 Infinite (countable) sums are more difficult to define.
 For one thing, an infinite sum is not guaranteed to be defined, and in general, a proof is required to show that a specific infinite sum exists.
 This means that we cannot define infinite summation as a function on an infinite sequence, even if we allow such a function to return a failure value.
-\footnote{%
-  We can make a reduction to the halting problem.
-  Suppose we have a function that takes a sequence of natural numbers and tells us whether this sequence has a sum.
-  For a given Turing machine, we define a sequence that is 1 for each step of the machine, and 0 for any steps after the machine halts.
-  The sequence has a sum exactly when the machine halts (that sum being the number of steps the machine took), so our infinite sum function solves the halting problem.%
-}
+We can show this by reduction to the halting problem.
+Suppose we have a function that takes a sequence of natural numbers and tells us whether this sequence has a sum.
+For a given Turing machine, we define a sequence that is 1 for each step of the machine, and 0 for any steps after the machine halts.
+The sequence has a sum exactly when the machine halts (that sum being the number of steps the machine took), so our infinite sum function solves the halting problem.
+
 Additionally, infinite sums are never explicitly defined in~\cite{Mohri02}, so I can only infer a definition from how infinite sums are used in the paper.
-Finally, the definition 7 of~\cite{Mohri02} requires that we must have a notion of summation for \emph{potentially} infinite sequences.
+Finally, Definition 7 of~\cite{Mohri02} requires that we must have a notion of summation for \emph{potentially} infinite sequences.
 
 With these concerns in mind, I consider what should be the definition of $s = \bigoplus_{n=0}^\infty a_n$.
 In real analysis, such a relation would be defined using \emph{limits}.
@@ -329,7 +364,25 @@ This definition makes sense if we consider the case where $\oplus$ is $\min$.
 For real numbers, our definition would mean that the sequence has to become constantly 0 after some point, because the only way to have $x + y = x$ is to have $y = 0$.
 On the other hand, $\min(x,y) = x$ may hold for many different values of $y$, namely all values greater or equal to $x$.
 
-I minor change I make to this definition before formalising in Agda is to replace the quantification $\forall n \geq N$.
+An interesting consequence of this definition is that the order of the sequence being summed does not matter.
+This is in contrast to the infinite series of real analysis, where order may matter.
+The reason for the difference is that the infinite sums defined here are really finite sums, whereas the same is not true of real series.
+A rigorous proof follows.
+
+Suppose that $s = \bigoplus_{i=0}^\infty{a_i}$, and $\sigma : \mathbb N \leftrightarrow \mathbb N$ is a permutation of the natural numbers.
+From our definition of infinite sums, we know that there is some $N$ such that $s = \bigoplus_{i=0}^N{a_i}$.
+Then, we define $N'$ as the smallest number such that $[0 .. N] \subseteq \sigma([0 .. N'])$ (where, for set $X$, $f(X) := \{ f(x) \mid x \in X \}$).
+By the \emph{finite} reordering justified by the associativity and commutativity of $\oplus$, $\bigoplus_{i=0}^{N'}{a_{\sigma(i)}} = \bigoplus_{i \in \sigma([0 .. N'])}{a_i} = \bigoplus_{i=0}^N{a_i} \oplus \bigoplus_{i \in \sigma([0 .. N']) \setminus [0 .. N]}{a_i}$.
+The first term of this is $s$, and we know that $s \oplus a_i = s$ for any $i > N$, so $\bigoplus_{i=0}^{N'}{a_{\sigma(i)}} = s$.
+Furthermore, for $i > N'$, $\sigma(i) > N$, so by the same reasoning, for all $n > N'$, $\bigoplus_{i=0}^n{a_{\sigma(i)}} = s$.
+The combination of the last two sentences gives what we need to conclude that $s = \bigoplus_{i=0}^\infty{a_{\sigma(i)}}$, as required.
+
+Independence of order is important in formalising the the paper~\cite{Mohri02} because it is assumed at several points, particularly in Section 2.
+We consider sums over all paths through a graph, with no order specified.
+Particularly, the order of the sequence of paths used to define the problem (shortest distance) may be different from the order given by $P_k(q)$, which is part of the solution to the problem.
+Independence of order justifies summing over countable sets, so these concerns are no longer relevant.
+
+A minor change I make to the definition before formalising in Agda is to replace the quantification $\forall n \geq N$.
 Note that this is comparison between natural numbers (sequence indices), thus does not require the semiring to have an order relation.
 However, quantification over all values satisfying a proposition has to be paraphrased as a quantification and an implication.
 Specifically,
@@ -340,12 +393,8 @@ This gives
 $$\exists N.~\forall k.~s = \bigoplus_{i=0}^{k + N} a_i.$$
 
 Finally, we must deal with the possibility of the sequence of elements being finite.
-I choose to do this by representing the sequence as a \AgdaDatatype{Colist}.
-\AgdaDatatype{Colist} is the non-strict version of \AgdaDatatype{List}.
-Whereas functions recursing on a \AgdaDatatype{List} have to terminate, functions \emph{producing} a \AgdaDatatype{Colist} must be \emph{productive}, meaning that each element is yielded in finite time.
+I choose to do this by representing the sequence as a \AgdaDatatype{Colist}, explained in Section \ref{sec:termination-and-productivity}.
 I define the following helper function.
-
-% Colist
 
 \begin{code}
   take : ∀ {a} {A : Set a} → ℕ → Colist A → List A
@@ -381,7 +430,7 @@ Also, we must define several other notions, such as edges and paths, in order to
 The common notion of a weighted graph is defined as follows.
 For finite set $V$, subset $E$ of $V \times V$, and function $w : E \to \mathbb K$, $(V,E,w)$ is a graph weighted by $\mathbb K$.
 This definition could, in principle, be translated directly into Agda.
-However, in order to cause less difficulty when proving, I choose to simplify the definition.
+However, in order to ease proving, I choose a simpler definition.
 Each of these simplifications is done without loss of generality.
 
 First, instead of having a set $V$ and then imposing the restriction that $V$ is finite, I state that $V$ must be amongst the canonical family of finite sets \AgdaDatatype{Fin}.
@@ -408,7 +457,7 @@ An explicit definition is as follows, where \AgdaField{Carrier} is the carrier s
   Graph n = Fin n → Fin n → Carrier
 \end{code}
 
-\subsection{Edges and paths}
+\subsection{Edges and paths}\label{sec:edges-and-paths}
 
 An edge is specified by an ordered pair of vertices.
 Going back to the usual presentation of graphs, where $E \subseteq V \times V$, we can think of $E$ as a binary relation on $V$.
@@ -476,14 +525,53 @@ Definitions using \AgdaDatatype{Edge} and \AgdaDatatype{Path} include functions 
   path-weight (e ◅ π)  = edge-weight e * path-weight π
 \end{code}
 
-\subsection{Sets of paths}
+%\subsection{Sets of paths}
 
 \subsection{Shortest distance}
+
+I use the alternate definition of shortest distance suggested by the footnote in Section 2 of~\cite{Mohri02} as the basis for my definition.
+This removes the special case for the source vertex, leaving the following definition for $\delta(s, q)$, the shortest distance from $s$ to $q$.
+
+\begin{align*}
+\delta(s, q) = \bigoplus_{\pi \in P(q)}{w[\pi]}
+\end{align*}
+
+This is an infinite sum over $P(q)$, the set of all paths from $s$ to $q$ (including arbitrarily many cycles).
+From Section \ref{sec:infinite-sums}, we have a definition of infinite summation, where \AgdaDatatype{∑∞} \AgdaBound{as} \AgdaBound{s} holds iff $\bigoplus \mathit{as} = s$.
+Thus, the remaining component is $P(q)$.
+
+The \emph{type} of all paths from \AgdaBound{s} to \AgdaBound{q} is simply \AgdaFunction{Path} \AgdaBound{s} \AgdaBound{q}.
+However, our notion of summation requires a \AgdaDatatype{Colist} of elements, so we need an explicit construction that produces all paths in some order.
+This is what is achieved by \AgdaFunction{all-paths-from-to} from \AgdaModule{Graph.Definitions}.
+The trivial path \AgdaInductiveConstructor{ε} is special in that it is only a path from \AgdaBound{q} to \AgdaBound{q′} if \AgdaBound{q} \AgdaDatatype{≡} \AgdaBound{q′}.
+On the other hand, for each length greater than or equal to 1, there is always at least 1 path of that length from \AgdaBound{q} to \AgdaBound{q′}.
+This follows from our definition of \AgdaDatatype{Graph}, where there is necessarily an edge between any two (possibly equal) vertices.
+
+The fact that we can produce these mutually exclusive \emph{inhabited} classes of paths is important for satisfying the productivity requirement of colists.
+The standard library contains the following definition in \AgdaModule{Data.Colist}.
+
+\begin{code}
+concat : ∀ {a} {A : Set a} → Colist (List⁺ A) → Colist A
+concat []                     = []
+concat ((x ∷ [])      ∷ xss)  = x ∷ ♯ concat (♭ xss)
+concat ((x ∷ y ∷ xs)  ∷ xss)  = x ∷ ♯ concat ((y ∷ xs) ∷ xss)
+\end{code}
+
+Here, \AgdaRecord{List⁺} is the type of inhabited lists, as defined in \AgdaModule{Data.List.NonEmpty}.
+A value of type \AgdaRecord{List⁺} \AgdaBound{A} is essentially a pair of an \AgdaBound{A} and a \AgdaDatatype{List} \AgdaBound{A}.
+The function \AgdaFunction{concat} takes a colist of inhabited lists and flattens it out into a colist containing all of the items that were originally in the lists.
+A similar function with \AgdaRecord{List⁺} replaced by \AgdaDatatype{List} is impossible, because we could feed it with the colist that is the infinite repetition of the empty list, and it would produce neither \AgdaInductiveConstructor{[]} nor \AgdaInductiveConstructor{\_∷\_} in any finite time.
+
+Using the \AgdaFunction{concat} function, the colist of all paths from \AgdaBound{q} to \AgdaBound{q′} is expressed as \AgdaInductiveConstructor{ε}, if \AgdaBound{q} \AgdaDatatype{≡} \AgdaBound{q′}, followed by the concatenation of all paths of length \AgdaInductiveConstructor{suc} \AgdaBound{l} for increasing natural number \AgdaBound{l}.
+The inhabited list of all paths from \AgdaBound{q} to \AgdaBound{q′} of length \AgdaInductiveConstructor{suc} \AgdaBound{l} is given by \AgdaFunction{all-paths-of-suc-length-from-to}.
+This is defined recursively on \AgdaBound{l}.
+When \AgdaBound{l} is \AgdaInductiveConstructor{zero} (corresponding to paths of length 1), there is only one path, which is the single edge from \AgdaBound{q} to \AgdaBound{q′}.
+When \AgdaBound{l} is \AgdaInductiveConstructor{suc} \AgdaBound{l} and we are going from \AgdaBound{q} to \AgdaBound{q″}, we pick each possible intermediate vertex \AgdaBound{q′}, get all the paths of length \AgdaInductiveConstructor{suc} \AgdaBound{l} from \AgdaBound{q} to \AgdaBound{q′} by recursion, and extend each of these with an edge from \AgdaBound{q′} to \AgdaBound{q″}.
 
 \section{Queues}\label{sec:queues}
 
 Mohri's algorithm is generic in the queueing discipline used to keep the vertices to be explored.
-From the algorithm, we see that a queue supports being assigned a singleton (Line 4), test for emptyness (Line 5), extracting of items (Lines 6-7), test for membership (Line 14), and inserting of items (Line 15).
+From the algorithm, we see that a queue supports being assigned a singleton (Line 4), test for emptiness (Line 5), extracting of items (Lines 6-7), test for membership (Line 14), and inserting of items (Line 15).
 However, the properties governing these operations are not stated, and must be inferred from the proof.
 
 The termination proof of the algorithm has the following form --- there are finitely many insertions into $S$; on each iteration, there is an extraction; therefore, there are finitely many iterations.
@@ -537,11 +625,206 @@ And a queue created by dequeueing an item has one fewer item than the original q
 %To start,
 %The assumption in the paper is that a queue is a finite multiset with specified extraction order.
 
-\section{Algorithm}
-% Translation from the paper
-% Inclusion of D and R
-% L, I, E
-% Internals modules
+\section{Reflexive-transitive closures}\label{reflexive-transitive-closures}
+
+We have seen reflexive-transitive closures used to define paths in terms of edges in Section \ref{sec:edges-and-paths}.
+For a relation \AgdaBound{R}, \AgdaFunction{Starˡ} \AgdaBound{R} is the reflexive-transitive closure of \AgdaBound{R} --- that is, the smallest relation containing \AgdaBound{R} which is reflexive and transitive.
+
+This notion is also useful when dealing with computations.
+Suppose we have a type \AgdaBound{I} of codes for programs.
+Suppose further that \AgdaBound{\_↝\_} is a binary relation on \AgdaBound{I}.
+The intended meaning is that for \AgdaBound{i} and \AgdaBound{j} of type \AgdaBound{I}, \AgdaBound{i} \AgdaBound{↝} \AgdaBound{j} if \AgdaBound{i} can reduce in a single step to \AgdaBound{j}.
+Then, \AgdaFunction{Starˡ} \AgdaBound{\_↝\_} \AgdaBound{i} \AgdaBound{j} holds whenever \AgdaBound{j} is an intermediate state in the computation of \AgdaBound{i}.
+Furthermore, any proof of \AgdaFunction{Starˡ} \AgdaBound{\_↝\_} \AgdaBound{i} \AgdaBound{j} retains \emph{how} \AgdaBound{i} reduced to \AgdaBound{j}.
+
+This data structure is useful when reasoning about the history of a computation.
+In this project, I take the type of programs \AgdaBound{I} to be the state of the algorithm, \AgdaDatatype{Alg-state} \AgdaFunction{×} \AgdaDatatype{Helper-sets}, and any two states are related if they are the states obtained before and after a single iteration of the while loop.
+A typical statement concerning the history of such a computation can be found in the proof of Lemma 6 (see Section 3 of~\cite{Mohri02}): ``$\pi$ is in $R(p[e])$ at the time of the previous extraction of $p[e]$''.
+To express this formally, we start with two states: \AgdaFunction{I₀}, the initial state of the algorithm; and \AgdaBound{i}, the state in consideration for the lemma.
+We know that \AgdaBound{i} was reached at some step of the algorithm, so we have a proof of \AgdaFunction{Starˡ} \AgdaFunction{\_↝\_} \AgdaFunction{I₀} \AgdaBound{i}.
+Given this, we want to find an iteration within this computation at which $p[e]$ was extracted.
+
+To talk about iterations within a computation, I adapt some of the definitions from the standard library's \AgdaModule{Data.List.Any} to the \AgdaDatatype{Star} type.
+These are available in full in the \AgdaModule{Star.TransitionMembership} module, which is parametrised over \AgdaBound{I}, the type of states; and \AgdaBound{T}, the transition relation between these states.
+
+The definitions are in terms of \AgdaDatatype{Star}, but \AgdaFunction{Starˡ} is defined using \AgdaDatatype{Star}, so the definitions carry over automatically.
+To avoid confusion, I use the words ``near'' and ``far'', rather than ``left'' and ``right''.
+The nearest transition in the sequence \AgdaBound{x} \AgdaInductiveConstructor{◅} \AgdaBound{xs} is \AgdaBound{x}, because it is immediately available by pattern matching.
+All of the other transitions in \AgdaBound{xs} are further away.
+
+\iffalse
+\begin{code}
+module TransitionMembership {i t} {I : Set i} {T : Rel I t} where
+\end{code}
+\fi
+
+I start with the following definition.
+
+\begin{samepage}
+\begin{code}
+  data Any  {p} (P : ∀ {j k} → T j k → Set p) :
+            ∀ {j k} → Star T j k → Set (i ⊔ t ⊔ p) where
+    here   :  ∀ {j k l} {x : T j k} {xs : Star T k l}
+              (px : P x) → Any P (x ◅ xs)
+    there  :  ∀ {j k l} {x : T j k} {xs : Star T k l}
+              (pxs : Any P xs) → Any P (x ◅ xs)
+\end{code}
+\end{samepage}
+
+Throughout the definition, and this section, \AgdaBound{j}, \AgdaBound{k}, and \AgdaBound{l} are states (i.e., of type \AgdaBound{I}).
+The type \AgdaDatatype{Any} \AgdaBound{P} \AgdaBound{xs}, for predicate \AgdaBound{P} and \AgdaDatatype{Star} proof \AgdaBound{xs}, represents the proposition that there is some transition \AgdaBound{x} within \AgdaBound{xs} such that \AgdaBound{P} \AgdaBound{x} holds.
+This is similar to the type \AgdaDatatype{Any} \AgdaBound{P} \AgdaBound{xs} for list \AgdaBound{xs}, which states that there is some element of \AgdaBound{xs} at which \AgdaBound{P} holds.
+The \AgdaInductiveConstructor{here} constructor states that if \AgdaBound{P} \AgdaBound{x} holds for some transition \AgdaBound{x}, then we can construct a proof of \AgdaDatatype{Any} \AgdaBound{P} \AgdaSymbol{(}\AgdaBound{x} \AgdaInductiveConstructor{◅} \AgdaBound{xs}\AgdaSymbol{)}, where \AgdaBound{x} \AgdaInductiveConstructor{◅} \AgdaBound{xs} is, by construction, a sequence of transitions with \AgdaBound{x} at the near end.
+The \AgdaInductiveConstructor{there} constructor states that if we know \AgdaDatatype{Any} \AgdaBound{P} \AgdaBound{xs}, we can add an arbitrary fitting transition \AgdaBound{x} to the near end of \AgdaBound{xs}, producing \AgdaBound{x} \AgdaInductiveConstructor{◅} \AgdaBound{xs}, and \AgdaDatatype{Any} \AgdaBound{P} \AgdaSymbol{(}\AgdaBound{x} \AgdaInductiveConstructor{◅} \AgdaBound{xs}\AgdaSymbol{)} still holds.
+
+Using this, we can build the notion that a specific transition exists within a sequence of transitions.
+
+\begin{code}
+  [_,_]_∈_ : ∀ {j k} j′ k′ → (x : T j′ k′) (xs : Star T j k) → Set _
+  [_,_]_∈_ j′ k′ x = Any (λ {j} {k} x′ →  ∃₂ λ (je : j′ ≡ j) (ke : k′ ≡ k) →
+                                          subst₂ T je ke x ≡ x′)
+\end{code}
+
+This is essentially saying that \AgdaBound{x} is in \AgdaBound{xs} iff \AgdaDatatype{Any} \AgdaSymbol{(}\AgdaSymbol{λ} \AgdaBound{x′} \AgdaSymbol{→} \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{x′}\AgdaSymbol{)} \AgdaBound{xs} holds.
+However, \AgdaBound{x} has type \AgdaBound{T} \AgdaBound{j′} \AgdaBound{k′}, whereas transitions \AgdaBound{x′} in \AgdaBound{xs} may have type \AgdaBound{T} \AgdaBound{j} \AgdaBound{k} for arbitrary \AgdaBound{j} and \AgdaBound{k}.
+This means that \AgdaBound{x} and \AgdaBound{x′} have potentially different types, so \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{x′} is ill typed.
+Thus, our predicate requires proofs \AgdaBound{je} and \AgdaBound{ke} that the endpoints of the transition under consideration \AgdaBound{x′} are the same as the endpoints of \AgdaBound{x} before \AgdaBound{x} and \AgdaBound{x′} can be compared.
+When \AgdaBound{je} and \AgdaBound{ke} are both \AgdaInductiveConstructor{refl} (the only proof of an equality), \AgdaFunction{subst₂} \AgdaBound{T} \AgdaBound{je} \AgdaBound{ke} \AgdaBound{x} reduces to just \AgdaBound{x}, but crucially with the same type as \AgdaBound{x′}, so the desired comparison \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{x′} is recovered.
+
+When we have \AgdaDatatype{Any} \AgdaBound{P} \AgdaBound{xs}, we can extract \AgdaBound{j′}, \AgdaBound{k′}, and \AgdaBound{x} such that \AgdaFunction{[} \AgdaBound{j′} \AgdaFunction{,} \AgdaBound{k′} \AgdaFunction{]} \AgdaBound{x} \AgdaFunction{∈} \AgdaBound{xs} and \AgdaBound{P} \AgdaBound{x}.
+This is similar to the principle from conventional mathematics that given $\exists x \in S.~P(x)$, we can assume that we have some $x$ in the set $S$ such that $P(x)$ holds.
+Thus, the following constitutes a way of using \AgdaDatatype{Any} proofs.
+
+\begin{code}
+  find :  ∀ {p} {P : ∀ {j k} → T j k → Set p} {j k} {xs : Star T j k} →
+          Any P xs → ∃₂ λ j′ k′ → ∃ λ x → [ j′ , k′ ] x ∈ xs × P x
+  find {j = j} {k = k} {xs = x ◅ xs} (here px) =
+    _ , _ , x , (here (PEq.refl , PEq.refl , PEq.refl)) , px
+  find (there pxs) with find pxs
+  ... | _ , _ , x , elem , px = _ , _ , x , there elem , px
+\end{code}
+
+This states that, for a proof \AgdaInductiveConstructor{here} \AgdaBound{px}, the nearest transition \AgdaBound{x} is in the sequence of transitions, and the proof that it satisfies \AgdaBound{P} is \AgdaBound{px}.
+For a proof \AgdaInductiveConstructor{there} \AgdaBound{pxs}, we make a recursive call, returning everything as-is except the membership proof \AgdaBound{elem}, where we note that, having added a new transition, \AgdaBound{x} is now one place further away.
+
+\section{Algorithm}\label{sec:algorithm}
+
+Mohri's algorithm is presented in Section 3 of~\cite{Mohri02}.
+It maintains state in the variables $d$, $r$, and $S$, which represent the current distance estimates to each vertex, the amount of weight added to each estimate since the last extraction, and the queue of vertices to explore, respectively.
+The algorithm consists of some initialisation, and then a loop on each iteration of which a vertex is extracted from the queue $S$, and zero or more vertices are inserted into the queue.
+This program structure cannot be immediately transcribed into Agda, and in this section I will describe the translation I did.
+
+\subsection{Basic algorithm}
+
+First, I concentrate on the body of the main loop.
+Whereas the original algorithm is expressed using mutable variables $d$, $r$, and $S$, I will maintain state by recursively applying a function with updated values for $d$, $r$, and $S$.
+This is a standard approach in functional programming.
+I combine the state into the record type \AgdaDatatype{Alg-state}, giving the names \AgdaField{known-distances}, \AgdaField{added-weight}, and \AgdaField{vertex-queue} to $d$, $r$, and $S$, respectively.
+
+The action of a single iteration of the while loop is captured in the function \AgdaFunction{do-step}.
+The line \AgdaKeyword{module} \AgdaModule{DoStep} \AgdaKeyword{where} introduces a \emph{named} where block.
+This acts like an ordinary where block, but also creates the module \AgdaModule{DoStep}, available outside the definition of \AgdaFunction{do-step}.
+This is important when writing proofs about \AgdaFunction{do-step}, as it gives us access to intermediate values.
+
+The function \AgdaFunction{do-step} takes a state in which the vertex queue has items, and returns a new state.
+The first two lines in the where block replicate Lines 6-7 of the pseudocode algorithm, dequeueing from \AgdaBound{S} into temporary variable \AgdaBound{q} and putting the updated queue into \AgdaBound{S₁}.
+There must be a new name for the new queue because Agda does not allow mutation of variables.
+Additionally, the new name is helpful when reasoning about the algorithm because we get a way of referring to the queue at different stages inside the loop.
+The next two lines replicate Lines 8-9 of the algorithm, and similarly, I introduce the new name \AgdaBound{r₁} for the new value of $r$.
+
+Lines 10-15 of the pseudocode algorithm are expressed as a for loop.
+In theory, this can be translated into a fold over a list.
+Specifically, $E[q]$, the set of edges leaving $q$, consists of one edge for each vertex in the graph, given that, in my implementation, all vertices are assumed to be connected.
+Thus, it suffices to iterate over a list of all vertices (\AgdaFunction{allFin} \AgdaBound{n}) using \AgdaFunction{foldr}.
+In practice, however, the generality of \AgdaFunction{foldr} makes it difficult to reason about.
+Therefore, I split the loop to deal with the weight vectors and the queue separately.
+
+Only a subset of $E[q]$ has anything done to it, specifically the set of edges $e$ such that $d[n[e]] \neq d[n[e]] \oplus (r' \otimes w[e])$ (Line 11).
+Recalling the definition of $\leq$ from Section \ref{sec:algebraic-routing-problems}, we can rewrite this as $d[n[e]] \nleq r' \otimes w[e]$.
+To convert this statement into something that can be branched on in a program, we prove that $a \nleq b$ is decidable for all $a$ and $b$.
+This follows from decidability of \AgdaField{\_≈\_}, which I take as an assumption (and is, in general, not provable).
+The expression \AgdaBound{a} \AgdaFunction{≤?} \AgdaBound{b} has type \AgdaDatatype{Dec} \AgdaSymbol{(}\AgdaBound{a} \AgdaFunction{≤K} \AgdaBound{b}\AgdaSymbol{)}, which can be converted to a boolean using \AgdaFunction{⌊\_⌋}.
+This is how \AgdaFunction{condition} is constructed.
+Then, \AgdaFunction{condition} is used to select those vertices $q'$ such that the edge $(q, q')$ needs to be relaxed, with the result assigned to \AgdaFunction{relaxed-vertices}.
+Finally, amongst these vertices, only those not already in the queue are enqueued (Lines 14-15).
+These vertices are enumerated in \AgdaFunction{enqueued-vertices}.
+
+With the affected vertices listed, we can apply the updates to the state.
+\AgdaBound{d} and \AgdaBound{r} are affected in the same way, so I abstract this out into the function \AgdaFunction{new-weights}.
+This uses \AgdaFunction{tabulate} to describe the result vector using a function mapping indices to values.
+For an index \AgdaBound{q′}, if it is in \AgdaFunction{relaxed-vertices} then it is updated by $\oplus$-adding $r' \otimes w[(q, q′)]$ (the \AgdaInductiveConstructor{yes} case).
+Otherwise, it is kept as it is (the \AgdaInductiveConstructor{no} case).
+This function is called on \AgdaBound{d} and our first intermediate $r$ value \AgdaFunction{r₁}, with the results bound to \AgdaFunction{d₁} and \AgdaFunction{r₂}.
+The queue $S$ is updated on the final line of the \AgdaKeyword{where} block by iterating through \AgdaFunction{enqueued-vertices}, enqueueing each, in order, into \AgdaFunction{S₁}, producing result \AgdaFunction{S₂}.
+
+\subsection{Annotated algorithm}
+
+Many of the lemmas in~\cite{Mohri02} make use of the values $D$ and $R$, defined just after the algorithm in Section 3 of that paper.
+These record the paths chosen between for each value in $d$ and $r$, respectively.
+I keep these in the secondary state record \AgdaDatatype{Helper-sets}, along with fields \AgdaField{L}, \AgdaField{I}, and \AgdaField{E}, which are also used for reasoning about the algorithm.
+Each of these fields is indexed by a vertex \AgdaBound{q}, and counts the occurrence of a certain event about that vertex.
+The value \AgdaField{L} \AgdaBound{q} counts the number of times at which \AgdaBound{q} has been the end vertex of an edge which passed \AgdaFunction{condition}, i.e., an edge which improved a distance estimate.
+The value \AgdaField{I} \AgdaBound{q} counts the number of times \AgdaBound{q} has been inserted into the queue, and \AgdaField{E} \AgdaBound{q} counts the number of times \AgdaBound{q} has been extracted from the queue.
+These three pieces of state become important when reasoning about termination of the algorithm.
+
+The loop iteration with this extra state is done by the \AgdaFunction{do-step-with-sets} function.
+All of the operations on the \AgdaDatatype{Alg-state} component are the same as they were in \AgdaFunction{do-step}.
+The path families $D$ and $R$ are updated as described in the paper, and temporary set \AgdaFunction{R′} is introduced parallel to \AgdaFunction{r′}.
+The empty set of paths is represented by the empty list \AgdaInductiveConstructor{[]}, which has $\oplus$-sum $\bar 0$.
+Union of path sets is represented by list append (\AgdaFunction{\_++\_}).
+Lemma 5 shows that this is only done when the set of paths being added is disjoint from the original set, so we do not have to worry about removing duplicate entries.
+
+For the counters, \AgdaFunction{appAt} and \AgdaFunction{appWhen}, defined in \AgdaModule{App}, are used to increment at a given vertex and at all vertices satisfying a boolean condition, respectively.
+The \AgdaField{E} counter is incremented at the dequeued vertex, and \AgdaField{L} and \AgdaField{I} are updated at \AgdaBound{q′} whenever \AgdaBound{q′} satisfies \AgdaFunction{condition} and when \AgdaBound{q′} is inserted into the queue, respectively.
+
+\subsection{Completing the loop}
+
+To faithfully represent the while loop, we want to run \AgdaFunction{do-step} repeatedly until the queue no longer has any vertices to extract.
+However, a priori, we do not know whether the queue will ever empty.
+Thus, we do not know that the procedure will terminate, and this strategy will not produce a valid Agda function.
+Instead, I produce a function \AgdaFunction{σ} that runs at most \AgdaBound{t} iterations of the loop, for arbitrary natural number \AgdaBound{t}.
+This is clearly terminating, and moves the burden of the termination proof onto showing that the stated number of iterations is enough.
+There is a similar function \AgdaFunction{σS} which keeps the \AgdaDatatype{Helper-sets} state.
+
+The initialisation (Lines 1-4 of the pseudocode algorithm) is captured in the initial state \AgdaFunction{I₀}, with \AgdaFunction {IS₀} being the same containing the helper sets.
+I omit Line 16 of the pseudocode to match the omission of the special case for the source vertex in the definition of shortest distance.
+Thus, for sufficiently large \AgdaBound{t}, \AgdaFunction{σ} \AgdaBound{t} \AgdaFunction{I₀} is of the form \AgdaInductiveConstructor{alg-state} \AgdaBound{d} \AgdaBound{r} \AgdaBound{S}, with \AgdaBound{S} empty and \AgdaBound{d} containing the shortest distances from the source vertex to each vertex in the graph.
+Finding a sufficiently large \AgdaBound{t} is a task for the termination proof.
+
+\section{Proofs about the algorithm}\label{sec:proofs-about-the-algorithm}
+
+In the source code, successful proofs about the algorithm are in the modules \AgdaModule{Algorithm.Properties} and \AgdaModule{Algorithm.Lemma6}.
+The \AgdaModule{Algorithm.Lemma6} module depends upon \AgdaModule{Algorithm.Properties}, as well as most of the other modules described earlier in this chapter.
+However, it makes sense to look first at the proof of Lemma 6, and then look back at what lemmas were needed for it.
+
+Lemma 6, taken from Section 3 of~\cite{Mohri02}, states that, at any point in the execution of the algorithm, if $\pi_1\pi_2 \in D(n[\pi_2])$ then $\pi_1 \in D(n[\pi_1])$, where $n[\pi]$ is the right endpoint of path $\pi$.
+I prove this in \AgdaFunction{lemma-6}, translating the statement into an Agda type as follows.
+I take an \AgdaBound{i} of type \AgdaRecord{Alg-state} \AgdaFunction{×} \AgdaRecord{Helper-sets}, and assert that it is a valid state for the algorithm to be in by requiring \AgdaFunction{Reachable-with-sets} \AgdaBound{i}. This is an alias for \AgdaFunction{Starˡ} \AgdaFunction{\_↝S\_} \AgdaFunction{IS₀} \AgdaBound{i} --- a sequence of iterations of the annotated algorithm take us from the initial state \AgdaFunction{IS₀} to the current state \AgdaBound{i}.
+The line \AgdaKeyword{let} \AgdaKeyword{open} \AgdaModule{Helper-sets} \AgdaSymbol{(}\AgdaField{proj₂} \AgdaBound{i}\AgdaSymbol{)} \AgdaKeyword{in} puts the \AgdaFunction{D} from state \AgdaBound{i} in scope for the rest of the type.
+Then, I take path \AgdaBound{π₁} from source \AgdaBound{s} to \AgdaBound{m} and path \AgdaBound{π₂} from \AgdaBound{m} to \AgdaBound{q}.
+Recall from Section \ref{sec:edges-and-paths} that the ``near'' part of a path is the part at the opposite end to \AgdaBound{s}, and thus we compose the two paths into \AgdaBound{π₂} \AgdaFunction{◅◅} \AgdaBound{π₁}.
+That this is the correct way round is enforced by the type of \AgdaFunction{\_◅◅\_}, which only composes sequences in which the endpoints match up correctly.
+Given this, the desired conclusion is that given \AgdaSymbol{(}\AgdaBound{π₂} \AgdaFunction{◅◅} \AgdaBound{π₁}\AgdaSymbol{)} \AgdaFunction{∈} \AgdaFunction{D} \AgdaBound{q}, we can deduce \AgdaBound{π₁} \AgdaFunction{∈} \AgdaFunction{D} \AgdaBound{m}.
+Again, the type of \AgdaFunction{D} makes sure that we cannot mix up \AgdaBound{q} and \AgdaBound{m}, for example.
+
+As in the paper, this lemma is proven by induction on \AgdaBound{π₂}.
+For the trivial path \AgdaInductiveConstructor{ε}, \AgdaBound{q} unifies with \AgdaBound{m} and \AgdaBound{π₂} \AgdaInductiveConstructor{◅◅} \AgdaBound{π₁} reduces to just \AgdaBound{π₁}.
+Thus, we are required to prove \AgdaBound{π₁} \AgdaFunction{∈} \AgdaFunction{D} \AgdaBound{q} \AgdaSymbol{→} \AgdaBound{π₁} \AgdaFunction{∈} \AgdaFunction{D} \AgdaBound{q}, which is trivial.
+
+In the case of \AgdaBound{e} \AgdaInductiveConstructor{◅} \AgdaBound{π₂}, we defer to \AgdaFunction{lemma-6-step} to deduce \AgdaSymbol{(}\AgdaBound{π₂} \AgdaFunction{◅◅} \AgdaBound{π₁}\AgdaSymbol{)} \AgdaFunction{∈} \AgdaFunction{D} \AgdaSymbol{\_} from \AgdaSymbol{(}\AgdaBound{e} \AgdaInductiveConstructor{◅} \AgdaBound{π₂} \AgdaFunction{◅◅} \AgdaBound{π₁}\AgdaSymbol{)} \AgdaFunction{∈} \AgdaFunction{D} \AgdaSymbol{\_}.
+Using this, we finish with the inductive hypothesis.
+
+The lemma \AgdaFunction{lemma-6-step} has the same statement as \AgdaFunction{lemma-6}, except that the path \AgdaBound{π₂} is replaced with a single edge \AgdaBound{e}.
+Most of the work of \AgdaFunction{lemma-6-step} is done by the three lemmas from \AgdaModule{Algorithm.Properties} --- \AgdaFunction{path-in-D-gives-path-in-R′}, \AgdaFunction{R⊆D}, and \AgdaFunction{D-grows}.
+The latter two of these are relatively self-explanatory, though the proofs are somewhat technical.
+Specifically, \AgdaFunction{R⊆D} states that for any \AgdaBound{q}, \AgdaFunction{R} \AgdaBound{q} \AgdaFunction{⊆} \AgdaFunction{D} \AgdaBound{q}.
+We can see this from the fact that \AgdaFunction{R} \AgdaBound{q} is the same as \AgdaFunction{D} \AgdaBound{q} except that \AgdaFunction{R} \AgdaBound{q} is cleared whenever \AgdaBound{q} is extracted from the queue.
+Then, \AgdaFunction{D-grows} tells us that if we have states \AgdaBound{j} and \AgdaBound{i}, with \AgdaBound{j} reducing to \AgdaBound{i} after a sequence of transitions, then \AgdaFunction{D} \AgdaBound{q} at time \AgdaBound{j} is a subset of \AgdaFunction{D} \AgdaBound{q} at time \AgdaBound{i}.
+This is true because \AgdaFunction{D} \AgdaBound{q} is only ever added to, and never removed from.
+Finally, \AgdaFunction{path-in-D-gives-path-in-R′} states that if we have \AgdaSymbol{(}\AgdaBound{e} \AgdaInductiveConstructor{◅} \AgdaBound{π}\AgdaSymbol{)} \AgdaFunction{∈} \AgdaFunction{D} \AgdaSymbol{\_}, then there was a time before at which \AgdaBound{π} \AgdaFunction{∈} \AgdaFunction{R′}.
+The result type of this lemma is an instance of \AgdaDatatype{Any} from \AgdaModule{Star.TransitionMembership}, as discussed in Section \ref{sec:reflexive-transitive-closures}.
+This is put to use with \AgdaFunction{find}, which gives us a transition within a sequence of transitions, allowing us to consider the computation before and after the matching transition (\AgdaFunction{take-before-∈} and \AgdaFunction{take-after-∈}, respectively).
+Putting all of this together leads to a proof of Lemma 6.
 
 \section{Application}\label{sec:application}
 % Verification that \bN forms a k-closed semiring
@@ -551,4 +834,4 @@ And a queue created by dequeueing an item has one fewer item than the original q
 % Classes
 % Type-level Nat
 
-\section{Test data generation}\label{sec:test-data-generation}
+%\section{Test data generation}\label{sec:test-data-generation}

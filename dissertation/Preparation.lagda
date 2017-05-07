@@ -11,11 +11,12 @@ module Preparation where
 \fi
 
 In this chapter, I give an overview of the main concepts used in the remainder of this report.
-In \hyperref[sec:agda]{Section \ref*{sec:agda}}, I introduce the programming language Agda, which I use to formalise the theory underpinning the shortest distance algorithm.
+In \hyperref[sec:agda]{Section \ref*{sec:agda}} I introduce the programming language Agda, which I use to formalise the theory underpinning the shortest distance algorithm.
 Then, in \hyperref[sec:shortest-distance-problems]{Section \ref*{sec:shortest-distance-problems}}, I give an informal introduction to the use of semirings in shortest distance problems.
 This is also where I state and discuss the algorithm of Mohri, which is the focus of this project.
-Third, in \hyperref[sec:haskell]{Section \ref*{sec:haskell}}, I give a summary of the Haskell features I use in the performance testing code that may be novel to a reader familiar with a statically typed functional programming language like ML, but not Haskell specifically.
-Finally, in \hyperref[sec:requirements-analysis]{Section \ref*{sec:requirements-analysis}}, I clarify how the implementation is split into distinct sections, and what tools are used for implementation and organisation.
+%In \hyperref[sec:haskell]{Section \ref*{sec:haskell}} I give a summary of the Haskell features I use in the performance testing code that may be novel to a reader familiar with a statically typed functional programming language like ML, but not Haskell specifically.
+In \hyperref[sec:haskell]{Section \ref*{sec:haskell}} I give a brief summary of Haskell, the programming language I use for testing performance of the algorithm.
+Finally, in \hyperref[sec:requirements-analysis]{Section \ref*{sec:requirements-analysis}} I clarify how the implementation is split into distinct sections, and what tools are used for implementation and organisation.
 
 \section{Agda}\label{sec:agda}
 
@@ -29,7 +30,7 @@ For example, mathematics often makes use of vectors over a set $X$ of some fixed
 In most programming languages, we are either restricted to special cases such as 2-element and 3-element vectors, or use lists of arbitrary length.
 The latter leaves us without compile-time checks that, for example, the two operands in a vector addition have the same dimension.
 
-Also, dependent types give us the tools to give precise types to many of the programs we want to write.
+Also, dependent types give us the tools to give precise types to many programs.
 To see this, we consider again difficulties in using lists of arbitrary length.
 A function we often define on lists is an indexing function, which returns the $i$th element of a list.
 However, this function can fail at runtime with an ``index out of bounds'' error if $i$ is too large for the list.
@@ -38,7 +39,7 @@ Dependent types give us a second option.
 We can instead use an indexing function that requires a proof that $i$ is in bounds (that $i$ is less than the length of the list) and then never throws an error.
 With dependent types, we can form a type of such proofs, which give us machine-checked assertions about our programs.
 
-Agda is a pure functional programming language with full support for dependent types.
+Agda~\cite{Norell07} is a pure functional programming language with full support for dependent types.
 It is intended to be a practical tool for both programming and proving, both of which I introduce in this section.
 
 \subsection{Programming in Agda}\label{sec:programming-in-agda}
@@ -69,7 +70,7 @@ data Fin : ℕ → Set where
 
 This defines \AgdaDatatype{Fin} as a function that takes a natural number (element of \AgdaDatatype{ℕ}) and produces a small type (element of \AgdaPrimitiveType{Set}).
 Specifically, there is a constructor \AgdaInductiveConstructor{fzero} that makes an element of this type for any number greater than 0 (because $0 < 1$ but $0 \nless 0$), and there is a constructor \AgdaInductiveConstructor{fsuc} that takes a number less than \AgdaBound{n} and produces a new number less than \AgdaInductiveConstructor{suc} \AgdaBound{n}.
-As in most programming languages of the Haskell/ML~\cite{Haskell2010}\cite{Milner1990}\cite{ocaml} style, the arrow of the function type associates rightward, so the type of \AgdaInductiveConstructor{fsuc} is read as \AgdaSymbol{\{}\AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{ℕ}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaDatatype{Fin} \AgdaBound{n} \AgdaSymbol{→} \AgdaDatatype{Fin} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{))}.
+As in most programming languages of the Haskell/ML style (see, e.g.,~\cite{Haskell2010}\cite{Milner1990}\cite{ocaml}), the arrow of the function type associates rightward, so the type of \AgdaInductiveConstructor{fsuc} is read as \AgdaSymbol{\{}\AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{ℕ}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaDatatype{Fin} \AgdaBound{n} \AgdaSymbol{→} \AgdaDatatype{Fin} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{))}.
 Furthermore, in Agda, the arrow can be a \emph{binder}, meaning that as well as having simple functions of type \AgdaBound{A} \AgdaSymbol{→} \AgdaBound{B}, we can have dependent functions of type \AgdaSymbol{(}\AgdaBound{a} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{B}, where \AgdaBound{B} can be parametrised by \AgdaBound{a}.
 This is what we have with \AgdaBound{n} in both constructors.
 The curly braces, rather than round brackets, around \AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{ℕ} signify that \AgdaBound{n} is \emph{implicit}, so when we call either of the constructors, we don't have to write out this argument.
@@ -83,9 +84,13 @@ Thus, the difference between implicit and explicit arguments is a matter of defa
 
 We can put this type family to use alongside a type of lists of known length, known as \emph{vectors}.
 
+\iffalse
 \begin{code}
 open import Level using (Level; _⊔_) renaming (zero to lzero; suc to lsuc)
+\end{code}
+\fi
 
+\begin{code}
 data Vec {a : Level} (A : Set a) : ℕ → Set a where
   []   :                          Vec A zero
   _∷_  : {n : ℕ} → A → Vec A n →  Vec A (suc n)
@@ -95,7 +100,7 @@ The constructors for \AgdaDatatype{Vec} state that, for any type \AgdaBound{A}, 
 When reading aloud, \AgdaInductiveConstructor{[]} is read ``nil'' and \AgdaInductiveConstructor{∷} is read ``cons''.
 
 Several new things are introduced here.
-First, we import the \AgdaPostulate{Level} type.
+First, because a vector can contain elements of arbitrary type \AgdaBound{A}, we must deal with universe levels.
 Earlier, I mentioned that \AgdaPrimitiveType{Set} is the type of all simple datatypes.
 The technical term for these is \emph{small types}, and \AgdaPrimitiveType{Set} is known as the smallest universe.
 In more complex situations than those discussed so far, we encounter larger types, the first example being \AgdaPrimitiveType{Set} itself.
@@ -143,13 +148,13 @@ So, when we pattern match on a \AgdaDatatype{Fin} \AgdaBound{n} argument, we kno
 With this noted, we see what constructors make a value of type \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)}.
 The only one is \AgdaInductiveConstructor{\_∷\_}, so this is the only constructor for which we need a case.
 
-\AgdaFunction{index} is a useful function to have for programming.
+When programming, \AgdaFunction{index} is a useful function to have.
 For a vector of length \AgdaBound{n}, it can only take indices less than \AgdaBound{n}.
 The function always produces a value, and in particlar will never throw an out-of-bounds exception.
 Functions that could fail need to be explicitly annotated.
 With expressive types, it is usually possible to narrow the domain (restrict the preconditions) or widen the codomain (relax the postconditions) such that a potentially failing function no longer fails.
 
-\subsection{Proofs in Agda}
+\subsection{Proofs in Agda}\label{sec:proofs-in-agda}
 
 Most of the work of this project goes into producing proofs.
 Though Agda's proof language is the same as its programming language, expressing propositions and proofs is sufficiently different from programming that it has a separate section.
@@ -175,7 +180,7 @@ spin : ⊥
 spin = spin
 \end{code}
 
-If we tried to reduce this to a value, we would be stuck in a loop of replacing \AgdaFunction{spin} with \AgdaFunction{spin}, and never reach a normal form.
+If we tried to reduce this to a value, we would be stuck in a loop of replacing \AgdaFunction{spin} with \AgdaFunction{spin}, and never reach a normal form (that is, an expression which cannot reduce further).
 For this reason, Agda makes sure that all unannotated functions use only structural recursion and induction, meaning that some argument(s) become strictly smaller at each recursive call.
 This is a conservative estimate of terminating programs.
 Sometimes, it is too conservative, and we need to do more work to show that our desired function always terminates.
@@ -312,7 +317,7 @@ data _≡_ {a : Level} {A : Set a} (x : A) : A → Set where
 This says that, for any \AgdaBound{x}, \AgdaBound{x} \AgdaDatatype{≡\_} is a type family inhabited only at \AgdaBound{x} itself.
 \AgdaInductiveConstructor{refl} is short for ``reflexivity'', so the defining fact about \AgdaDatatype{\_≡\_} is that each \AgdaBound{x} is related to itself.
 There are other properties we can prove of equality, typically using dependent pattern matching, as seen in the definition of \AgdaFunction{index} in Section \ref{sec:programming-in-agda}.
-One such property is that, for equal \AgdaBound{x} and \AgdaBound{y}, \AgdaBound{f} \AgdaBound{x} and \AgdaBound{f} \AgdaBound{y} are also equal --- or colloquially, doing the same thing to both sides of an equation preserves equality.
+One such property is that, for equal \AgdaBound{x} and \AgdaBound{y}, \AgdaBound{f} \AgdaBound{x} and \AgdaBound{f} \AgdaBound{y} are also equal --- colloquially, applying a function to both sides of an equation preserves equality, or that all functions are well defined with respect to equality.
 
 \begin{code}
 cong : {a b : Level} → {A : Set a} → {B : Set b} →
@@ -322,7 +327,7 @@ cong f {x} {.x} refl = refl
 
 We pattern match on the proof of \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{y}, which forces \AgdaBound{y} to be \AgdaBound{x}.
 This is shown in the implicit arguments, where the dot before the second \AgdaBound{x} denotes that the second \AgdaBound{x} is an expression, with its value forced by the pattern matching.
-With \AgdaBound{y} set to \AgdaBound{x}, we are required to prove \AgdaBound{f} \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{f} \AgdaBound{x}, for which reflexivity about \AgdaBound{f} \AgdaBound{x} suffices.
+Now that \AgdaBound{y} is unified with \AgdaBound{x}, we are required to prove \AgdaBound{f} \AgdaBound{x} \AgdaDatatype{≡} \AgdaBound{f} \AgdaBound{x}, which follows by reflexivity.
 
 Finally, we can use this equality relation with induction.
 Proof by induction is the basic strategy when proving properties of a recursive function.
@@ -346,14 +351,14 @@ However, for free variable \AgdaBound{n}, \AgdaFunction{add} \AgdaBound{n} \Agda
 
 \begin{code}
 +0 : (n : ℕ) → add n zero ≡ n
-+0 zero = refl
-+0 (suc n) = cong suc (+0 n)
++0 zero     = refl
++0 (suc n)  = cong suc (+0 n)
 \end{code}
 
-For the base case with \AgdaBound{n} set to \AgdaInductiveConstructor{zero}, we have to prove \AgdaFunction{add} \AgdaInductiveConstructor{zero} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaInductiveConstructor{zero}.
-This follows by computation.
+For the base case, when \AgdaBound{n} is \AgdaInductiveConstructor{zero}, we have to prove \AgdaFunction{add} \AgdaInductiveConstructor{zero} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaInductiveConstructor{zero}.
+This follows by computation and reflexivity.
 
-In the step case, with \AgdaBound{n} set to \AgdaInductiveConstructor{suc} \AgdaBound{n}, we are required to prove \AgdaFunction{add} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaInductiveConstructor{suc} \AgdaBound{n}.
+In the step case, when \AgdaBound{n} is of the form \AgdaInductiveConstructor{suc} \AgdaBound{n}, we are required to prove \AgdaFunction{add} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaInductiveConstructor{suc} \AgdaBound{n}.
 Computation on the lefthand side gives us \AgdaInductiveConstructor{suc} \AgdaSymbol{(}\AgdaFunction{add} \AgdaBound{n} \AgdaInductiveConstructor{zero}\AgdaSymbol{)}.
 We know by induction that \AgdaFunction{add} \AgdaBound{n} \AgdaInductiveConstructor{zero} \AgdaDatatype{≡} \AgdaSymbol{n}, and applying \AgdaInductiveConstructor{suc} to both sides of this equation (using \AgdaFunction{cong}) gives the required result.
 
@@ -380,9 +385,9 @@ module VecDefinitions {a} (A : Set a) where
   tail (x ∷ xs) = xs
 \end{code}
 
-In a parameter list, \AgdaBound{a} and \AgdaSymbol{\{}\AgdaBound{a}\AgdaSymbol{\}} are abbreviations for explicit and implicit parameters, respectively, \AgdaBound{a} with inferred type.
-In this case, the inferred type is \AgdaPrimitiveType{Level}.
-Similar can be achieved in type signatures using the \AgdaSymbol{∀} symbol, as shown.
+In a parameter list, \AgdaBound{x} and \AgdaSymbol{\{}\AgdaBound{x}\AgdaSymbol{\}}, for some name \AgdaBound{x} being bound, are abbreviations for explicit and implicit parameters, respectively, \AgdaBound{x} with inferred type.
+In this case, the inferred type for \AgdaBound{a} is \AgdaPrimitiveType{Level}.
+Similar can be achieved in type signatures using the \AgdaSymbol{∀} symbol, as shown in the function definitions of this module.
 In each case, the inferred type for \AgdaBound{n} is \AgdaDatatype{ℕ}.
 
 Note in this example that \AgdaBound{a} and \AgdaBound{A} are parameters to the module, and available to every definition inside the module.
@@ -473,6 +478,210 @@ zeroify {n = n} xs = replace-all zero xs
   open RawFunctorUtils (vec-functor lzero n)
 \end{code}
 
+\subsection{Termination and productivity}\label{sec:termination-and-productivity}
+
+As explained at the start of Section \ref{sec:proofs-in-agda}, Agda restricts recursion to avoid non-termination.
+To enforce this, Agda has a conservative termination checker which acts on definitions for which partial type correctness has been established.
+Additionally, there is a productivity checker, used when dealing with potentially infinite data structures such as streams.
+
+\subsubsection{Termination}
+
+For a function consuming data, the termination checker checks that any recursive calls to the function are made at \emph{structurally smaller} arguments.
+Being structurally smaller is a syntactic property of a term, and thus decidable.
+Intuitively, a structurally smaller term is contained in the term it is structurally smaller than.
+The fact that data terms are finite means that we cannot have an infinite chain of containment.
+Thus, recursive calls at structurally smaller arguments allow us only finitely many calls before reaching a base case.
+
+Specifically, we can define a relation $<$, with transitive closure $<^+$, such that $x <^+ y$ holds whenever $x$ is structurally smaller than $y$.
+The definition of $<$ is as follows.
+
+\begin{itemize}
+  \item If $y$ is a term made of a data constructor applied to one or more terms, one of which is $x$, then $x < y$.
+  \item If $x < y$ and $a$ is a term, then $x < y~a$.
+\end{itemize}
+
+Of these rules, the first is far more often invoked.
+The second is relevant, amongst other things, for data structures taking the form of infinitely branching trees.
+For example, we may have the following type.
+
+\begin{code}
+data InfTree {a} (A : Set a) : Set a where
+  leaf    : InfTree A
+  branch  : (ℕ → InfTree A) → InfTree A
+\end{code}
+
+A term \AgdaInductiveConstructor{branch} \AgdaBound{f} represents a tree with infinitely many immediate children, accessed as \AgdaBound{f} \AgdaBound{n} for some natural number \AgdaBound{n}.
+The combination of the two rules allow us to say that \AgdaBound{f} \AgdaBound{n} is structurally smaller than \AgdaInductiveConstructor{branch} \AgdaBound{f}.
+
+As an example, this allows us to define a function which halves a natural number, rounding down.
+
+\begin{code}
+half : ℕ → ℕ
+half zero           = zero
+half (suc zero)     = zero
+half (suc (suc n))  = suc (half n)
+\end{code}
+
+However, a general division function is more difficult.
+We may attempt the following, omitting the definitions of \AgdaFunction{\_-\_} (subtraction) and \AgdaFunction{\_≤?\_} (\AgdaBound{m} \AgdaFunction{≤?} \AgdaBound{n} decides whether \AgdaBound{m} is less than or equal to \AgdaBound{n}), which can be found in the standard library.
+
+\iffalse
+\begin{code}
+_-_ : ℕ → ℕ → ℕ
+x - zero = x
+zero - suc y = zero
+suc x - suc y = x - y
+
+data _≤_ (m : ℕ) : ℕ → Set where
+  ≤-refl : m ≤ m
+  ≤-step : ∀ {n} → m ≤ n → m ≤ suc n
+
+z≤n : ∀ n → zero ≤ n
+z≤n zero = ≤-refl
+z≤n (suc n) = ≤-step (z≤n n)
+
+s≤s : ∀ {m n} → m ≤ n → suc m ≤ suc n
+s≤s ≤-refl = ≤-refl
+s≤s (≤-step lt) = ≤-step (s≤s lt)
+
+≤-trans : ∀ {m n o} → m ≤ n → n ≤ o → m ≤ o
+≤-trans mn ≤-refl = mn
+≤-trans mn (≤-step no) = ≤-step (≤-trans mn no)
+
+p≤p : ∀ {m n} → suc m ≤ suc n → m ≤ n
+p≤p ≤-refl = ≤-refl
+p≤p (≤-step lt) = ≤-trans (≤-step ≤-refl) lt
+
+open import Function
+open import Relation.Nullary
+
+_≤?_ : ∀ m n → Dec (m ≤ n)
+zero ≤? n = yes (z≤n n)
+suc m ≤? zero = no (λ ())
+suc m ≤? suc n with m ≤? n
+... | yes p = yes (s≤s p)
+... | no ¬p = no (¬p ∘ p≤p)
+\end{code}
+\fi
+
+\begin{code}
+{-# TERMINATING #-}
+div-suc : ℕ → ℕ → ℕ
+div-suc x y with x ≤? y
+... | yes _  = x
+... | no _   = suc (div-suc (x - suc y) y)
+\end{code}
+
+However, the termination checker fails to infer that \AgdaBound{x} \AgdaFunction{-} \AgdaInductiveConstructor{suc} \AgdaBound{y} is smaller than \AgdaBound{x}.
+For a definition that will pass the termination checker, we need to make clear in the structure of terms that arguments get smaller.
+
+\begin{code}
+div-suc′ : ℕ → ℕ → ℕ
+div-suc′ x y = helper zero x y
+  where
+  helper : ℕ → ℕ → ℕ → ℕ
+  helper res zero y′            = res
+  helper res (suc x′) zero      = helper (suc res) x′ y
+  helper res (suc x′) (suc y′)  = helper res x′ y′
+\end{code}
+
+The keyword \AgdaKeyword{where} introduces a group of definitions with access to any variables bound on the lefthand side of the parent definition (the variables \AgdaBound{x} and \AgdaBound{y} here) and available only to the parent definition.
+The \AgdaKeyword{where} block is delimited by indentation, as with most uses of \AgdaKeyword{where} in Agda.
+
+The \AgdaFunction{helper} function is defined tail recursively, so can be understood as a loop carrying state.
+The strategy is to count down in both \AgdaBound{x} and \AgdaBound{y} (third case), and whenever \AgdaBound{y} reaches 0 (second case), we add 1 to the accumulator \AgdaBound{res} and reset \AgdaBound{y}.
+When \AgdaBound{x} reaches 0, we are done, and return the number of times \AgdaBound{y} reached 0.
+Notice that the second argument gets structurally smaller at each step, and thus the function can be checked as terminating.
+
+For further reading, see~\cite{Abel98}, upon which Agda's termination checker is based.
+
+\subsubsection{Productivity}
+
+Dual to termination, Agda has a notion of \emph{productivity}.
+Whereas we talk about whether a function consuming well founded data terminates, we can talk about whether an inhabitant of a non-well founded \emph{codata} type is productive.
+For an expression to be productive means that it can be evaluated to a constructor application in finite time.
+To see an example, I introduce \AgdaDatatype{Colist}, the type of potentially infinite lists.
+
+\iffalse
+\begin{code}
+open import Coinduction
+\end{code}
+\fi
+
+\begin{code}
+data Colist {a} (A : Set a) : Set a where
+  []   :                     Colist A
+  _∷_  : A → ∞ (Colist A) →  Colist A
+\end{code}
+
+The new thing here is the type family \AgdaDatatype{∞}, which can be read as ``delayed''.
+For any type \AgdaBound{X}, \AgdaDatatype{∞} \AgdaBound{X} is the type of \AgdaBound{X} values evaluated non-strictly.
+This, for example, allows us to make an infinite colist in the following way.
+
+\begin{code}
+zeros : Colist ℕ
+zeros = zero ∷ ♯ zeros
+\end{code}
+
+The \AgdaCoinductiveConstructor{♯\_} constructor, pronounced ``delay'', turns an expression for \AgdaBound{X} into a value of \AgdaDatatype{∞} \AgdaBound{X}.
+It is handled specially by the compiler, so that the above definition is not marked as non-terminating.
+Instead, it is checked as being \emph{productive}, because \AgdaFunction{zeros} immediately evaluates to an application of \AgdaInductiveConstructor{\_∷\_}.
+
+Another example is \AgdaFunction{map}, which demonstrates use of colists by a function.
+
+\begin{code}
+map : ∀ {a b} {A : Set a} {B : Set b} → (A → B) → (Colist A → Colist B)
+map f []        = []
+map f (x ∷ xs)  = f x ∷ ♯ map f (♭ xs)
+\end{code}
+
+The \AgdaField{♭} accessor, pronounced ``force'', retrieves an \AgdaBound{X} value from a \AgdaDatatype{∞} \AgdaBound{X} value.
+Note that \AgdaField{♭} \AgdaBound{xs} is not structurally smaller than \AgdaBound{x} \AgdaInductiveConstructor{∷} \AgdaBound{xs}, so this function is not checked as terminating.
+Instead, it is productive because in each case, the thing produced is a constructor application.
+
+Like the termination checker, the productivity checker is conservative.
+The following example demonstrates a productive definition that fails to be checked so.
+For this, we need some helper functions.
+
+\begin{code}
+_++c_ : ∀ {a} {A : Set a} → Colist A → Colist A → Colist A
+[]        ++c ys  = ys
+(x ∷ xs)  ++c ys  = x ∷ ♯ (♭ xs ++c ys)
+
+replicate : ∀ {a} {A : Set a} → ℕ → A → Colist A
+replicate zero     x  = []
+replicate (suc n)  x  = x ∷ ♯ replicate n x
+\end{code}
+
+Then, we attempt to write a function which takes a colist and returns a colist with 1 copy of the first item, 2 copies of the second item, and so on.
+Given our helper functions, we would like to write this in the following way.
+We keep a counter \AgdaBound{n}, telling us where in the input colist we are.
+Then, we replicate the current item this many times, and append the rest of the output colist.
+
+\begin{code}
+{-# TERMINATING #-}
+expand : ∀ {a} {A : Set a} → Colist A → Colist A
+expand {a} {A} = helper (suc zero)
+  where
+  helper : ℕ → Colist A → Colist A
+  helper n []        = []
+  helper n (x ∷ xs)  = replicate n x ++c helper (suc n) (♭ xs)
+\end{code}
+
+However, the productivity checker is unable to infer that \AgdaFunction{replicate} and \AgdaFunction{\_++c\_} will compose to make something productive.
+We again need to assert that the definition is well behaved by using the \AgdaSymbol{\{-\#} \AgdaKeyword{TERMINATING} \AgdaSymbol{\#-\}} pragma.
+The alternative is to expand out the definitions of the helper functions so as to make clear syntactically that in each case, we have a constructor application before any recursive calls.
+
+\begin{code}
+expand′ : ∀ {a} {A : Set a} → Colist A → Colist A
+expand′ {a} {A} = helper zero zero
+  where
+  helper : ℕ → ℕ → Colist A → Colist A
+  helper n c        []        = []
+  helper n zero     (x ∷ xs)  = x ∷ ♯ helper (suc n) (suc n) (♭ xs)
+  helper n (suc c)  (x ∷ xs)  = x ∷ ♯ helper n c (♭ xs)
+\end{code}
+
 \section{Shortest distance problems}\label{sec:shortest-distance-problems}
 
 In a shortest distance problem, we are given a weighted graph and a source vertex, and required to give, for each vertex, the shortest distance from the source to that vertex.
@@ -484,7 +693,7 @@ However, for cases where the weights are less well behaved, there is still ongoi
 
 \begin{table}[t]
   \begin{tabularx}{\linewidth}{l|X|X}
-    property & definition & example
+    Property & Definition & Example
     \\ \hline
     $*$ is associative & $(a * b) * c = a * (b * c)$ & addition
     \\ \hline
@@ -581,7 +790,8 @@ Then, $\mathbb K$ is \emph{$k$-closed for $G$} iff, for any cycle $\pi$ in $G$, 
 
 Here, for $a$ in $\mathbb K$ and natural number $n$, $a^n = \bigotimes_{i=1}^{n} a$.
 This means that $w[\pi]^n$ is the cost of going $n$ times around the cycle $\pi$.
-Recalling that $\oplus$ acts like a choice operator between weights, our $k$-closedness property states that in a choice of going $k+1$ times around $\pi$ and going $k$ or fewer times around $\pi$, we will always choose to go around $k$ or fewer times.
+The $\oplus$ operator combines two weights into a single weight at least as good as both operands
+Given this, our $k$-closedness property states that given a cycle $\pi$, going $k+1$ times around $\pi$ gives no improvement above going $k$ or fewer times around $\pi$.
 
 If this condition did not hold for any $k$, there would be some cycle $\pi$ such that going around it again would improve the weight of any path.
 An example of this is having a negative-weight cycle in a classical shortest distance problem.
@@ -667,6 +877,53 @@ Finally, just as in Dijkstra's algorithm, we add any vertices with updated dista
 %At first, it is not obvious that this algorithm terminates, or that when it does terminate, it gives a correct result.
 %Mohri provides a proof that the algorithm does indeed terminate with the correct result, though the lemmas leading up to the main theorem are unintuitive, and the proof is difficult to follow.
 
-\input{lhs/Preparation}
+%\input{lhs/Preparation}
+
+\section{Haskell}
+
+As well as the Agda implementation of Mohri's algorithm, I also produce an unverified version in the programming language Haskell~\cite{Haskell2010}.
+Haskell is a functional programming language differing from ML in two major aspects.
+
+\begin{itemize}
+  \item
+    Haskell programs are evaluated lazily by default.
+  \item
+    Haskell has a less expressive module system, and handles ad-hoc polymorphism instead by \emph{type classes}.
+\end{itemize}
+
+I choose Haskell for this task for two reasons.
+
+\begin{itemize}
+  \item
+    Haskell is comparable to Agda in how it expresses algorithms.
+    Both are pure functional programming languages, so the implementations of Mohri's algorithm in each appear and act similarly.
+  \item
+    Agda's main compiler backend outputs Haskell code.
+    This allows me to do performance tests on the Agda implementation using the same tools as the tests on the unverified implementation.
+\end{itemize}
+
+\section{Requirements analysis}
+
+The project consists of two distinct phases.
+The first of these consists of reproducing the theory, algorithm, and proofs of~\cite{Mohri02} in Agda.
+The second consists of implementing the same algorithm in Haskell, and running performance tests on this implementation.
+
+I take the Agda standard library~\cite{stdlib} as the starting point of the first part.
+It defines many basic data structures, including most things covered in this chapter, and also defines functions and lemmas about them.
+Semirings are defined, but with very few lemmas.
+Also, there is nothing in the standard library about graphs, so I must develop several of the notions taken for granted in Section 2 of~\cite{Mohri02}.
+With this done, I implement the algorithm and proofs about it from scratch.
+
+For the Haskell implementation, there is more existing work to build from.
+Particularly, there are already performant implementations of graphs and priority queues.
+Furthermore, I do not make any formal proofs about the Haskell implementation.
+Additional to the implementation of Mohri's algorithm, I give an implementation of Dijkstra's algorithm for comparison.
+
+I use the package manager Stack~\cite{stack} to manage Haskell dependencies.
+This, when used alongside the Glasgow Haskell Compiler~\cite{ghc}, also gives profiling tools.
+
+For version control, I use Git~\cite{git}.
+This allows me to experiment with implementation choices without risk of losing previous work.
+I pair this with GitHub~\cite{github}, which provides a remote back-up and eases sharing of work with supervisors.
 
 \end{document}
