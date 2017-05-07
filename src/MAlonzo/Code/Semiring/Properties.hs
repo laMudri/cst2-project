@@ -55,17 +55,15 @@ du84 v0
             MAlonzo.Code.Algebra.Structures.d294
             (coe
                MAlonzo.Code.Algebra.d100 (coe MAlonzo.Code.Algebra.du186 v2))))
-name98 = "Semiring.Properties._.Bounded"
-d98 = erased
-name104 = "Semiring.Properties._.Idempotent"
-d104 = erased
-name106 = "Semiring.Properties._.Monotonic"
+name100 = "Semiring.Properties._.Bounded"
+d100 = erased
+name106 = "Semiring.Properties._.Idempotent"
 d106 = erased
-name134 = "Semiring.Properties._\8804K_"
-d134 = erased
-name140 = "Semiring.Properties.\8804K-isPartialOrder"
-d140 v0 v1 v2 v3 = du140 v2 v3
-du140 v0 v1
+name108 = "Semiring.Properties._.Monotonic"
+d108 = erased
+name138 = "Semiring.Properties.\8804K-isPartialOrder"
+d138 v0 v1 v2 v3 = du138 v2 v3
+du138 v0 v1
   = coe
       MAlonzo.Code.Relation.Binary.C327
       (coe
@@ -543,9 +541,9 @@ du140 v0 v1
                                 (MAlonzo.Code.Relation.Binary.d92
                                    (MAlonzo.Code.Relation.Binary.du150 v9)))
                              v3)))))))
-name152 = "Semiring.Properties._._._\8718"
-d152 v0 v1 v2 v3 = du152 v2
-du152 v0
+name150 = "Semiring.Properties._._._\8718"
+d150 v0 v1 v2 v3 = du150 v2
+du150 v0
   = let v1
           = let v1
                   = coe
@@ -588,9 +586,9 @@ du152 v0
                     MAlonzo.Code.Relation.Binary.d92
                     (coe MAlonzo.Code.Relation.Binary.du150 v1)))
               v2))
-name154 = "Semiring.Properties._._._\8764\10216_\10217_"
-d154 v0 v1 v2 v3 = du154 v2
-du154 v0
+name152 = "Semiring.Properties._._._\8764\10216_\10217_"
+d152 v0 v1 v2 v3 = du152 v2
+du152 v0
   = let v1
           = let v1
                   = coe
@@ -619,13 +617,13 @@ du154 v0
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
       (coe MAlonzo.Code.Relation.Binary.du150 v1)
-name192 = "Semiring.Properties.\8804K-poset"
-d192 v0 v1 v2 v3 = du192 v2 v3
-du192 v0 v1
-  = coe MAlonzo.Code.Relation.Binary.C345 (coe du140 v0 v1)
-name198 = "Semiring.Properties.natural-order-negative"
-d198 v0 v1 v2 v3 = du198 v2
-du198 v0
+name190 = "Semiring.Properties.\8804K-poset"
+d190 v0 v1 v2 v3 = du190 v2 v3
+du190 v0 v1
+  = coe MAlonzo.Code.Relation.Binary.C345 (coe du138 v0 v1)
+name196 = "Semiring.Properties.natural-order-negative"
+d196 v0 v1 v2 v3 = du196 v2
+du196 v0
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
       (let v1
@@ -702,9 +700,9 @@ du198 v0
                      (MAlonzo.Code.Relation.Binary.d92
                         (MAlonzo.Code.Relation.Binary.du150 v2)))
                   v3))))
-name210 = "Semiring.Properties._._._\8718"
-d210 v0 v1 v2 v3 = du210 v2
-du210 v0
+name208 = "Semiring.Properties._._._\8718"
+d208 v0 v1 v2 v3 = du208 v2
+du208 v0
   = let v1
           = let v1
                   = coe
@@ -747,9 +745,9 @@ du210 v0
                     MAlonzo.Code.Relation.Binary.d92
                     (coe MAlonzo.Code.Relation.Binary.du150 v1)))
               v2))
-name212 = "Semiring.Properties._._._\8764\10216_\10217_"
-d212 v0 v1 v2 v3 = du212 v2
-du212 v0
+name210 = "Semiring.Properties._._._\8764\10216_\10217_"
+d210 v0 v1 v2 v3 = du210 v2
+du210 v0
   = let v1
           = let v1
                   = coe
@@ -778,9 +776,9 @@ du212 v0
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
       (coe MAlonzo.Code.Relation.Binary.du150 v1)
-name228 = "Semiring.Properties.natural-order-monotonic"
-d228 v0 v1 v2 v3 = du228 v2 v3
-du228 v0 v1
+name226 = "Semiring.Properties.natural-order-monotonic"
+d226 v0 v1 v2 v3 = du226 v2 v3
+du226 v0 v1
   = coe
       MAlonzo.Code.Data.Product.C30
       (\ v2 v3 v4 v5 ->
@@ -1645,9 +1643,9 @@ du228 v0 v1
                                             (MAlonzo.Code.Relation.Binary.d92
                                                (MAlonzo.Code.Relation.Binary.du150 v15)))
                                          v16)))))))))))
-name240 = "Semiring.Properties._._._\8718"
-d240 v0 v1 v2 v3 = du240 v2
-du240 v0
+name238 = "Semiring.Properties._._._\8718"
+d238 v0 v1 v2 v3 = du238 v2
+du238 v0
   = let v1
           = let v1
                   = coe
@@ -1690,9 +1688,9 @@ du240 v0
                     MAlonzo.Code.Relation.Binary.d92
                     (coe MAlonzo.Code.Relation.Binary.du150 v1)))
               v2))
-name242 = "Semiring.Properties._._._\8764\10216_\10217_"
-d242 v0 v1 v2 v3 = du242 v2
-du242 v0
+name240 = "Semiring.Properties._._._\8764\10216_\10217_"
+d240 v0 v1 v2 v3 = du240 v2
+du240 v0
   = let v1
           = let v1
                   = coe
@@ -1721,12 +1719,12 @@ du242 v0
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
       (coe MAlonzo.Code.Relation.Binary.du150 v1)
-name282 = "Semiring.Properties.negative\8594monotonic\8594\8804\&0"
-d282 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du282 v2 v5 v6 v7 v8
-du282 v0 v1 v2 v3 v4
+name280 = "Semiring.Properties.negative\8594monotonic\8594\8804\&0"
+d280 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du280 v2 v5 v6 v7 v8
+du280 v0 v1 v2 v3 v4
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
-      (let v5 = coe du298 v1 in
+      (let v5 = coe du296 v1 in
        MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
          (MAlonzo.Code.Relation.Binary.C125
             (MAlonzo.Code.Relation.Binary.d268
@@ -1746,7 +1744,7 @@ du282 v0 v1 v2 v3 v4
                      (MAlonzo.Code.Algebra.Structures.d1728
                         (MAlonzo.Code.Algebra.d720 v0))))
                v4))
-         (let v6 = coe du298 v1 in
+         (let v6 = coe du296 v1 in
           MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
             (MAlonzo.Code.Relation.Binary.C125
                (MAlonzo.Code.Relation.Binary.d268
@@ -1754,19 +1752,19 @@ du282 v0 v1 v2 v3 v4
             (MAlonzo.Code.Algebra.d714 v0 (MAlonzo.Code.Algebra.d718 v0) v4)
             (MAlonzo.Code.Algebra.d714 v0 (MAlonzo.Code.Algebra.d716 v0) v4)
             (MAlonzo.Code.Algebra.d716 v0)
-            (du354
+            (du352
                v3 (MAlonzo.Code.Algebra.d718 v0) (MAlonzo.Code.Algebra.d716 v0) v4
                v4 v2
                (MAlonzo.Code.Relation.Binary.d38
                   (MAlonzo.Code.Relation.Binary.d268
-                     (MAlonzo.Code.Relation.Binary.d322 (du298 v1)))
+                     (MAlonzo.Code.Relation.Binary.d322 (du296 v1)))
                   v4 v4
                   (MAlonzo.Code.Relation.Binary.Core.d516
                      (MAlonzo.Code.Relation.Binary.d36
                         (MAlonzo.Code.Relation.Binary.d268
-                           (MAlonzo.Code.Relation.Binary.d322 (du298 v1))))
+                           (MAlonzo.Code.Relation.Binary.d322 (du296 v1))))
                      v4)))
-            (let v7 = coe du298 v1 in
+            (let v7 = coe du296 v1 in
              MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
                (MAlonzo.Code.Relation.Binary.C125
                   (MAlonzo.Code.Relation.Binary.d268
@@ -1781,24 +1779,24 @@ du282 v0 v1 v2 v3 v4
                 MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
                   (MAlonzo.Code.Relation.Binary.d38
                      (MAlonzo.Code.Relation.Binary.d268
-                        (MAlonzo.Code.Relation.Binary.d322 (du298 v1)))
+                        (MAlonzo.Code.Relation.Binary.d322 (du296 v1)))
                      v8 v8
                      (MAlonzo.Code.Relation.Binary.Core.d516
                         (MAlonzo.Code.Relation.Binary.d36
                            (MAlonzo.Code.Relation.Binary.d268
-                              (MAlonzo.Code.Relation.Binary.d322 (du298 v1))))
+                              (MAlonzo.Code.Relation.Binary.d322 (du296 v1))))
                         v8))))))
-name298 = "Semiring.Properties._.poset"
-d298 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du298 v5
-du298 v0 = coe MAlonzo.Code.Relation.Binary.C345 v0
-name320 = "Semiring.Properties._._.refl"
-d320 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du320 v5 v9
-du320 v0 v1
+name296 = "Semiring.Properties._.poset"
+d296 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du296 v5
+du296 v0 = coe MAlonzo.Code.Relation.Binary.C345 v0
+name318 = "Semiring.Properties._._.refl"
+d318 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du318 v5 v9
+du318 v0 v1
   = coe
       MAlonzo.Code.Relation.Binary.d38
       (coe
          MAlonzo.Code.Relation.Binary.d268
-         (coe MAlonzo.Code.Relation.Binary.d322 (coe du298 v0)))
+         (coe MAlonzo.Code.Relation.Binary.d322 (coe du296 v0)))
       v1 v1
       (coe
          MAlonzo.Code.Relation.Binary.Core.d516
@@ -1806,18 +1804,18 @@ du320 v0 v1
             MAlonzo.Code.Relation.Binary.d36
             (coe
                MAlonzo.Code.Relation.Binary.d268
-               (coe MAlonzo.Code.Relation.Binary.d322 (coe du298 v0))))
+               (coe MAlonzo.Code.Relation.Binary.d322 (coe du296 v0))))
          v1)
-name338 = "Semiring.Properties._._._\8718"
-d338 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du338 v5 v9
-du338 v0 v1
+name336 = "Semiring.Properties._._._\8718"
+d336 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du336 v5 v9
+du336 v0 v1
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
       (coe
          MAlonzo.Code.Relation.Binary.d38
          (coe
             MAlonzo.Code.Relation.Binary.d268
-            (coe MAlonzo.Code.Relation.Binary.d322 (coe du298 v0)))
+            (coe MAlonzo.Code.Relation.Binary.d322 (coe du296 v0)))
          v1 v1
          (coe
             MAlonzo.Code.Relation.Binary.Core.d516
@@ -1825,12 +1823,12 @@ du338 v0 v1
                MAlonzo.Code.Relation.Binary.d36
                (coe
                   MAlonzo.Code.Relation.Binary.d268
-                  (coe MAlonzo.Code.Relation.Binary.d322 (coe du298 v0))))
+                  (coe MAlonzo.Code.Relation.Binary.d322 (coe du296 v0))))
             v1))
-name340 = "Semiring.Properties._._._\8776\10216_\10217_"
-d340 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du340 v5
-du340 v0
-  = let v1 = coe du298 v0 in
+name338 = "Semiring.Properties._._._\8776\10216_\10217_"
+d338 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du338 v5
+du338 v0
+  = let v1 = coe du296 v0 in
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
       (coe
@@ -1838,10 +1836,10 @@ du340 v0
          (coe
             MAlonzo.Code.Relation.Binary.d268
             (coe MAlonzo.Code.Relation.Binary.d322 v1)))
-name344 = "Semiring.Properties._._._\8764\10216_\10217_"
-d344 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du344 v5
-du344 v0
-  = let v1 = coe du298 v0 in
+name342 = "Semiring.Properties._._._\8764\10216_\10217_"
+d342 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du342 v5
+du342 v0
+  = let v1 = coe du296 v0 in
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
       (coe
@@ -1849,30 +1847,30 @@ du344 v0
          (coe
             MAlonzo.Code.Relation.Binary.d268
             (coe MAlonzo.Code.Relation.Binary.d322 v1)))
-name354 = "Semiring.Properties._.*-preserves-\8804"
-d354 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du354 v7
-du354 v0 = coe MAlonzo.Code.Data.Product.d28 v0
-name364 = "Semiring.Properties.\8804\8658\8804K"
-d364 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du364 v2 v5 v6 v7 v8 v9 v10 v11
-du364 v0 v1 v2 v3 v4 v5 v6 v7
+name352 = "Semiring.Properties._.*-preserves-\8804"
+d352 v0 v1 v2 v3 v4 v5 v6 v7 v8 = du352 v7
+du352 v0 = coe MAlonzo.Code.Data.Product.d28 v0
+name362 = "Semiring.Properties.\8804\8658\8804K"
+d362 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du362 v2 v5 v6 v7 v8 v9 v10 v11
+du362 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       MAlonzo.Code.Relation.Binary.d270
-      (coe MAlonzo.Code.Relation.Binary.d322 (coe du386 v1))
+      (coe MAlonzo.Code.Relation.Binary.d322 (coe du384 v1))
       (coe MAlonzo.Code.Algebra.d712 v0 v5 v6) v5
       (coe
          MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
-         (let v8 = coe du386 v1 in
+         (let v8 = coe du384 v1 in
           MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
             (MAlonzo.Code.Relation.Binary.C125
                (MAlonzo.Code.Relation.Binary.d268
                   (MAlonzo.Code.Relation.Binary.d322 v8)))
             (MAlonzo.Code.Algebra.d712 v0 v5 v6)
             (MAlonzo.Code.Algebra.d712 v0 v5 (MAlonzo.Code.Algebra.d716 v0)) v5
-            (du450
+            (du448
                v0 v1 v4 v5 v6 (MAlonzo.Code.Algebra.d716 v0)
-               (du462 v0 v1 v2 v4 v6))
-            (let v9 = coe du386 v1 in
+               (du460 v0 v1 v2 v4 v6))
+            (let v9 = coe du384 v1 in
              MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
                (MAlonzo.Code.Relation.Binary.C125
                   (MAlonzo.Code.Relation.Binary.d268
@@ -1890,16 +1888,16 @@ du364 v0 v1 v2 v3 v4 v5 v6 v7
                (MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
                   (MAlonzo.Code.Relation.Binary.d38
                      (MAlonzo.Code.Relation.Binary.d268
-                        (MAlonzo.Code.Relation.Binary.d322 (du386 v1)))
+                        (MAlonzo.Code.Relation.Binary.d322 (du384 v1)))
                      v5 v5
                      (MAlonzo.Code.Relation.Binary.Core.d516
                         (MAlonzo.Code.Relation.Binary.d36
                            (MAlonzo.Code.Relation.Binary.d268
-                              (MAlonzo.Code.Relation.Binary.d322 (du386 v1))))
+                              (MAlonzo.Code.Relation.Binary.d322 (du384 v1))))
                         v5))))))
       (coe
          MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
-         (let v8 = coe du386 v1 in
+         (let v8 = coe du384 v1 in
           MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
             (MAlonzo.Code.Relation.Binary.C125
                (MAlonzo.Code.Relation.Binary.d268
@@ -1913,44 +1911,44 @@ du364 v0 v1 v2 v3 v4 v5 v6 v7
                         (MAlonzo.Code.Algebra.Structures.d1728
                            (MAlonzo.Code.Algebra.d720 v0)))))
                (MAlonzo.Code.Algebra.d712 v0 v5 v5) v5 (v3 v5))
-            (let v9 = coe du386 v1 in
+            (let v9 = coe du384 v1 in
              MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
                (MAlonzo.Code.Relation.Binary.C125
                   (MAlonzo.Code.Relation.Binary.d268
                      (MAlonzo.Code.Relation.Binary.d322 v9)))
                (MAlonzo.Code.Algebra.d712 v0 v5 v5)
                (MAlonzo.Code.Algebra.d712 v0 v5 v6)
-               (MAlonzo.Code.Algebra.d712 v0 v5 v6) (du450 v0 v1 v4 v5 v5 v6 v7)
+               (MAlonzo.Code.Algebra.d712 v0 v5 v6) (du448 v0 v1 v4 v5 v5 v6 v7)
                (let v10 = coe MAlonzo.Code.Algebra.d712 v0 v5 v6 in
                 MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
                   (MAlonzo.Code.Relation.Binary.d38
                      (MAlonzo.Code.Relation.Binary.d268
-                        (MAlonzo.Code.Relation.Binary.d322 (du386 v1)))
+                        (MAlonzo.Code.Relation.Binary.d322 (du384 v1)))
                      v10 v10
                      (MAlonzo.Code.Relation.Binary.Core.d516
                         (MAlonzo.Code.Relation.Binary.d36
                            (MAlonzo.Code.Relation.Binary.d268
-                              (MAlonzo.Code.Relation.Binary.d322 (du386 v1))))
+                              (MAlonzo.Code.Relation.Binary.d322 (du384 v1))))
                         v10))))))
-name386 = "Semiring.Properties._.poset"
-d386 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du386 v5
-du386 v0 = coe MAlonzo.Code.Relation.Binary.C345 v0
-name394 = "Semiring.Properties._._.antisym"
-d394 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du394 v5
-du394 v0
+name384 = "Semiring.Properties._.poset"
+d384 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du384 v5
+du384 v0 = coe MAlonzo.Code.Relation.Binary.C345 v0
+name392 = "Semiring.Properties._._.antisym"
+d392 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du392 v5
+du392 v0
   = coe
       MAlonzo.Code.Relation.Binary.d270
-      (coe MAlonzo.Code.Relation.Binary.d322 (coe du386 v0))
-name426 = "Semiring.Properties._._._\8718"
-d426 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 = du426 v5 v12
-du426 v0 v1
+      (coe MAlonzo.Code.Relation.Binary.d322 (coe du384 v0))
+name424 = "Semiring.Properties._._._\8718"
+d424 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 = du424 v5 v12
+du424 v0 v1
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
       (coe
          MAlonzo.Code.Relation.Binary.d38
          (coe
             MAlonzo.Code.Relation.Binary.d268
-            (coe MAlonzo.Code.Relation.Binary.d322 (coe du386 v0)))
+            (coe MAlonzo.Code.Relation.Binary.d322 (coe du384 v0)))
          v1 v1
          (coe
             MAlonzo.Code.Relation.Binary.Core.d516
@@ -1958,12 +1956,12 @@ du426 v0 v1
                MAlonzo.Code.Relation.Binary.d36
                (coe
                   MAlonzo.Code.Relation.Binary.d268
-                  (coe MAlonzo.Code.Relation.Binary.d322 (coe du386 v0))))
+                  (coe MAlonzo.Code.Relation.Binary.d322 (coe du384 v0))))
             v1))
-name428 = "Semiring.Properties._._._\8776\10216_\10217_"
-d428 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du428 v5
-du428 v0
-  = let v1 = coe du386 v0 in
+name426 = "Semiring.Properties._._._\8776\10216_\10217_"
+d426 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du426 v5
+du426 v0
+  = let v1 = coe du384 v0 in
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
       (coe
@@ -1971,10 +1969,10 @@ du428 v0
          (coe
             MAlonzo.Code.Relation.Binary.d268
             (coe MAlonzo.Code.Relation.Binary.d322 v1)))
-name432 = "Semiring.Properties._._._\8764\10216_\10217_"
-d432 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du432 v5
-du432 v0
-  = let v1 = coe du386 v0 in
+name430 = "Semiring.Properties._._._\8764\10216_\10217_"
+d430 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du430 v5
+du430 v0
+  = let v1 = coe du384 v0 in
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
       (coe
@@ -1982,16 +1980,16 @@ du432 v0
          (coe
             MAlonzo.Code.Relation.Binary.d268
             (coe MAlonzo.Code.Relation.Binary.d322 v1)))
-name442 = "Semiring.Properties._.+-preserves-\8804\737"
-d442 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du442 v8
-du442 v0 = coe MAlonzo.Code.Data.Product.d26 v0
-name450 = "Semiring.Properties._.+-preserves-\8804\691"
-d450 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 v13 v14 v15
-  = du450 v2 v5 v8 v12 v13 v14 v15
-du450 v0 v1 v2 v3 v4 v5 v6
+name440 = "Semiring.Properties._.+-preserves-\8804\737"
+d440 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du440 v8
+du440 v0 = coe MAlonzo.Code.Data.Product.d26 v0
+name448 = "Semiring.Properties._.+-preserves-\8804\691"
+d448 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 v13 v14 v15
+  = du448 v2 v5 v8 v12 v13 v14 v15
+du448 v0 v1 v2 v3 v4 v5 v6
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
-      (let v7 = coe du386 v1 in
+      (let v7 = coe du384 v1 in
        MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
          (MAlonzo.Code.Relation.Binary.C125
             (MAlonzo.Code.Relation.Binary.d268
@@ -2004,15 +2002,15 @@ du450 v0 v1 v2 v3 v4 v5 v6
                (MAlonzo.Code.Algebra.Structures.d1728
                   (MAlonzo.Code.Algebra.d720 v0)))
             v3 v4)
-         (let v8 = coe du386 v1 in
+         (let v8 = coe du384 v1 in
           MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
             (MAlonzo.Code.Relation.Binary.C125
                (MAlonzo.Code.Relation.Binary.d268
                   (MAlonzo.Code.Relation.Binary.d322 v8)))
             (MAlonzo.Code.Algebra.d712 v0 v4 v3)
             (MAlonzo.Code.Algebra.d712 v0 v5 v3)
-            (MAlonzo.Code.Algebra.d712 v0 v3 v5) (du442 v2 v3 v4 v5 v6)
-            (let v9 = coe du386 v1 in
+            (MAlonzo.Code.Algebra.d712 v0 v3 v5) (du440 v2 v3 v4 v5 v6)
+            (let v9 = coe du384 v1 in
              MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
                (MAlonzo.Code.Relation.Binary.C125
                   (MAlonzo.Code.Relation.Binary.d268
@@ -2029,23 +2027,23 @@ du450 v0 v1 v2 v3 v4 v5 v6
                 MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
                   (MAlonzo.Code.Relation.Binary.d38
                      (MAlonzo.Code.Relation.Binary.d268
-                        (MAlonzo.Code.Relation.Binary.d322 (du386 v1)))
+                        (MAlonzo.Code.Relation.Binary.d322 (du384 v1)))
                      v10 v10
                      (MAlonzo.Code.Relation.Binary.Core.d516
                         (MAlonzo.Code.Relation.Binary.d36
                            (MAlonzo.Code.Relation.Binary.d268
-                              (MAlonzo.Code.Relation.Binary.d322 (du386 v1))))
+                              (MAlonzo.Code.Relation.Binary.d322 (du384 v1))))
                         v10))))))
-name462 = "Semiring.Properties._.\8804\&0"
-d462 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du462 v2 v5 v6 v8
-du462 v0 v1 v2 v3 = coe du282 v0 v1 v2 v3
-name472 = "Semiring.Properties.\8804K\8658\8804"
-d472 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du472 v2 v5 v6 v8 v9 v10 v11
-du472 v0 v1 v2 v3 v4 v5 v6
+name460 = "Semiring.Properties._.\8804\&0"
+d460 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du460 v2 v5 v6 v8
+du460 v0 v1 v2 v3 = coe du280 v0 v1 v2 v3
+name470 = "Semiring.Properties.\8804K\8658\8804"
+d470 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du470 v2 v5 v6 v8 v9 v10 v11
+du470 v0 v1 v2 v3 v4 v5 v6
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
-      (let v7 = coe du494 v1 in
+      (let v7 = coe du492 v1 in
        MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
          (MAlonzo.Code.Relation.Binary.C125
             (MAlonzo.Code.Relation.Binary.d268
@@ -2058,16 +2056,16 @@ du472 v0 v1 v2 v3 v4 v5 v6
                      (MAlonzo.Code.Algebra.Structures.d1728
                         (MAlonzo.Code.Algebra.d720 v0)))))
             (MAlonzo.Code.Algebra.d712 v0 v4 v5) v4 v6)
-         (let v8 = coe du494 v1 in
+         (let v8 = coe du492 v1 in
           MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
             (MAlonzo.Code.Relation.Binary.C125
                (MAlonzo.Code.Relation.Binary.d268
                   (MAlonzo.Code.Relation.Binary.d322 v8)))
             (MAlonzo.Code.Algebra.d712 v0 v4 v5)
             (MAlonzo.Code.Algebra.d712 v0 (MAlonzo.Code.Algebra.d716 v0) v5) v5
-            (du550
-               v3 v5 v4 (MAlonzo.Code.Algebra.d716 v0) (du556 v0 v1 v2 v3 v4))
-            (let v9 = coe du494 v1 in
+            (du548
+               v3 v5 v4 (MAlonzo.Code.Algebra.d716 v0) (du554 v0 v1 v2 v3 v4))
+            (let v9 = coe du492 v1 in
              MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
                (MAlonzo.Code.Relation.Binary.C125
                   (MAlonzo.Code.Relation.Binary.d268
@@ -2085,26 +2083,26 @@ du472 v0 v1 v2 v3 v4 v5 v6
                (MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
                   (MAlonzo.Code.Relation.Binary.d38
                      (MAlonzo.Code.Relation.Binary.d268
-                        (MAlonzo.Code.Relation.Binary.d322 (du494 v1)))
+                        (MAlonzo.Code.Relation.Binary.d322 (du492 v1)))
                      v5 v5
                      (MAlonzo.Code.Relation.Binary.Core.d516
                         (MAlonzo.Code.Relation.Binary.d36
                            (MAlonzo.Code.Relation.Binary.d268
-                              (MAlonzo.Code.Relation.Binary.d322 (du494 v1))))
+                              (MAlonzo.Code.Relation.Binary.d322 (du492 v1))))
                         v5))))))
-name494 = "Semiring.Properties._.poset"
-d494 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du494 v5
-du494 v0 = coe MAlonzo.Code.Relation.Binary.C345 v0
-name534 = "Semiring.Properties._._._\8718"
-d534 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 = du534 v5 v12
-du534 v0 v1
+name492 = "Semiring.Properties._.poset"
+d492 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du492 v5
+du492 v0 = coe MAlonzo.Code.Relation.Binary.C345 v0
+name532 = "Semiring.Properties._._._\8718"
+d532 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 v12 = du532 v5 v12
+du532 v0 v1
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.C56
       (coe
          MAlonzo.Code.Relation.Binary.d38
          (coe
             MAlonzo.Code.Relation.Binary.d268
-            (coe MAlonzo.Code.Relation.Binary.d322 (coe du494 v0)))
+            (coe MAlonzo.Code.Relation.Binary.d322 (coe du492 v0)))
          v1 v1
          (coe
             MAlonzo.Code.Relation.Binary.Core.d516
@@ -2112,12 +2110,12 @@ du534 v0 v1
                MAlonzo.Code.Relation.Binary.d36
                (coe
                   MAlonzo.Code.Relation.Binary.d268
-                  (coe MAlonzo.Code.Relation.Binary.d322 (coe du494 v0))))
+                  (coe MAlonzo.Code.Relation.Binary.d322 (coe du492 v0))))
             v1))
-name536 = "Semiring.Properties._._._\8776\10216_\10217_"
-d536 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du536 v5
-du536 v0
-  = let v1 = coe du494 v0 in
+name534 = "Semiring.Properties._._._\8776\10216_\10217_"
+d534 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du534 v5
+du534 v0
+  = let v1 = coe du492 v0 in
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du84
       (coe
@@ -2125,10 +2123,10 @@ du536 v0
          (coe
             MAlonzo.Code.Relation.Binary.d268
             (coe MAlonzo.Code.Relation.Binary.d322 v1)))
-name540 = "Semiring.Properties._._._\8764\10216_\10217_"
-d540 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du540 v5
-du540 v0
-  = let v1 = coe du494 v0 in
+name538 = "Semiring.Properties._._._\8764\10216_\10217_"
+d538 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du538 v5
+du538 v0
+  = let v1 = coe du492 v0 in
     coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.du72
       (coe
@@ -2136,15 +2134,19 @@ du540 v0
          (coe
             MAlonzo.Code.Relation.Binary.d268
             (coe MAlonzo.Code.Relation.Binary.d322 v1)))
-name550 = "Semiring.Properties._.+-preserves-\8804\737"
-d550 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du550 v8
-du550 v0 = coe MAlonzo.Code.Data.Product.d26 v0
-name556 = "Semiring.Properties._.\8804\&0"
-d556 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du556 v2 v5 v6 v8
-du556 v0 v1 v2 v3 = coe du282 v0 v1 v2 v3
-name558 = "Semiring.Properties.bounded\8594idempotent"
-d558 v0 v1 v2 v3 v4 = du558 v2 v3 v4
-du558 v0 v1 v2
+name548 = "Semiring.Properties._.+-preserves-\8804\737"
+d548 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du548 v8
+du548 v0 = coe MAlonzo.Code.Data.Product.d26 v0
+name554 = "Semiring.Properties._.\8804\&0"
+d554 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du554 v2 v5 v6 v8
+du554 v0 v1 v2 v3 = coe du280 v0 v1 v2 v3
+name558 = "Semiring.Properties.\8804K0"
+d558 v0 v1 v2 v3 = du558 v2 v3
+du558 v0 v1
+  = coe du280 v0 (coe du138 v0 v1) (coe du196 v0) (coe du226 v0 v1)
+name562 = "Semiring.Properties.bounded\8594idempotent"
+d562 v0 v1 v2 v3 v4 = du562 v2 v3 v4
+du562 v0 v1 v2
   = coe
       MAlonzo.Code.Relation.Binary.PreorderReasoning.d62
       (let v3
@@ -2386,9 +2388,9 @@ du558 v0 v1 v2
                               (MAlonzo.Code.Relation.Binary.d92
                                  (MAlonzo.Code.Relation.Binary.du150 v7)))
                            v2)))))))
-name572 = "Semiring.Properties._._._\8718"
-d572 v0 v1 v2 v3 v4 = du572 v2
-du572 v0
+name576 = "Semiring.Properties._._._\8718"
+d576 v0 v1 v2 v3 v4 = du576 v2
+du576 v0
   = let v1
           = let v1
                   = coe
@@ -2431,9 +2433,9 @@ du572 v0
                     MAlonzo.Code.Relation.Binary.d92
                     (coe MAlonzo.Code.Relation.Binary.du150 v1)))
               v2))
-name574 = "Semiring.Properties._._._\8764\10216_\10217_"
-d574 v0 v1 v2 v3 v4 = du574 v2
-du574 v0
+name578 = "Semiring.Properties._._._\8764\10216_\10217_"
+d578 v0 v1 v2 v3 v4 = du578 v2
+du578 v0
   = let v1
           = let v1
                   = coe

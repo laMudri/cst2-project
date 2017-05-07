@@ -505,5 +505,9 @@ d354 v0
   = case coe v0 of
       C431 v1 v2 v3 v4 -> coe v4
       _ -> coe MAlonzo.RTE.mazUnreachableError
-name356 = "Semiring.Definitions.Decidable"
+name356 = "Semiring.Definitions._\8804K_"
 d356 = erased
+name362 = "Semiring.Definitions.Decidable"
+d362 = erased
+name368 = "Semiring.Definitions.TotallyOrdered"
+d368 = erased
