@@ -383,7 +383,7 @@ module Algorithm.Properties
                     ∀ q → L q ≤ List.length (D q)
 
   postulate Lq-no-suc : ∀ t state hi → let open Internals-ij (σS t state) hi in
-                        ∀ q → T (not (conditon q)) → Lⱼ q ≡ Lᵢ q
+                        ∀ q → T (not (condition q)) → Lⱼ q ≡ Lᵢ q
 
   postulate Iq-monotonic : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
                            ∀ q → I q ≤′ I′ q
@@ -394,8 +394,9 @@ module Algorithm.Properties
   postulate Iq-suc→Lq-suc : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
                             ∀ q → I′ q ≡ suc (I q) → L′ q ≡ suc (L q)
 
-  Iq<→Lq< : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
-            ∀ q → I q <′ I′ q → L q <′ L′ q
-  Iq<→Lq< t state q lt with St.I (σS t state) q | St.I (σS (suc t) state) q
-  Iq<→Lq< t state q ≤′-refl | z | .(suc z) = PEq.subst {!!} (Iq-suc→Lq-suc t state q {!!}) ({!!})
-  Iq<→Lq< t state q (≤′-step lt) | z | .(suc _) = {!!}
+  postulate
+    Iq<→Lq< : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
+              ∀ q → I q <′ I′ q → L q <′ L′ q
+  --Iq<→Lq< t state q lt with St.I (σS t state) q | St.I (σS (suc t) state) q
+  --Iq<→Lq< t state q ≤′-refl | z | .(suc z) = PEq.subst {!!} (Iq-suc→Lq-suc t state q {!!}) ({!!})
+  --Iq<→Lq< t state q (≤′-step lt) | z | .(suc _) = {!!}

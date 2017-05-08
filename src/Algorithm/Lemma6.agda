@@ -10,10 +10,9 @@ open import Data.Nat using (ℕ)
 
 module Algorithm.Lemma6
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
-       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
-       {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
+       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
   open import Algorithm K De Q G s
-  open import Algorithm.Properties K De Q G s closed
+  open import Algorithm.Properties K De Q G s
   open import Graph.Definitions {K = K} G
   open import Graph.Properties {K = K} G
 
@@ -33,7 +32,6 @@ module Algorithm.Lemma6
   lemma-6-step i rs {m} {q} π e e◅π∈Dq =
     let j , k , r , r∈rs , m≡dequeued , π∈Rₖm =
          ↝.find (path-in-D-gives-path-in-R′ rs π e e◅π∈Dq) in
-    --let open Internals-jk-from-↝ r in
     let π∈Dₖm = R⊆D (↝.take-after-∈ r∈rs) π∈Rₖm in
     D-grows {i} {k} (↝.take-before-∈ r∈rs ◅◅ r ◅ ε) π∈Dₖm
 
