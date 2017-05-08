@@ -5,14 +5,13 @@ open import Graph as G
 import Graph.Definitions as GD
 open import Data.Fin using (Fin; zero; suc)
 open import Data.Nat as ℕ
-  using ( ℕ; zero; suc; _≤_; z≤n; s≤s; _≤′_; ≤′-refl; ≤′-step
+  using ( ℕ; zero; suc; _≤_; z≤n; s≤s; _≤′_; _<′_; ≤′-refl; ≤′-step
         ; module ≤-Reasoning
         )
 
 module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
-       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
-       {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
+       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
   open import Algorithm K De Q G s
   open Semiring K renaming (Carrier to C)
   open QueueDiscipline Q renaming (Carrier to Qc)
@@ -274,15 +273,6 @@ module Algorithm.Properties
   ---------------------------------------------------------------------------
   -- Extractions, Insertions, and number of times the condition holds.
 
-  -- The number of times each vertex q is enqueued is less than card (P k q).
-  -- There is a surjection from P k q to Fin (I q).
-  insertions-finite :
-    ∀ {i} → Reachable-with-sets i →
-    let open Alg-state-abbrev (proj₁ i) in
-    let open Helper-sets (proj₂ i) in
-    ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
-  insertions-finite = {!!}
-
   x+[y+z]=y+[x+z] : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
   x+[y+z]=y+[x+z] x y z = begin
     x ℕ.+ (y ℕ.+ z)  ≡⟨ PEq.sym (ℕS.+-assoc x y z) ⟩
@@ -290,16 +280,6 @@ module Algorithm.Properties
     (y ℕ.+ x) ℕ.+ z  ≡⟨ ℕS.+-assoc y x z ⟩
     y ℕ.+ (x ℕ.+ z)  ∎
     where open ≡-Reasoning
-
-  extractions-≤ :
-    ∀ {i} → Reachable-with-sets i →
-    let open Alg-state-abbrev (proj₁ i) in
-    let open Helper-sets (proj₂ i) in
-    ∣ E ∣ ≤ ∣ List.length ∘ all-P k ∣
-  extractions-≤ {_ , helper-sets _ _ _ _ E} ε =
-    PEq.subst (_≤ ∣ List.length ∘ all-P k ∣) (PEq.sym (sum-0 n)) z≤n
-  extractions-≤ (r@(hi , PEq.refl) ◅ rs) = {!!}
-    where open Internals-ij-from-↝ r
 
   extractions-suc :
     ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
@@ -394,18 +374,31 @@ module Algorithm.Properties
     where
     open Internals-ij-from-↝ r
     open ≡-Reasoning
-
-  postulate I≤L : ∀ t → let open Helper-sets (proj₂ (σS t IS₀)) in
-                  ∀ q → I q ≤ L q
   -}
 
-  postulate L-no-suc : ∀ q t state hi → let open Internals-ij (σS t state) hi in
-                       T (not (conditon q)) → Lⱼ q ≡ Lᵢ q
+  postulate Iq≤Lq : ∀ t → let open St-at t in
+                    ∀ q → I q ≤ L q
 
-  postulate L-increase : ∀ q t state → Helper-sets.L (proj₂ (σS (suc t) state)) q ≤ suc (Helper-sets.L (proj₂ (σS t state)) q)
+  postulate Lq≤Dq : ∀ t → let open St-at t in
+                    ∀ q → L q ≤ List.length (D q)
 
-  postulate D-inclusion : ∀ q t → let open Helper-sets (proj₂ (σS t IS₀)) in
-                          D q ⊆ all-P k q
+  postulate Lq-no-suc : ∀ t state hi → let open Internals-ij (σS t state) hi in
+                        ∀ q → T (not (conditon q)) → Lⱼ q ≡ Lᵢ q
 
-  postulate L-maximal : ∀ q t → let open Helper-sets (proj₂ (σS t IS₀)) in
-                        List.length (all-P k q) ≤ L q → all-P k q ⊆ D q
+  postulate Iq-monotonic : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
+                           ∀ q → I q ≤′ I′ q
+
+  postulate Iq-step-bound : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
+                            ∀ q → I′ q ≤′ suc (I q)
+
+  postulate Lq-step-bound : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
+                            ∀ q → L′ q ≤′ suc (L q)
+
+  postulate Iq-suc→Lq-suc : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
+                            ∀ q → I′ q ≡ suc (I q) → L′ q ≡ suc (L q)
+
+  Iq<→Lq< : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
+            ∀ q → I q <′ I′ q → L q <′ L′ q
+  Iq<→Lq< t state q lt with St.I (σS t state) q | St.I (σS (suc t) state) q
+  Iq<→Lq< t state q ≤′-refl | z | .(suc z) = PEq.subst {!!} (Iq-suc→Lq-suc t state q {!!}) ({!!})
+  Iq<→Lq< t state q (≤′-step lt) | z | .(suc _) = {!!}

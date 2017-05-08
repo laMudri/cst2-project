@@ -197,6 +197,15 @@ module Algorithm {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
   Reachable-with-sets : Alg-state × Helper-sets → Set _
   Reachable-with-sets = Starˡ _↝S_ IS₀
 
+  module St (i : Alg-state × Helper-sets) where
+    open Alg-state-abbrev (proj₁ i) public
+    open Helper-sets (proj₂ i) public
+  module St-at (t : ℕ) = St (σS t IS₀)
+
+  module St′ (j : Alg-state × Helper-sets) where
+    open St j renaming (d to d′; r to r′; S to S′; D to D′; R to R′; L to L′; I to I′; E to E′) public
+  module St′-at (t : ℕ) = St′ (σS t IS₀)
+
   module Internals-jk (k : Alg-state × Helper-sets)
                       (hi : Has-items (vertex-queue (proj₁ k))) where
     open Alg-state-abbrev (proj₁ k) public renaming (d to dₖ; r to rₖ; S to Sₖ)

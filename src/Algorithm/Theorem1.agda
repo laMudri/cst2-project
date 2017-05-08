@@ -16,7 +16,8 @@ module Algorithm.Theorem1
        (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
        {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
   open import Algorithm K De Q G s
-  --open import Algorithm.Properties K De Q G s
+  open import Algorithm.Properties K De Q G s
+  open import Algorithm.Properties.KClosed K De Q G s closed
   open Semiring K renaming (Carrier to C)
   open import Semiring.Definitions K
   open import Semiring.Properties K
@@ -41,7 +42,7 @@ module Algorithm.Theorem1
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Fin.Properties as FP using () renaming (_≟_ to _F≟_)
   open import Data.List as List using (List; []; _∷_; filter)
-  open import Data.Nat.Properties as ℕP using (≤″⇒≤)
+  open import Data.Nat.Properties as ℕP using (≤″⇒≤; ≤′⇒≤)
   open import Data.Nat.Properties.Simple as ℕS using (+-suc)
   open import Data.Product using (∃; _×_; _,_; proj₁; proj₂)
   open import Star using (Star; Starˡ; ε; _◅_; length; states)
@@ -80,17 +81,44 @@ module Algorithm.Theorem1
   ---------------------------------------------------------------------------
   -- Termination
 
-  L≤Pₖq : ∀ q t → Helper-sets.L (proj₂ (σS t IS₀)) q ≤ List.length (all-P k q)
-  L≤Pₖq q ℕ.zero = z≤n
-  L≤Pₖq q (suc t) with σS t IS₀ | inspect (σS t) IS₀
+  Lq≤Pₖq : ∀ t q → Helper-sets.L (proj₂ (σS t IS₀)) q ≤ List.length (all-P k q)
+  Lq≤Pₖq ℕ.zero q = z≤n
+  Lq≤Pₖq (suc t) q with σS t IS₀ | inspect (σS t) IS₀
   ... | (state′ , hs′) | [ eq ] with Has-items? (Alg-state-abbrev.S state′)
-  ...   | no ¬hi = PEq.subst (λ x → Helper-sets.L x q ≤ List.length (all-P k q)) (PEq.cong proj₂ eq) (L≤Pₖq q t)
+  ...   | no ¬hi = PEq.subst (λ x → Helper-sets.L x q ≤ List.length (all-P k q)) (PEq.cong proj₂ eq) (Lq≤Pₖq t q)
   ...   | yes hi with suc (Helper-sets.L hs′ q) ℕ.≤? List.length (all-P k q)
-  ...     | yes p = {!trans {!L-increase q t IS₀!} (L≤Pₖq q t)!}
-    where open DecTotalOrder ℕ.decTotalOrder
-  ...     | no ¬p = {!L-no-suc!}
+  ...     | yes Lq<Pₖq = begin
+    appWhen conditon suc Lⱼ q  ≤⟨ {!Lq-increase t IS₀ q!} ⟩
+    Helper-sets.L (proj₂ (σS t IS₀)) q  ≤⟨ Lq≤Pₖq t q ⟩
+    List.length (all-P k q)  ∎ --{!trans {!L-increase q t IS₀!} (L≤Pₖq q t)!}
+    where
+    open DecTotalOrder ℕ.decTotalOrder
+    open ≤-Reasoning
+    open Internals-ij (state′ , hs′) hi
+  ...     | no Lq≥Pₖq = {!L-no-suc!}
 
-  postulate vertex-finished : ∀ q → ∃ λ t → ∀ t′ → t ≤ t′ → ¬ q ∈Q Alg-state-abbrev.S (proj₁ (σS t′ IS₀))
+  conditon-stops-passing : ∀ q → ∃ λ t → ∀ t′ → t ≤′ t′ → let open St-at t; open St′-at t′ in L q ≡ L′ q
+  conditon-stops-passing q = {!!}
+
+  q-stops-being-insterted : ∀ q → ∃ λ t → ∀ t′ → t ≤′ t′ → let open St-at t; open St′-at t′ in I q ≡ I′ q
+  q-stops-being-insterted q with conditon-stops-passing q
+  ... | t , prf = t , (λ t′ ge → antisym (≤′⇒≤ (prf≤ t′ ge)) (≤′⇒≤ (prf≥ t′ ge)))
+    where
+    open DecTotalOrder ℕ.decTotalOrder
+
+    ≤′-trans : ∀ {m n o} → m ≤′ n → n ≤′ o → m ≤′ o
+    ≤′-trans x ≤′-refl = x
+    ≤′-trans x (≤′-step y) = ≤′-step (≤′-trans x y)
+
+    prf≤ : ∀ t′ → t ≤′ t′ → let open St-at t; open St′-at t′ in I q ≤′ I′ q
+    prf≤ .t ≤′-refl = ≤′-refl
+    prf≤ (suc t′) (≤′-step ge) = ≤′-trans (prf≤ t′ ge) (Iq-monotonic t′ IS₀ q)
+
+    prf≥ : ∀ t′ → t ≤′ t′ → let open St-at t; open St′-at t′ in I′ q ≤′ I q
+    prf≥ .t ≤′-refl = ≤′-refl
+    prf≥ (suc t′) (≤′-step ge) = ≤′-trans {!!} (prf≥ t′ ge)
+
+  postulate vertex-finished : ∀ q → ∃ λ t → ∀ t′ → t ≤′ t′ → ¬ q ∈Q Alg-state-abbrev.S (proj₁ (σS t′ IS₀))
 
   postulate terminates : ∃ λ t → ¬ Has-items (Alg-state-abbrev.S (σ t I₀))
   --terminates = {!!}
