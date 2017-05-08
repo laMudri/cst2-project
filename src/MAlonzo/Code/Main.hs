@@ -63,12 +63,12 @@ d268 v0 v1 v2
       MAlonzo.Code.Graph.Definitions.du218
       MAlonzo.Code.Semiring.Instances.d6
       MAlonzo.Code.TestData.QtestZ45ZBZ45Z50Z45Z8.d8 v1 v2
-name283 = "Main._.\9839-0"
-d283
+name291 = "Main._.\9839-0"
+d291
   = coe
       MAlonzo.Code.Agda.Builtin.Coinduction.d16 MAlonzo.Code.Arguments.d4
-name287 = "Main._.\9839-1"
-d287
+name295 = "Main._.\9839-1"
+d295
   = coe
       MAlonzo.Code.Agda.Builtin.Coinduction.d16
       (coe
@@ -86,15 +86,15 @@ name302 = "Main.Q"
 d302
   = coe
       MAlonzo.Code.QQueue.du110 MAlonzo.Code.Data.Fin.Properties.du76
-name303 = "Main._.\9839-2"
-d303 v0 v1 = du303
-du303
+name311 = "Main._.\9839-2"
+d311 v0 v1 = du311
+du311
   = coe
       MAlonzo.Code.Agda.Builtin.Coinduction.d16
       (coe
          MAlonzo.Code.IO.d142
          (coe
-            du718
+            du790
             (coe
                MAlonzo.Code.Algorithm.d282
                (coe
@@ -117,9 +117,9 @@ d372
       MAlonzo.Code.Semiring.Instances.d6
       MAlonzo.Code.Semiring.Instances.d426 d302
       MAlonzo.Code.TestData.QtestZ45ZBZ45Z50Z45Z8.d8
-name718 = "Main.show"
-d718 v0 v1 = du718 v1
-du718 v0
+name790 = "Main.show"
+d790 v0 v1 = du790 v1
+du790 v0
   = case coe v0 of
       MAlonzo.Code.Data.Vec.C14 -> coe Data.Text.pack ""
       MAlonzo.Code.Data.Vec.C22 v1 v2 v3
@@ -130,22 +130,22 @@ du718 v0
                     (coe MAlonzo.Code.Data.Nat.Show.d22 v4)
                     (coe
                        MAlonzo.Code.Data.String.Base.d6 (coe Data.Text.pack "\n")
-                       (coe du718 v3))
+                       (coe du790 v3))
              Nothing
                -> coe
                     MAlonzo.Code.Data.String.Base.d6 (coe Data.Text.pack "\8734\n")
-                    (coe du718 v3)
+                    (coe du790 v3)
              _ -> coe MAlonzo.RTE.mazUnreachableError
       _ -> coe MAlonzo.RTE.mazUnreachableError
-main = d726
-name726 = "Main.main"
-d726
+main = d798
+name798 = "Main.main"
+d798
   = coe
       MAlonzo.Code.Function.du158 (coe MAlonzo.Code.IO.du42 ())
       (coe
-         MAlonzo.Code.IO.C28 d283
+         MAlonzo.Code.IO.C28 d291
          (\ v0 ->
             case coe v0 of
-              [] -> coe d287
-              (:) v1 v2 -> coe du303
+              [] -> coe d295
+              (:) v1 v2 -> coe du311
               _ -> MAlonzo.RTE.mazUnreachableError))

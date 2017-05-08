@@ -154,9 +154,90 @@ name374 = "Graph.Definitions.vertex\8594n-is-suc"
 d374 v0 v1 v2 v3 v4 = du374 v2
 du374 v0
   = coe MAlonzo.Code.Function.du58 (\ v1 -> coe du364 v0) erased
-name380 = "Graph.Definitions.all-paths-of-length-from"
-d380 v0 v1 v2 v3 v4 v5 v6 = du380 v2 v5 v6
-du380 v0 v1 v2
+name382 = "Graph.Definitions.all-paths-of-suc-length-from-to"
+d382 v0 v1 v2 v3 v4 v5 v6 v7 = du382 v2 v5 v6 v7
+du382 v0 v1 v2 v3
+  = case coe v1 of
+      0 -> coe
+             MAlonzo.Code.Category.Monad.Indexed.d46
+             MAlonzo.Code.Data.List.NonEmpty.du242 erased erased
+             (coe
+                MAlonzo.Code.Data.Star.C34 v3 v2 v2 erased
+                (coe MAlonzo.Code.Data.Star.C22 v2))
+      _ -> let v4 = coe subInt v1 (1 :: Integer) in
+           coe
+             MAlonzo.Code.Category.Monad.Indexed.d58
+             MAlonzo.Code.Data.List.NonEmpty.du242 erased erased erased erased
+             erased (coe du480 v0 v2)
+             (\ v5 ->
+                coe
+                  MAlonzo.Code.Category.Monad.Indexed.d58
+                  MAlonzo.Code.Data.List.NonEmpty.du242 erased erased erased erased
+                  erased (coe du382 v0 v4 v2 v5)
+                  (\ v6 ->
+                     coe
+                       MAlonzo.Code.Category.Monad.Indexed.d46
+                       MAlonzo.Code.Data.List.NonEmpty.du242 erased erased
+                       (coe MAlonzo.Code.Data.Star.C34 v3 v5 v2 erased v6)))
+name424 = "Graph.Definitions._._.return"
+d424 v0 v1 v2 v3 v4 v5 v6 = du424
+du424
+  = coe
+      MAlonzo.Code.Category.Monad.Indexed.d46
+      MAlonzo.Code.Data.List.NonEmpty.du242
+name454 = "Graph.Definitions._._._>>=_"
+d454 v0 v1 v2 v3 v4 v5 v6 v7 = du454
+du454
+  = coe
+      MAlonzo.Code.Category.Monad.Indexed.d58
+      MAlonzo.Code.Data.List.NonEmpty.du242
+name470 = "Graph.Definitions._._.return"
+d470 v0 v1 v2 v3 v4 v5 v6 v7 = du470
+du470
+  = coe
+      MAlonzo.Code.Category.Monad.Indexed.d46
+      MAlonzo.Code.Data.List.NonEmpty.du242
+name476 = "Graph.Definitions._.n-is-suc"
+d476 v0 v1 v2 v3 v4 v5 v6 v7 = du476 v2 v6
+du476 v0 v1 = coe du374 v0 v1
+name478 = "Graph.Definitions._.n-1"
+d478 v0 v1 v2 v3 v4 v5 v6 v7 = du478 v2 v6
+du478 v0 v1 = coe MAlonzo.Code.Data.Product.d26 (coe du476 v0 v1)
+name480 = "Graph.Definitions._.all-vertices"
+d480 v0 v1 v2 v3 v4 v5 v6 v7 = du480 v2 v6
+du480 v0 v1
+  = coe
+      MAlonzo.Code.Function.du158 (\ v2 -> v2)
+      (coe
+         MAlonzo.Code.Data.List.NonEmpty.du72
+         (coe
+            MAlonzo.Code.Data.Vec.du732
+            (coe addInt (1 :: Integer) (coe du478 v0 v1)) (\ v2 -> v2)))
+name492 = "Graph.Definitions.all-non-\949-paths-from-to"
+d492 v0 v1 v2 v3 v4 v5 v6 = du492 v2 v5 v6
+du492 v0 v1 v2
+  = coe
+      MAlonzo.Code.Data.Colist.du250 ()
+      (coe
+         MAlonzo.Code.Data.Colist.du150 () ()
+         (\ v3 -> coe du382 v0 v3 v1 v2) (coe du502 (0 :: Integer)))
+name502 = "Graph.Definitions._.all-\8469s-from"
+d502 v0 v1 v2 v3 v4 v5 v6 v7 = du502 v7
+du502 v0 = coe (:) v0 (coe du5885 v0)
+name512 = "Graph.Definitions.all-paths-from-to"
+d512 v0 v1 v2 v3 v4 v5 v6 = du512 v2 v5 v6
+du512 v0 v1 v2
+  = let v3 = coe MAlonzo.Code.Data.Fin.Properties.du82 v1 v2 in
+    case coe v3 of
+      MAlonzo.Code.Relation.Nullary.C22 v4
+        -> coe (:) (coe MAlonzo.Code.Data.Star.C22 v1) (coe du6205 v0 v1)
+      MAlonzo.Code.Relation.Nullary.C26 -> coe du492 v0 v1 v2
+      _ -> coe MAlonzo.RTE.mazUnreachableError
+name534 = "Graph.Definitions.shortest-distance"
+d534 = erased
+name544 = "Graph.Definitions.all-paths-of-length-from"
+d544 v0 v1 v2 v3 v4 v5 v6 = du544 v2 v5 v6
+du544 v0 v1 v2
   = case coe v1 of
       0 -> coe
              MAlonzo.Code.Category.Monad.Indexed.d46
@@ -168,12 +249,12 @@ du380 v0 v1 v2
            coe
              MAlonzo.Code.Category.Monad.Indexed.d58
              MAlonzo.Code.Data.List.NonEmpty.du242 erased erased erased erased
-             erased (coe du474 v0 v2)
+             erased (coe du638 v0 v2)
              (\ v4 ->
                 coe
                   MAlonzo.Code.Category.Monad.Indexed.d58
                   MAlonzo.Code.Data.List.NonEmpty.du242 erased erased erased erased
-                  erased (coe du380 v0 v3 v4)
+                  erased (coe du544 v0 v3 v4)
                   (\ v5 ->
                      coe
                        MAlonzo.Code.Category.Monad.Indexed.d46
@@ -187,148 +268,67 @@ du380 v0 v1 v2
                              (coe
                                 MAlonzo.Code.Data.Star.C34 v4 v2 v2 erased
                                 (coe MAlonzo.Code.Data.Star.C22 v2))))))
-name420 = "Graph.Definitions._._.return"
-d420 v0 v1 v2 v3 v4 v5 = du420
-du420
+name584 = "Graph.Definitions._._.return"
+d584 v0 v1 v2 v3 v4 v5 = du584
+du584
   = coe
       MAlonzo.Code.Category.Monad.Indexed.d46
       MAlonzo.Code.Data.List.NonEmpty.du242
-name448 = "Graph.Definitions._._._>>=_"
-d448 v0 v1 v2 v3 v4 v5 v6 = du448
-du448
+name612 = "Graph.Definitions._._._>>=_"
+d612 v0 v1 v2 v3 v4 v5 v6 = du612
+du612
   = coe
       MAlonzo.Code.Category.Monad.Indexed.d58
       MAlonzo.Code.Data.List.NonEmpty.du242
-name464 = "Graph.Definitions._._.return"
-d464 v0 v1 v2 v3 v4 v5 v6 = du464
-du464
+name628 = "Graph.Definitions._._.return"
+d628 v0 v1 v2 v3 v4 v5 v6 = du628
+du628
   = coe
       MAlonzo.Code.Category.Monad.Indexed.d46
       MAlonzo.Code.Data.List.NonEmpty.du242
-name470 = "Graph.Definitions._.n-is-suc"
-d470 v0 v1 v2 v3 v4 v5 v6 = du470 v2 v6
-du470 v0 v1 = coe du374 v0 v1
-name472 = "Graph.Definitions._.n-1"
-d472 v0 v1 v2 v3 v4 v5 v6 = du472 v2 v6
-du472 v0 v1 = coe MAlonzo.Code.Data.Product.d26 (coe du470 v0 v1)
-name474 = "Graph.Definitions._.all-vertices"
-d474 v0 v1 v2 v3 v4 v5 v6 = du474 v2 v6
-du474 v0 v1
+name634 = "Graph.Definitions._.n-is-suc"
+d634 v0 v1 v2 v3 v4 v5 v6 = du634 v2 v6
+du634 v0 v1 = coe du374 v0 v1
+name636 = "Graph.Definitions._.n-1"
+d636 v0 v1 v2 v3 v4 v5 v6 = du636 v2 v6
+du636 v0 v1 = coe MAlonzo.Code.Data.Product.d26 (coe du634 v0 v1)
+name638 = "Graph.Definitions._.all-vertices"
+d638 v0 v1 v2 v3 v4 v5 v6 = du638 v2 v6
+du638 v0 v1
   = coe
       MAlonzo.Code.Function.du158 (\ v2 -> v2)
       (coe
          MAlonzo.Code.Data.List.NonEmpty.du72
          (coe
             MAlonzo.Code.Data.Vec.du732
-            (coe addInt (1 :: Integer) (coe du472 v0 v1)) (\ v2 -> v2)))
-name492 = "Graph.Definitions.all-paths-of-suc-length-from-to"
-d492 v0 v1 v2 v3 v4 v5 v6 v7 = du492 v2 v5 v6 v7
-du492 v0 v1 v2 v3
-  = case coe v1 of
-      0 -> coe
-             MAlonzo.Code.Category.Monad.Indexed.d46
-             MAlonzo.Code.Data.List.NonEmpty.du242 erased erased
-             (coe
-                MAlonzo.Code.Data.Star.C34 v3 v2 v2 erased
-                (coe MAlonzo.Code.Data.Star.C22 v2))
-      _ -> let v4 = coe subInt v1 (1 :: Integer) in
-           coe
-             MAlonzo.Code.Category.Monad.Indexed.d58
-             MAlonzo.Code.Data.List.NonEmpty.du242 erased erased erased erased
-             erased (coe du590 v0 v2)
-             (\ v5 ->
-                coe
-                  MAlonzo.Code.Category.Monad.Indexed.d58
-                  MAlonzo.Code.Data.List.NonEmpty.du242 erased erased erased erased
-                  erased (coe du492 v0 v4 v2 v5)
-                  (\ v6 ->
-                     coe
-                       MAlonzo.Code.Category.Monad.Indexed.d46
-                       MAlonzo.Code.Data.List.NonEmpty.du242 erased erased
-                       (coe MAlonzo.Code.Data.Star.C34 v3 v5 v2 erased v6)))
-name534 = "Graph.Definitions._._.return"
-d534 v0 v1 v2 v3 v4 v5 v6 = du534
-du534
-  = coe
-      MAlonzo.Code.Category.Monad.Indexed.d46
-      MAlonzo.Code.Data.List.NonEmpty.du242
-name564 = "Graph.Definitions._._._>>=_"
-d564 v0 v1 v2 v3 v4 v5 v6 v7 = du564
-du564
-  = coe
-      MAlonzo.Code.Category.Monad.Indexed.d58
-      MAlonzo.Code.Data.List.NonEmpty.du242
-name580 = "Graph.Definitions._._.return"
-d580 v0 v1 v2 v3 v4 v5 v6 v7 = du580
-du580
-  = coe
-      MAlonzo.Code.Category.Monad.Indexed.d46
-      MAlonzo.Code.Data.List.NonEmpty.du242
-name586 = "Graph.Definitions._.n-is-suc"
-d586 v0 v1 v2 v3 v4 v5 v6 v7 = du586 v2 v6
-du586 v0 v1 = coe du374 v0 v1
-name588 = "Graph.Definitions._.n-1"
-d588 v0 v1 v2 v3 v4 v5 v6 v7 = du588 v2 v6
-du588 v0 v1 = coe MAlonzo.Code.Data.Product.d26 (coe du586 v0 v1)
-name590 = "Graph.Definitions._.all-vertices"
-d590 v0 v1 v2 v3 v4 v5 v6 v7 = du590 v2 v6
-du590 v0 v1
-  = coe
-      MAlonzo.Code.Function.du158 (\ v2 -> v2)
-      (coe
-         MAlonzo.Code.Data.List.NonEmpty.du72
-         (coe
-            MAlonzo.Code.Data.Vec.du732
-            (coe addInt (1 :: Integer) (coe du588 v0 v1)) (\ v2 -> v2)))
-name600 = "Graph.Definitions.all-paths-from"
-d600 v0 v1 v2 v3 v4 v5 = du600 v2 v5
-du600 v0 v1
+            (coe addInt (1 :: Integer) (coe du636 v0 v1)) (\ v2 -> v2)))
+name652 = "Graph.Definitions.all-paths-from"
+d652 v0 v1 v2 v3 v4 v5 = du652 v2 v5
+du652 v0 v1
   = coe
       MAlonzo.Code.Data.Colist.du250 ()
       (coe
-         MAlonzo.Code.Data.Colist.du150 () () (\ v2 -> coe du380 v0 v2 v1)
-         (coe du608 (0 :: Integer)))
-name608 = "Graph.Definitions._.all-\8469s-from"
-d608 v0 v1 v2 v3 v4 v5 v6 = du608 v6
-du608 v0 = coe (:) v0 (coe du6871 v0)
-name618 = "Graph.Definitions.all-non-\949-paths-from-to"
-d618 v0 v1 v2 v3 v4 v5 v6 = du618 v2 v5 v6
-du618 v0 v1 v2
-  = coe
-      MAlonzo.Code.Data.Colist.du250 ()
-      (coe
-         MAlonzo.Code.Data.Colist.du150 () ()
-         (\ v3 -> coe du492 v0 v3 v1 v2) (coe du628 (0 :: Integer)))
-name628 = "Graph.Definitions._.all-\8469s-from"
-d628 v0 v1 v2 v3 v4 v5 v6 v7 = du628 v7
-du628 v0 = coe (:) v0 (coe du7089 v0)
-name638 = "Graph.Definitions.all-paths-from-to"
-d638 v0 v1 v2 v3 v4 v5 v6 = du638 v2 v5 v6
-du638 v0 v1 v2
-  = let v3 = coe MAlonzo.Code.Data.Fin.Properties.du82 v1 v2 in
-    case coe v3 of
-      MAlonzo.Code.Relation.Nullary.C22 v4
-        -> coe (:) (coe MAlonzo.Code.Data.Star.C22 v1) (coe du7409 v0 v1)
-      MAlonzo.Code.Relation.Nullary.C26 -> coe du618 v0 v1 v2
-      _ -> coe MAlonzo.RTE.mazUnreachableError
-name660 = "Graph.Definitions.shortest-distance"
-d660 = erased
+         MAlonzo.Code.Data.Colist.du150 () () (\ v2 -> coe du544 v0 v2 v1)
+         (coe du660 (0 :: Integer)))
+name660 = "Graph.Definitions._.all-\8469s-from"
+d660 v0 v1 v2 v3 v4 v5 v6 = du660 v6
+du660 v0 = coe (:) v0 (coe du7531 v0)
 name666 = "Graph.Definitions._ClosedOnG"
 d666 = erased
-name6871 = "Graph.Definitions._._.\9839-4"
-d6871 v0 v1 v2 v3 v4 v5 v6 = du6871 v6
-du6871 v0
+name5885 = "Graph.Definitions._._.\9839-2"
+d5885 v0 v1 v2 v3 v4 v5 v6 v7 = du5885 v7
+du5885 v0
   = coe
       MAlonzo.Code.Agda.Builtin.Coinduction.d16
-      (coe du608 (coe addInt (1 :: Integer) v0))
-name7089 = "Graph.Definitions._._.\9839-5"
-d7089 v0 v1 v2 v3 v4 v5 v6 v7 = du7089 v7
-du7089 v0
+      (coe du502 (coe addInt (1 :: Integer) v0))
+name6205 = "Graph.Definitions._.\9839-3"
+d6205 v0 v1 v2 v3 v4 v5 = du6205 v0 v1
+du6205 v0 v1
+  = coe
+      MAlonzo.Code.Agda.Builtin.Coinduction.d16 (coe du492 v0 v1 v1)
+name7531 = "Graph.Definitions._._.\9839-6"
+d7531 v0 v1 v2 v3 v4 v5 v6 = du7531 v6
+du7531 v0
   = coe
       MAlonzo.Code.Agda.Builtin.Coinduction.d16
-      (coe du628 (coe addInt (1 :: Integer) v0))
-name7409 = "Graph.Definitions._.\9839-6"
-d7409 v0 v1 v2 v3 v4 v5 = du7409 v0 v1
-du7409 v0 v1
-  = coe
-      MAlonzo.Code.Agda.Builtin.Coinduction.d16 (coe du618 v0 v1 v1)
+      (coe du660 (coe addInt (1 :: Integer) v0))

@@ -565,34 +565,162 @@ d626 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du626
 du626 = 0 :: Integer
 name628 = "Algorithm.Reachable-with-sets"
 d628 = erased
-name638 = "Algorithm.Internals-jk._.vertex-queue"
-d638 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du638 v9
-du638 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
-name640 = "Algorithm.Internals-jk._.known-distances"
-d640 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du640 v9
-du640 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
-name642 = "Algorithm.Internals-jk._.added-weight"
-d642 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du642 v9
-du642 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
-name646 = "Algorithm.Internals-jk._.D"
-d646 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du646 v9
-du646 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
-name648 = "Algorithm.Internals-jk._.E"
-d648 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du648 v9
-du648 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
-name650 = "Algorithm.Internals-jk._.I"
-d650 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du650 v9
-du650 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
-name652 = "Algorithm.Internals-jk._.L"
-d652 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du652 v9
-du652 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
-name654 = "Algorithm.Internals-jk._.R"
-d654 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du654 v9
-du654 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
-name658 = "Algorithm.Internals-jk._.D\8321"
-d658 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du658 v1 v4 v5 v6 v7 v8 v9 v10
-du658 v0 v1 v2 v3 v4 v5 v6 v7
+name636 = "Algorithm.St._.vertex-queue"
+d636 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du636 v9
+du636 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
+name638 = "Algorithm.St._.known-distances"
+d638 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du638 v9
+du638 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
+name640 = "Algorithm.St._.added-weight"
+d640 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du640 v9
+du640 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
+name644 = "Algorithm.St._.D"
+d644 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du644 v9
+du644 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
+name646 = "Algorithm.St._.E"
+d646 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du646 v9
+du646 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
+name648 = "Algorithm.St._.I"
+d648 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du648 v9
+du648 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
+name650 = "Algorithm.St._.L"
+d650 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du650 v9
+du650 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
+name652 = "Algorithm.St._.R"
+d652 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du652 v9
+du652 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
+name658 = "Algorithm.St-at.D"
+d658 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du658 v1 v4 v5 v6 v7 v8 v9
+du658 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d444 (coe MAlonzo.Code.Data.Product.d28 v7)
+name660 = "Algorithm.St-at.E"
+d660 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du660 v1 v4 v5 v6 v7 v8 v9
+du660 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d452 (coe MAlonzo.Code.Data.Product.d28 v7)
+name662 = "Algorithm.St-at.I"
+d662 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du662 v1 v4 v5 v6 v7 v8 v9
+du662 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d450 (coe MAlonzo.Code.Data.Product.d28 v7)
+name664 = "Algorithm.St-at.L"
+d664 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du664 v1 v4 v5 v6 v7 v8 v9
+du664 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d448 (coe MAlonzo.Code.Data.Product.d28 v7)
+name666 = "Algorithm.St-at.R"
+d666 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du666 v1 v4 v5 v6 v7 v8 v9
+du666 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d446 (coe MAlonzo.Code.Data.Product.d28 v7)
+name668 = "Algorithm.St-at.vertex-queue"
+d668 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du668 v1 v4 v5 v6 v7 v8 v9
+du668 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d286 (coe MAlonzo.Code.Data.Product.d26 v7)
+name670 = "Algorithm.St-at.known-distances"
+d670 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du670 v1 v4 v5 v6 v7 v8 v9
+du670 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d282 (coe MAlonzo.Code.Data.Product.d26 v7)
+name672 = "Algorithm.St-at.added-weight"
+d672 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du672 v1 v4 v5 v6 v7 v8 v9
+du672 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d284 (coe MAlonzo.Code.Data.Product.d26 v7)
+name680 = "Algorithm.St\8242._.D"
+d680 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du680 v9
+du680 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
+name682 = "Algorithm.St\8242._.E"
+d682 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du682 v9
+du682 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
+name684 = "Algorithm.St\8242._.I"
+d684 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du684 v9
+du684 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
+name686 = "Algorithm.St\8242._.L"
+d686 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du686 v9
+du686 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
+name688 = "Algorithm.St\8242._.R"
+d688 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du688 v9
+du688 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
+name690 = "Algorithm.St\8242._.vertex-queue"
+d690 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du690 v9
+du690 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
+name692 = "Algorithm.St\8242._.known-distances"
+d692 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du692 v9
+du692 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
+name694 = "Algorithm.St\8242._.added-weight"
+d694 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du694 v9
+du694 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
+name700 = "Algorithm.St\8242-at.D"
+d700 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du700 v1 v4 v5 v6 v7 v8 v9
+du700 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d444 (coe MAlonzo.Code.Data.Product.d28 v7)
+name702 = "Algorithm.St\8242-at.E"
+d702 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du702 v1 v4 v5 v6 v7 v8 v9
+du702 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d452 (coe MAlonzo.Code.Data.Product.d28 v7)
+name704 = "Algorithm.St\8242-at.I"
+d704 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du704 v1 v4 v5 v6 v7 v8 v9
+du704 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d450 (coe MAlonzo.Code.Data.Product.d28 v7)
+name706 = "Algorithm.St\8242-at.L"
+d706 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du706 v1 v4 v5 v6 v7 v8 v9
+du706 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d448 (coe MAlonzo.Code.Data.Product.d28 v7)
+name708 = "Algorithm.St\8242-at.R"
+d708 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du708 v1 v4 v5 v6 v7 v8 v9
+du708 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d446 (coe MAlonzo.Code.Data.Product.d28 v7)
+name710 = "Algorithm.St\8242-at.vertex-queue"
+d710 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du710 v1 v4 v5 v6 v7 v8 v9
+du710 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d286 (coe MAlonzo.Code.Data.Product.d26 v7)
+name712 = "Algorithm.St\8242-at.known-distances"
+d712 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du712 v1 v4 v5 v6 v7 v8 v9
+du712 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d282 (coe MAlonzo.Code.Data.Product.d26 v7)
+name714 = "Algorithm.St\8242-at.added-weight"
+d714 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 = du714 v1 v4 v5 v6 v7 v8 v9
+du714 v0 v1 v2 v3 v4 v5 v6
+  = let v7 = coe du556 v0 v1 v2 v3 v4 v5 v6 (coe du604 v1 v3 v5) in
+    coe d284 (coe MAlonzo.Code.Data.Product.d26 v7)
+name724 = "Algorithm.Internals-jk._.vertex-queue"
+d724 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du724 v9
+du724 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
+name726 = "Algorithm.Internals-jk._.known-distances"
+d726 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du726 v9
+du726 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
+name728 = "Algorithm.Internals-jk._.added-weight"
+d728 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du728 v9
+du728 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
+name732 = "Algorithm.Internals-jk._.D"
+d732 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du732 v9
+du732 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
+name734 = "Algorithm.Internals-jk._.E"
+d734 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du734 v9
+du734 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
+name736 = "Algorithm.Internals-jk._.I"
+d736 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du736 v9
+du736 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
+name738 = "Algorithm.Internals-jk._.L"
+d738 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du738 v9
+du738 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
+name740 = "Algorithm.Internals-jk._.R"
+d740 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du740 v9
+du740 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
+name744 = "Algorithm.Internals-jk._.D\8321"
+d744 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du744 v1 v4 v5 v6 v7 v8 v9 v10
+du744 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       du540 v0 v1 v2 v3 v4 v5
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v6))
@@ -600,145 +728,145 @@ du658 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d444 (coe MAlonzo.Code.Data.Product.d28 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v7
-name660 = "Algorithm.Internals-jk._.E\8321"
-d660 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du660 v6 v9 v10
-du660 v0 v1 v2
+name746 = "Algorithm.Internals-jk._.E\8321"
+d746 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du746 v6 v9 v10
+du746 v0 v1 v2
   = coe
       du486 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d452 (coe MAlonzo.Code.Data.Product.d28 v1)) v2
-name662 = "Algorithm.Internals-jk._.I\8321"
-d662 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du662 v4 v5 v6 v7 v9 v10
-du662 v0 v1 v2 v3 v4 v5
+name748 = "Algorithm.Internals-jk._.I\8321"
+d748 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du748 v4 v5 v6 v7 v9 v10
+du748 v0 v1 v2 v3 v4 v5
   = coe
       du508 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d450 (coe MAlonzo.Code.Data.Product.d28 v4)) v5
-name664 = "Algorithm.Internals-jk._.L\8321"
-d664 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du664 v4 v5 v6 v7 v9 v10
-du664 v0 v1 v2 v3 v4 v5
+name750 = "Algorithm.Internals-jk._.L\8321"
+d750 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du750 v4 v5 v6 v7 v9 v10
+du750 v0 v1 v2 v3 v4 v5
   = coe
       du502 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d448 (coe MAlonzo.Code.Data.Product.d28 v4)) v5
-name666 = "Algorithm.Internals-jk._.R\8242"
-d666 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du666 v6 v9 v10
-du666 v0 v1 v2
+name752 = "Algorithm.Internals-jk._.R\8242"
+d752 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du752 v6 v9 v10
+du752 v0 v1 v2
   = coe
       du490 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v2
-name668 = "Algorithm.Internals-jk._.R\8321"
-d668 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du668 v6 v9 v10
-du668 v0 v1 v2
+name754 = "Algorithm.Internals-jk._.R\8321"
+d754 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du754 v6 v9 v10
+du754 v0 v1 v2
   = coe
       du494 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v2
-name670 = "Algorithm.Internals-jk._.R\8322"
-d670 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du670 v1 v4 v5 v6 v7 v8 v9 v10
-du670 v0 v1 v2 v3 v4 v5 v6 v7
+name756 = "Algorithm.Internals-jk._.R\8322"
+d756 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du756 v1 v4 v5 v6 v7 v8 v9 v10
+du756 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       du544 v0 v1 v2 v3 v4 v5
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v7
-name672 = "Algorithm.Internals-jk._.S\8321"
-d672 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du672 v6 v9 v10
-du672 v0 v1 v2
+name758 = "Algorithm.Internals-jk._.S\8321"
+d758 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du758 v6 v9 v10
+du758 v0 v1 v2
   = coe du484 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v2
-name674 = "Algorithm.Internals-jk._.S\8322"
-d674 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du674 v1 v4 v5 v6 v7 v9 v10
-du674 v0 v1 v2 v3 v4 v5 v6
+name760 = "Algorithm.Internals-jk._.S\8322"
+d760 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du760 v1 v4 v5 v6 v7 v9 v10
+du760 v0 v1 v2 v3 v4 v5 v6
   = coe
       du546 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name676 = "Algorithm.Internals-jk._.condition"
-d676 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du676 v4 v5 v6 v7 v9 v10
-du676 v0 v1 v2 v3 v4 v5
+name762 = "Algorithm.Internals-jk._.condition"
+d762 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du762 v4 v5 v6 v7 v9 v10
+du762 v0 v1 v2 v3 v4 v5
   = coe
       du496 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4)) v5
-name678 = "Algorithm.Internals-jk._.q"
-d678 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du678 v6 v9 v10
-du678 v0 v1 v2
+name764 = "Algorithm.Internals-jk._.q"
+d764 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du764 v6 v9 v10
+du764 v0 v1 v2
   = coe du482 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v2
-name680 = "Algorithm.Internals-jk._.d\8321"
-d680 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du680 v1 v4 v5 v6 v7 v9 v10
-du680 v0 v1 v2 v3 v4 v5 v6
+name766 = "Algorithm.Internals-jk._.d\8321"
+d766 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du766 v1 v4 v5 v6 v7 v9 v10
+du766 v0 v1 v2 v3 v4 v5 v6
   = coe
       du538 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name682 = "Algorithm.Internals-jk._.enqueued-vertices"
-d682 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du682 v1 v4 v5 v6 v7 v9 v10
-du682 v0 v1 v2 v3 v4 v5 v6
+name768 = "Algorithm.Internals-jk._.enqueued-vertices"
+d768 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du768 v1 v4 v5 v6 v7 v9 v10
+du768 v0 v1 v2 v3 v4 v5 v6
   = coe
       du504 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name684 = "Algorithm.Internals-jk._.new-sets"
-d684 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du684 v1 v4 v5 v6 v7 v8 v9 v10
-du684 v0 v1 v2 v3 v4 v5 v6 v7
+name770 = "Algorithm.Internals-jk._.new-sets"
+d770 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du770 v1 v4 v5 v6 v7 v8 v9 v10
+du770 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       du524 v0 v1 v2 v3 v4 v5
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v7
-name686 = "Algorithm.Internals-jk._.new-weights"
-d686 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du686 v1 v4 v5 v6 v7 v9 v10
-du686 v0 v1 v2 v3 v4 v5 v6
+name772 = "Algorithm.Internals-jk._.new-weights"
+d772 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du772 v1 v4 v5 v6 v7 v9 v10
+du772 v0 v1 v2 v3 v4 v5 v6
   = coe
       du512 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name688 = "Algorithm.Internals-jk._.relaxed-vertices"
-d688 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du688 v1 v4 v5 v6 v7 v9 v10
-du688 v0 v1 v2 v3 v4 v5 v6
+name774 = "Algorithm.Internals-jk._.relaxed-vertices"
+d774 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du774 v1 v4 v5 v6 v7 v9 v10
+du774 v0 v1 v2 v3 v4 v5 v6
   = coe
       du500 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name690 = "Algorithm.Internals-jk._.r\8242"
-d690 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du690 v6 v9 v10
-du690 v0 v1 v2
+name776 = "Algorithm.Internals-jk._.r\8242"
+d776 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du776 v6 v9 v10
+du776 v0 v1 v2
   = coe
       du488 v0 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v2
-name692 = "Algorithm.Internals-jk._.r\8321"
-d692 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du692 v4 v6 v9 v10
-du692 v0 v1 v2 v3
+name778 = "Algorithm.Internals-jk._.r\8321"
+d778 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du778 v4 v6 v9 v10
+du778 v0 v1 v2 v3
   = coe
       du492 v0 v1 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v2))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v2)) v3
-name694 = "Algorithm.Internals-jk._.r\8322"
-d694 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du694 v1 v4 v5 v6 v7 v9 v10
-du694 v0 v1 v2 v3 v4 v5 v6
+name780 = "Algorithm.Internals-jk._.r\8322"
+d780 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du780 v1 v4 v5 v6 v7 v9 v10
+du780 v0 v1 v2 v3 v4 v5 v6
   = coe
       du542 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name696 = "Algorithm.Internals-jk.relaxed-#"
-d696 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du696 v1 v4 v5 v6 v7 v9 v10
-du696 v0 v1 v2 v3 v4 v5 v6
+name782 = "Algorithm.Internals-jk.relaxed-#"
+d782 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du782 v1 v4 v5 v6 v7 v9 v10
+du782 v0 v1 v2 v3 v4 v5 v6
   = coe
       MAlonzo.Code.Data.List.Base.du226
       (coe
@@ -746,10 +874,10 @@ du696 v0 v1 v2 v3 v4 v5 v6
          (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
          (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
          (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6)
-name698 = "Algorithm.Internals-jk.enqueued-#"
-d698 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du698 v1 v4 v5 v6 v7 v9 v10
-du698 v0 v1 v2 v3 v4 v5 v6
+name784 = "Algorithm.Internals-jk.enqueued-#"
+d784 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du784 v1 v4 v5 v6 v7 v9 v10
+du784 v0 v1 v2 v3 v4 v5 v6
   = coe
       MAlonzo.Code.Data.List.Base.du226
       (coe
@@ -757,13 +885,13 @@ du698 v0 v1 v2 v3 v4 v5 v6
          (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
          (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
          (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6)
-name708 = "Algorithm.Internals-jk-from-\8605.D"
-d708 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du708 v10
-du708 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
-name710 = "Algorithm.Internals-jk-from-\8605.D\8321"
-d710 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du710 v1 v4 v5 v6 v7 v8 v10 v11
-du710 v0 v1 v2 v3 v4 v5 v6 v7
+name794 = "Algorithm.Internals-jk-from-\8605.D"
+d794 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du794 v10
+du794 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
+name796 = "Algorithm.Internals-jk-from-\8605.D\8321"
+d796 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du796 v1 v4 v5 v6 v7 v8 v10 v11
+du796 v0 v1 v2 v3 v4 v5 v6 v7
   = let v8 = coe MAlonzo.Code.Data.Product.d26 v7 in
     coe
       du540 v0 v1 v2 v3 v4 v5
@@ -772,63 +900,63 @@ du710 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d444 (coe MAlonzo.Code.Data.Product.d28 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v8
-name712 = "Algorithm.Internals-jk-from-\8605.E"
-d712 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du712 v10
-du712 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
-name714 = "Algorithm.Internals-jk-from-\8605.E\8321"
-d714 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du714 v6 v10 v11
-du714 v0 v1 v2
+name798 = "Algorithm.Internals-jk-from-\8605.E"
+d798 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du798 v10
+du798 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
+name800 = "Algorithm.Internals-jk-from-\8605.E\8321"
+d800 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du800 v6 v10 v11
+du800 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du486 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d452 (coe MAlonzo.Code.Data.Product.d28 v1)) v3
-name716 = "Algorithm.Internals-jk-from-\8605.I"
-d716 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du716 v10
-du716 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
-name718 = "Algorithm.Internals-jk-from-\8605.I\8321"
-d718 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du718 v4 v5 v6 v7 v10 v11
-du718 v0 v1 v2 v3 v4 v5
+name802 = "Algorithm.Internals-jk-from-\8605.I"
+d802 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du802 v10
+du802 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
+name804 = "Algorithm.Internals-jk-from-\8605.I\8321"
+d804 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du804 v4 v5 v6 v7 v10 v11
+du804 v0 v1 v2 v3 v4 v5
   = let v6 = coe MAlonzo.Code.Data.Product.d26 v5 in
     coe
       du508 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d450 (coe MAlonzo.Code.Data.Product.d28 v4)) v6
-name720 = "Algorithm.Internals-jk-from-\8605.L"
-d720 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du720 v10
-du720 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
-name722 = "Algorithm.Internals-jk-from-\8605.L\8321"
-d722 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du722 v4 v5 v6 v7 v10 v11
-du722 v0 v1 v2 v3 v4 v5
+name806 = "Algorithm.Internals-jk-from-\8605.L"
+d806 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du806 v10
+du806 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
+name808 = "Algorithm.Internals-jk-from-\8605.L\8321"
+d808 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du808 v4 v5 v6 v7 v10 v11
+du808 v0 v1 v2 v3 v4 v5
   = let v6 = coe MAlonzo.Code.Data.Product.d26 v5 in
     coe
       du502 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d448 (coe MAlonzo.Code.Data.Product.d28 v4)) v6
-name724 = "Algorithm.Internals-jk-from-\8605.R\8242"
-d724 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du724 v6 v10 v11
-du724 v0 v1 v2
+name810 = "Algorithm.Internals-jk-from-\8605.R\8242"
+d810 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du810 v6 v10 v11
+du810 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du490 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v3
-name726 = "Algorithm.Internals-jk-from-\8605.R\8321"
-d726 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du726 v6 v10 v11
-du726 v0 v1 v2
+name812 = "Algorithm.Internals-jk-from-\8605.R\8321"
+d812 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du812 v6 v10 v11
+du812 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du494 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v3
-name728 = "Algorithm.Internals-jk-from-\8605.R"
-d728 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du728 v10
-du728 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
-name730 = "Algorithm.Internals-jk-from-\8605.R\8322"
-d730 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du730 v1 v4 v5 v6 v7 v8 v10 v11
-du730 v0 v1 v2 v3 v4 v5 v6 v7
+name814 = "Algorithm.Internals-jk-from-\8605.R"
+d814 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du814 v10
+du814 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
+name816 = "Algorithm.Internals-jk-from-\8605.R\8322"
+d816 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du816 v1 v4 v5 v6 v7 v8 v10 v11
+du816 v0 v1 v2 v3 v4 v5 v6 v7
   = let v8 = coe MAlonzo.Code.Data.Product.d26 v7 in
     coe
       du544 v0 v1 v2 v3 v4 v5
@@ -836,71 +964,71 @@ du730 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v8
-name732 = "Algorithm.Internals-jk-from-\8605.S\8321"
-d732 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du732 v6 v10 v11
-du732 v0 v1 v2
+name818 = "Algorithm.Internals-jk-from-\8605.S\8321"
+d818 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du818 v6 v10 v11
+du818 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe du484 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v3
-name734 = "Algorithm.Internals-jk-from-\8605.vertex-queue"
-d734 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du734 v10
-du734 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
-name736 = "Algorithm.Internals-jk-from-\8605.S\8322"
-d736 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du736 v1 v4 v5 v6 v7 v10 v11
-du736 v0 v1 v2 v3 v4 v5 v6
+name820 = "Algorithm.Internals-jk-from-\8605.vertex-queue"
+d820 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du820 v10
+du820 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
+name822 = "Algorithm.Internals-jk-from-\8605.S\8322"
+d822 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du822 v1 v4 v5 v6 v7 v10 v11
+du822 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du546 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name738 = "Algorithm.Internals-jk-from-\8605.condition"
-d738 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du738 v4 v5 v6 v7 v10 v11
-du738 v0 v1 v2 v3 v4 v5
+name824 = "Algorithm.Internals-jk-from-\8605.condition"
+d824 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du824 v4 v5 v6 v7 v10 v11
+du824 v0 v1 v2 v3 v4 v5
   = let v6 = coe MAlonzo.Code.Data.Product.d26 v5 in
     coe
       du496 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4)) v6
-name740 = "Algorithm.Internals-jk-from-\8605.q"
-d740 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du740 v6 v10 v11
-du740 v0 v1 v2
+name826 = "Algorithm.Internals-jk-from-\8605.q"
+d826 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du826 v6 v10 v11
+du826 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe du482 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v3
-name742 = "Algorithm.Internals-jk-from-\8605.known-distances"
-d742 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du742 v10
-du742 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
-name744 = "Algorithm.Internals-jk-from-\8605.d\8321"
-d744 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du744 v1 v4 v5 v6 v7 v10 v11
-du744 v0 v1 v2 v3 v4 v5 v6
+name828 = "Algorithm.Internals-jk-from-\8605.known-distances"
+d828 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du828 v10
+du828 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
+name830 = "Algorithm.Internals-jk-from-\8605.d\8321"
+d830 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du830 v1 v4 v5 v6 v7 v10 v11
+du830 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du538 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name746 = "Algorithm.Internals-jk-from-\8605.enqueued-#"
-d746 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du746 v1 v4 v5 v6 v7 v10 v11
-du746 v0 v1 v2 v3 v4 v5 v6
+name832 = "Algorithm.Internals-jk-from-\8605.enqueued-#"
+d832 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du832 v1 v4 v5 v6 v7 v10 v11
+du832 v0 v1 v2 v3 v4 v5 v6
   = coe
-      du698 v0 v1 v2 v3 v4 v5 (coe MAlonzo.Code.Data.Product.d26 v6)
-name748 = "Algorithm.Internals-jk-from-\8605.enqueued-vertices"
-d748 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du748 v1 v4 v5 v6 v7 v10 v11
-du748 v0 v1 v2 v3 v4 v5 v6
+      du784 v0 v1 v2 v3 v4 v5 (coe MAlonzo.Code.Data.Product.d26 v6)
+name834 = "Algorithm.Internals-jk-from-\8605.enqueued-vertices"
+d834 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du834 v1 v4 v5 v6 v7 v10 v11
+du834 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du504 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name750 = "Algorithm.Internals-jk-from-\8605.new-sets"
-d750 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du750 v1 v4 v5 v6 v7 v8 v10 v11
-du750 v0 v1 v2 v3 v4 v5 v6 v7
+name836 = "Algorithm.Internals-jk-from-\8605.new-sets"
+d836 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du836 v1 v4 v5 v6 v7 v8 v10 v11
+du836 v0 v1 v2 v3 v4 v5 v6 v7
   = let v8 = coe MAlonzo.Code.Data.Product.d26 v7 in
     coe
       du524 v0 v1 v2 v3 v4 v5
@@ -908,63 +1036,63 @@ du750 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v8
-name752 = "Algorithm.Internals-jk-from-\8605.new-weights"
-d752 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du752 v1 v4 v5 v6 v7 v10 v11
-du752 v0 v1 v2 v3 v4 v5 v6
+name838 = "Algorithm.Internals-jk-from-\8605.new-weights"
+d838 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du838 v1 v4 v5 v6 v7 v10 v11
+du838 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du512 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name754 = "Algorithm.Internals-jk-from-\8605.relaxed-#"
-d754 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du754 v1 v4 v5 v6 v7 v10 v11
-du754 v0 v1 v2 v3 v4 v5 v6
+name840 = "Algorithm.Internals-jk-from-\8605.relaxed-#"
+d840 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du840 v1 v4 v5 v6 v7 v10 v11
+du840 v0 v1 v2 v3 v4 v5 v6
   = coe
-      du696 v0 v1 v2 v3 v4 v5 (coe MAlonzo.Code.Data.Product.d26 v6)
-name756 = "Algorithm.Internals-jk-from-\8605.relaxed-vertices"
-d756 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du756 v1 v4 v5 v6 v7 v10 v11
-du756 v0 v1 v2 v3 v4 v5 v6
+      du782 v0 v1 v2 v3 v4 v5 (coe MAlonzo.Code.Data.Product.d26 v6)
+name842 = "Algorithm.Internals-jk-from-\8605.relaxed-vertices"
+d842 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du842 v1 v4 v5 v6 v7 v10 v11
+du842 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du500 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name758 = "Algorithm.Internals-jk-from-\8605.r\8242"
-d758 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du758 v6 v10 v11
-du758 v0 v1 v2
+name844 = "Algorithm.Internals-jk-from-\8605.r\8242"
+d844 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du844 v6 v10 v11
+du844 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du488 v0 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v3
-name760 = "Algorithm.Internals-jk-from-\8605.r\8321"
-d760 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du760 v4 v6 v10 v11
-du760 v0 v1 v2 v3
+name846 = "Algorithm.Internals-jk-from-\8605.r\8321"
+d846 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du846 v4 v6 v10 v11
+du846 v0 v1 v2 v3
   = let v4 = coe MAlonzo.Code.Data.Product.d26 v3 in
     coe
       du492 v0 v1 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v2))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v2)) v4
-name762 = "Algorithm.Internals-jk-from-\8605.added-weight"
-d762 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du762 v10
-du762 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
-name764 = "Algorithm.Internals-jk-from-\8605.r\8322"
-d764 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du764 v1 v4 v5 v6 v7 v10 v11
-du764 v0 v1 v2 v3 v4 v5 v6
+name848 = "Algorithm.Internals-jk-from-\8605.added-weight"
+d848 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du848 v10
+du848 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
+name850 = "Algorithm.Internals-jk-from-\8605.r\8322"
+d850 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du850 v1 v4 v5 v6 v7 v10 v11
+du850 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du542 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name768 = "Algorithm.Internals-ij.D\8321"
-d768 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du768 v1 v4 v5 v6 v7 v8 v9 v10
-du768 v0 v1 v2 v3 v4 v5 v6 v7
+name854 = "Algorithm.Internals-ij.D\8321"
+d854 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du854 v1 v4 v5 v6 v7 v8 v9 v10
+du854 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       du540 v0 v1 v2 v3 v4 v5
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v6))
@@ -972,177 +1100,177 @@ du768 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d444 (coe MAlonzo.Code.Data.Product.d28 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v7
-name770 = "Algorithm.Internals-ij.D"
-d770 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du770 v9
-du770 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
-name772 = "Algorithm.Internals-ij.E\8321"
-d772 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du772 v6 v9 v10
-du772 v0 v1 v2
+name856 = "Algorithm.Internals-ij.D"
+d856 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du856 v9
+du856 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
+name858 = "Algorithm.Internals-ij.E\8321"
+d858 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du858 v6 v9 v10
+du858 v0 v1 v2
   = coe
       du486 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d452 (coe MAlonzo.Code.Data.Product.d28 v1)) v2
-name774 = "Algorithm.Internals-ij.E"
-d774 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du774 v9
-du774 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
-name776 = "Algorithm.Internals-ij.I\8321"
-d776 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du776 v4 v5 v6 v7 v9 v10
-du776 v0 v1 v2 v3 v4 v5
+name860 = "Algorithm.Internals-ij.E"
+d860 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du860 v9
+du860 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
+name862 = "Algorithm.Internals-ij.I\8321"
+d862 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du862 v4 v5 v6 v7 v9 v10
+du862 v0 v1 v2 v3 v4 v5
   = coe
       du508 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d450 (coe MAlonzo.Code.Data.Product.d28 v4)) v5
-name778 = "Algorithm.Internals-ij.I"
-d778 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du778 v9
-du778 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
-name780 = "Algorithm.Internals-ij.L\8321"
-d780 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du780 v4 v5 v6 v7 v9 v10
-du780 v0 v1 v2 v3 v4 v5
+name864 = "Algorithm.Internals-ij.I"
+d864 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du864 v9
+du864 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
+name866 = "Algorithm.Internals-ij.L\8321"
+d866 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du866 v4 v5 v6 v7 v9 v10
+du866 v0 v1 v2 v3 v4 v5
   = coe
       du502 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d448 (coe MAlonzo.Code.Data.Product.d28 v4)) v5
-name782 = "Algorithm.Internals-ij.L"
-d782 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du782 v9
-du782 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
-name784 = "Algorithm.Internals-ij.R\8322"
-d784 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du784 v1 v4 v5 v6 v7 v8 v9 v10
-du784 v0 v1 v2 v3 v4 v5 v6 v7
+name868 = "Algorithm.Internals-ij.L"
+d868 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du868 v9
+du868 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
+name870 = "Algorithm.Internals-ij.R\8322"
+d870 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du870 v1 v4 v5 v6 v7 v8 v9 v10
+du870 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       du544 v0 v1 v2 v3 v4 v5
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v7
-name786 = "Algorithm.Internals-ij.R\8242"
-d786 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du786 v6 v9 v10
-du786 v0 v1 v2
+name872 = "Algorithm.Internals-ij.R\8242"
+d872 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du872 v6 v9 v10
+du872 v0 v1 v2
   = coe
       du490 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v2
-name788 = "Algorithm.Internals-ij.R\8321"
-d788 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du788 v6 v9 v10
-du788 v0 v1 v2
+name874 = "Algorithm.Internals-ij.R\8321"
+d874 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du874 v6 v9 v10
+du874 v0 v1 v2
   = coe
       du494 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v2
-name790 = "Algorithm.Internals-ij.R"
-d790 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du790 v9
-du790 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
-name792 = "Algorithm.Internals-ij.S\8322"
-d792 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du792 v1 v4 v5 v6 v7 v9 v10
-du792 v0 v1 v2 v3 v4 v5 v6
+name876 = "Algorithm.Internals-ij.R"
+d876 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du876 v9
+du876 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
+name878 = "Algorithm.Internals-ij.S\8322"
+d878 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du878 v1 v4 v5 v6 v7 v9 v10
+du878 v0 v1 v2 v3 v4 v5 v6
   = coe
       du546 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name794 = "Algorithm.Internals-ij.S\8321"
-d794 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du794 v6 v9 v10
-du794 v0 v1 v2
+name880 = "Algorithm.Internals-ij.S\8321"
+d880 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du880 v6 v9 v10
+du880 v0 v1 v2
   = coe du484 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v2
-name796 = "Algorithm.Internals-ij.vertex-queue"
-d796 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du796 v9
-du796 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
-name798 = "Algorithm.Internals-ij.condition"
-d798 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du798 v4 v5 v6 v7 v9 v10
-du798 v0 v1 v2 v3 v4 v5
+name882 = "Algorithm.Internals-ij.vertex-queue"
+d882 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du882 v9
+du882 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
+name884 = "Algorithm.Internals-ij.condition"
+d884 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du884 v4 v5 v6 v7 v9 v10
+du884 v0 v1 v2 v3 v4 v5
   = coe
       du496 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4)) v5
-name800 = "Algorithm.Internals-ij.q"
-d800 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du800 v6 v9 v10
-du800 v0 v1 v2
+name886 = "Algorithm.Internals-ij.q"
+d886 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du886 v6 v9 v10
+du886 v0 v1 v2
   = coe du482 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v2
-name802 = "Algorithm.Internals-ij.d\8321"
-d802 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du802 v1 v4 v5 v6 v7 v9 v10
-du802 v0 v1 v2 v3 v4 v5 v6
+name888 = "Algorithm.Internals-ij.d\8321"
+d888 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du888 v1 v4 v5 v6 v7 v9 v10
+du888 v0 v1 v2 v3 v4 v5 v6
   = coe
       du538 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name804 = "Algorithm.Internals-ij.known-distances"
-d804 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du804 v9
-du804 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
-name806 = "Algorithm.Internals-ij.enqueued-#"
-d806 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du806 v1 v4 v5 v6 v7 v9 v10
-du806 v0 v1 v2 v3 v4 v5 v6 = coe du698 v0 v1 v2 v3 v4 v5 v6
-name808 = "Algorithm.Internals-ij.enqueued-vertices"
-d808 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du808 v1 v4 v5 v6 v7 v9 v10
-du808 v0 v1 v2 v3 v4 v5 v6
+name890 = "Algorithm.Internals-ij.known-distances"
+d890 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du890 v9
+du890 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
+name892 = "Algorithm.Internals-ij.enqueued-#"
+d892 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du892 v1 v4 v5 v6 v7 v9 v10
+du892 v0 v1 v2 v3 v4 v5 v6 = coe du784 v0 v1 v2 v3 v4 v5 v6
+name894 = "Algorithm.Internals-ij.enqueued-vertices"
+d894 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du894 v1 v4 v5 v6 v7 v9 v10
+du894 v0 v1 v2 v3 v4 v5 v6
   = coe
       du504 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name810 = "Algorithm.Internals-ij.new-sets"
-d810 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du810 v1 v4 v5 v6 v7 v8 v9 v10
-du810 v0 v1 v2 v3 v4 v5 v6 v7
+name896 = "Algorithm.Internals-ij.new-sets"
+d896 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du896 v1 v4 v5 v6 v7 v8 v9 v10
+du896 v0 v1 v2 v3 v4 v5 v6 v7
   = coe
       du524 v0 v1 v2 v3 v4 v5
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v7
-name812 = "Algorithm.Internals-ij.new-weights"
-d812 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du812 v1 v4 v5 v6 v7 v9 v10
-du812 v0 v1 v2 v3 v4 v5 v6
+name898 = "Algorithm.Internals-ij.new-weights"
+d898 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du898 v1 v4 v5 v6 v7 v9 v10
+du898 v0 v1 v2 v3 v4 v5 v6
   = coe
       du512 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name814 = "Algorithm.Internals-ij.relaxed-#"
-d814 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du814 v1 v4 v5 v6 v7 v9 v10
-du814 v0 v1 v2 v3 v4 v5 v6 = coe du696 v0 v1 v2 v3 v4 v5 v6
-name816 = "Algorithm.Internals-ij.relaxed-vertices"
-d816 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du816 v1 v4 v5 v6 v7 v9 v10
-du816 v0 v1 v2 v3 v4 v5 v6
+name900 = "Algorithm.Internals-ij.relaxed-#"
+d900 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du900 v1 v4 v5 v6 v7 v9 v10
+du900 v0 v1 v2 v3 v4 v5 v6 = coe du782 v0 v1 v2 v3 v4 v5 v6
+name902 = "Algorithm.Internals-ij.relaxed-vertices"
+d902 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du902 v1 v4 v5 v6 v7 v9 v10
+du902 v0 v1 v2 v3 v4 v5 v6
   = coe
       du500 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name818 = "Algorithm.Internals-ij.r\8322"
-d818 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
-  = du818 v1 v4 v5 v6 v7 v9 v10
-du818 v0 v1 v2 v3 v4 v5 v6
+name904 = "Algorithm.Internals-ij.r\8322"
+d904 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10
+  = du904 v1 v4 v5 v6 v7 v9 v10
+du904 v0 v1 v2 v3 v4 v5 v6
   = coe
       du542 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v6
-name820 = "Algorithm.Internals-ij.r\8242"
-d820 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du820 v6 v9 v10
-du820 v0 v1 v2
+name906 = "Algorithm.Internals-ij.r\8242"
+d906 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du906 v6 v9 v10
+du906 v0 v1 v2
   = coe
       du488 v0 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v2
-name822 = "Algorithm.Internals-ij.r\8321"
-d822 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du822 v4 v6 v9 v10
-du822 v0 v1 v2 v3
+name908 = "Algorithm.Internals-ij.r\8321"
+d908 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du908 v4 v6 v9 v10
+du908 v0 v1 v2 v3
   = coe
       du492 v0 v1 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v2))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v2)) v3
-name824 = "Algorithm.Internals-ij.added-weight"
-d824 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du824 v9
-du824 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
-name834 = "Algorithm.Internals-ij-from-\8605.D\8321"
-d834 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du834 v1 v4 v5 v6 v7 v8 v10 v11
-du834 v0 v1 v2 v3 v4 v5 v6 v7
+name910 = "Algorithm.Internals-ij.added-weight"
+d910 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 = du910 v9
+du910 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
+name920 = "Algorithm.Internals-ij-from-\8605.D\8321"
+d920 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du920 v1 v4 v5 v6 v7 v8 v10 v11
+du920 v0 v1 v2 v3 v4 v5 v6 v7
   = let v8 = coe MAlonzo.Code.Data.Product.d26 v7 in
     coe
       du540 v0 v1 v2 v3 v4 v5
@@ -1151,49 +1279,49 @@ du834 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d444 (coe MAlonzo.Code.Data.Product.d28 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v8
-name836 = "Algorithm.Internals-ij-from-\8605.D"
-d836 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du836 v10
-du836 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
-name838 = "Algorithm.Internals-ij-from-\8605.E\8321"
-d838 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du838 v6 v10 v11
-du838 v0 v1 v2
+name922 = "Algorithm.Internals-ij-from-\8605.D"
+d922 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du922 v10
+du922 v0 = coe d444 (coe MAlonzo.Code.Data.Product.d28 v0)
+name924 = "Algorithm.Internals-ij-from-\8605.E\8321"
+d924 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du924 v6 v10 v11
+du924 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du486 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d452 (coe MAlonzo.Code.Data.Product.d28 v1)) v3
-name840 = "Algorithm.Internals-ij-from-\8605.E"
-d840 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du840 v10
-du840 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
-name842 = "Algorithm.Internals-ij-from-\8605.I\8321"
-d842 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du842 v4 v5 v6 v7 v10 v11
-du842 v0 v1 v2 v3 v4 v5
+name926 = "Algorithm.Internals-ij-from-\8605.E"
+d926 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du926 v10
+du926 v0 = coe d452 (coe MAlonzo.Code.Data.Product.d28 v0)
+name928 = "Algorithm.Internals-ij-from-\8605.I\8321"
+d928 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du928 v4 v5 v6 v7 v10 v11
+du928 v0 v1 v2 v3 v4 v5
   = let v6 = coe MAlonzo.Code.Data.Product.d26 v5 in
     coe
       du508 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d450 (coe MAlonzo.Code.Data.Product.d28 v4)) v6
-name844 = "Algorithm.Internals-ij-from-\8605.I"
-d844 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du844 v10
-du844 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
-name846 = "Algorithm.Internals-ij-from-\8605.L\8321"
-d846 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du846 v4 v5 v6 v7 v10 v11
-du846 v0 v1 v2 v3 v4 v5
+name930 = "Algorithm.Internals-ij-from-\8605.I"
+d930 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du930 v10
+du930 v0 = coe d450 (coe MAlonzo.Code.Data.Product.d28 v0)
+name932 = "Algorithm.Internals-ij-from-\8605.L\8321"
+d932 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du932 v4 v5 v6 v7 v10 v11
+du932 v0 v1 v2 v3 v4 v5
   = let v6 = coe MAlonzo.Code.Data.Product.d26 v5 in
     coe
       du502 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d448 (coe MAlonzo.Code.Data.Product.d28 v4)) v6
-name848 = "Algorithm.Internals-ij-from-\8605.L"
-d848 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du848 v10
-du848 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
-name850 = "Algorithm.Internals-ij-from-\8605.R\8322"
-d850 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du850 v1 v4 v5 v6 v7 v8 v10 v11
-du850 v0 v1 v2 v3 v4 v5 v6 v7
+name934 = "Algorithm.Internals-ij-from-\8605.L"
+d934 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du934 v10
+du934 v0 = coe d448 (coe MAlonzo.Code.Data.Product.d28 v0)
+name936 = "Algorithm.Internals-ij-from-\8605.R\8322"
+d936 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du936 v1 v4 v5 v6 v7 v8 v10 v11
+du936 v0 v1 v2 v3 v4 v5 v6 v7
   = let v8 = coe MAlonzo.Code.Data.Product.d26 v7 in
     coe
       du544 v0 v1 v2 v3 v4 v5
@@ -1201,88 +1329,88 @@ du850 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v8
-name852 = "Algorithm.Internals-ij-from-\8605.R\8242"
-d852 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du852 v6 v10 v11
-du852 v0 v1 v2
+name938 = "Algorithm.Internals-ij-from-\8605.R\8242"
+d938 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du938 v6 v10 v11
+du938 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du490 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v3
-name854 = "Algorithm.Internals-ij-from-\8605.R\8321"
-d854 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du854 v6 v10 v11
-du854 v0 v1 v2
+name940 = "Algorithm.Internals-ij-from-\8605.R\8321"
+d940 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du940 v6 v10 v11
+du940 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du494 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v1)) v3
-name856 = "Algorithm.Internals-ij-from-\8605.R"
-d856 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du856 v10
-du856 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
-name858 = "Algorithm.Internals-ij-from-\8605.S\8322"
-d858 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du858 v1 v4 v5 v6 v7 v10 v11
-du858 v0 v1 v2 v3 v4 v5 v6
+name942 = "Algorithm.Internals-ij-from-\8605.R"
+d942 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du942 v10
+du942 v0 = coe d446 (coe MAlonzo.Code.Data.Product.d28 v0)
+name944 = "Algorithm.Internals-ij-from-\8605.S\8322"
+d944 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du944 v1 v4 v5 v6 v7 v10 v11
+du944 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du546 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name860 = "Algorithm.Internals-ij-from-\8605.S\8321"
-d860 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du860 v6 v10 v11
-du860 v0 v1 v2
+name946 = "Algorithm.Internals-ij-from-\8605.S\8321"
+d946 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du946 v6 v10 v11
+du946 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe du484 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v3
-name862 = "Algorithm.Internals-ij-from-\8605.vertex-queue"
-d862 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du862 v10
-du862 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
-name864 = "Algorithm.Internals-ij-from-\8605.condition"
-d864 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du864 v4 v5 v6 v7 v10 v11
-du864 v0 v1 v2 v3 v4 v5
+name948 = "Algorithm.Internals-ij-from-\8605.vertex-queue"
+d948 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du948 v10
+du948 v0 = coe d286 (coe MAlonzo.Code.Data.Product.d26 v0)
+name950 = "Algorithm.Internals-ij-from-\8605.condition"
+d950 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du950 v4 v5 v6 v7 v10 v11
+du950 v0 v1 v2 v3 v4 v5
   = let v6 = coe MAlonzo.Code.Data.Product.d26 v5 in
     coe
       du496 v0 v1 v2 v3 (coe d282 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v4))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v4)) v6
-name866 = "Algorithm.Internals-ij-from-\8605.q"
-d866 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du866 v6 v10 v11
-du866 v0 v1 v2
+name952 = "Algorithm.Internals-ij-from-\8605.q"
+d952 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du952 v6 v10 v11
+du952 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe du482 v0 (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v3
-name868 = "Algorithm.Internals-ij-from-\8605.d\8321"
-d868 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du868 v1 v4 v5 v6 v7 v10 v11
-du868 v0 v1 v2 v3 v4 v5 v6
+name954 = "Algorithm.Internals-ij-from-\8605.d\8321"
+d954 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du954 v1 v4 v5 v6 v7 v10 v11
+du954 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du538 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name870 = "Algorithm.Internals-ij-from-\8605.known-distances"
-d870 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du870 v10
-du870 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
-name872 = "Algorithm.Internals-ij-from-\8605.enqueued-#"
-d872 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du872 v1 v4 v5 v6 v7 v10 v11
-du872 v0 v1 v2 v3 v4 v5 v6
+name956 = "Algorithm.Internals-ij-from-\8605.known-distances"
+d956 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du956 v10
+du956 v0 = coe d282 (coe MAlonzo.Code.Data.Product.d26 v0)
+name958 = "Algorithm.Internals-ij-from-\8605.enqueued-#"
+d958 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du958 v1 v4 v5 v6 v7 v10 v11
+du958 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
-    coe du698 v0 v1 v2 v3 v4 v5 v7
-name874 = "Algorithm.Internals-ij-from-\8605.enqueued-vertices"
-d874 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du874 v1 v4 v5 v6 v7 v10 v11
-du874 v0 v1 v2 v3 v4 v5 v6
+    coe du784 v0 v1 v2 v3 v4 v5 v7
+name960 = "Algorithm.Internals-ij-from-\8605.enqueued-vertices"
+d960 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du960 v1 v4 v5 v6 v7 v10 v11
+du960 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du504 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name876 = "Algorithm.Internals-ij-from-\8605.new-sets"
-d876 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du876 v1 v4 v5 v6 v7 v8 v10 v11
-du876 v0 v1 v2 v3 v4 v5 v6 v7
+name962 = "Algorithm.Internals-ij-from-\8605.new-sets"
+d962 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du962 v1 v4 v5 v6 v7 v8 v10 v11
+du962 v0 v1 v2 v3 v4 v5 v6 v7
   = let v8 = coe MAlonzo.Code.Data.Product.d26 v7 in
     coe
       du524 v0 v1 v2 v3 v4 v5
@@ -1290,56 +1418,56 @@ du876 v0 v1 v2 v3 v4 v5 v6 v7
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v6))
       (coe d446 (coe MAlonzo.Code.Data.Product.d28 v6)) v8
-name878 = "Algorithm.Internals-ij-from-\8605.new-weights"
-d878 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du878 v1 v4 v5 v6 v7 v10 v11
-du878 v0 v1 v2 v3 v4 v5 v6
+name964 = "Algorithm.Internals-ij-from-\8605.new-weights"
+d964 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du964 v1 v4 v5 v6 v7 v10 v11
+du964 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du512 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name880 = "Algorithm.Internals-ij-from-\8605.relaxed-#"
-d880 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du880 v1 v4 v5 v6 v7 v10 v11
-du880 v0 v1 v2 v3 v4 v5 v6
+name966 = "Algorithm.Internals-ij-from-\8605.relaxed-#"
+d966 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du966 v1 v4 v5 v6 v7 v10 v11
+du966 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
-    coe du696 v0 v1 v2 v3 v4 v5 v7
-name882 = "Algorithm.Internals-ij-from-\8605.relaxed-vertices"
-d882 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du882 v1 v4 v5 v6 v7 v10 v11
-du882 v0 v1 v2 v3 v4 v5 v6
+    coe du782 v0 v1 v2 v3 v4 v5 v7
+name968 = "Algorithm.Internals-ij-from-\8605.relaxed-vertices"
+d968 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du968 v1 v4 v5 v6 v7 v10 v11
+du968 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du500 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name884 = "Algorithm.Internals-ij-from-\8605.r\8322"
-d884 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
-  = du884 v1 v4 v5 v6 v7 v10 v11
-du884 v0 v1 v2 v3 v4 v5 v6
+name970 = "Algorithm.Internals-ij-from-\8605.r\8322"
+d970 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11
+  = du970 v1 v4 v5 v6 v7 v10 v11
+du970 v0 v1 v2 v3 v4 v5 v6
   = let v7 = coe MAlonzo.Code.Data.Product.d26 v6 in
     coe
       du542 v0 v1 v2 v3 v4
       (coe d282 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d284 (coe MAlonzo.Code.Data.Product.d26 v5))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v5)) v7
-name886 = "Algorithm.Internals-ij-from-\8605.r\8242"
-d886 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du886 v6 v10 v11
-du886 v0 v1 v2
+name972 = "Algorithm.Internals-ij-from-\8605.r\8242"
+d972 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du972 v6 v10 v11
+du972 v0 v1 v2
   = let v3 = coe MAlonzo.Code.Data.Product.d26 v2 in
     coe
       du488 v0 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v1))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v1)) v3
-name888 = "Algorithm.Internals-ij-from-\8605.r\8321"
-d888 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du888 v4 v6 v10 v11
-du888 v0 v1 v2 v3
+name974 = "Algorithm.Internals-ij-from-\8605.r\8321"
+d974 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du974 v4 v6 v10 v11
+du974 v0 v1 v2 v3
   = let v4 = coe MAlonzo.Code.Data.Product.d26 v3 in
     coe
       du492 v0 v1 (coe d284 (coe MAlonzo.Code.Data.Product.d26 v2))
       (coe d286 (coe MAlonzo.Code.Data.Product.d26 v2)) v4
-name890 = "Algorithm.Internals-ij-from-\8605.added-weight"
-d890 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du890 v10
-du890 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
+name976 = "Algorithm.Internals-ij-from-\8605.added-weight"
+d976 v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 = du976 v10
+du976 v0 = coe d284 (coe MAlonzo.Code.Data.Product.d26 v0)
