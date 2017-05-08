@@ -89,6 +89,15 @@ module Algorithm.Properties.KClosed
     where open Internals-ij-from-↝ r
   -}
 
+  -- The number of times each vertex q is enqueued is less than card (P k q).
+  -- There is a surjection from P k q to Fin (I q).
+  postulate
+    insertions-finite :
+      ∀ {i} → Reachable-with-sets i →
+      let open Alg-state-abbrev (proj₁ i) in
+      let open Helper-sets (proj₂ i) in
+      ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
+
   postulate Dq⊆Pₖq : ∀ t → let open Helper-sets (proj₂ (σS t IS₀)) in
                      ∀ q → D q ⊆ all-P k q
 
