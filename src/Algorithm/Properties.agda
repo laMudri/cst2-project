@@ -11,8 +11,14 @@ open import Data.Nat as ℕ
 
 module Algorithm.Properties
        {c n ℓ ℓ′} (K : Semiring c ℓ) (De : Decidable K)
+<<<<<<< HEAD
        (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n) where
   open import Algorithm K De Q G s
+=======
+       (Q : QueueDiscipline (Fin n) ℓ′) (G : Graph K n) (s : Fin n)
+       {k : ℕ} (closed : let open GD {K = K} G in k ClosedOnG) where
+  open import Algorithm {c} {n} {ℓ} {ℓ′} K De Q G s
+>>>>>>> origin/master
   open Semiring K renaming (Carrier to C)
   open QueueDiscipline Q renaming (Carrier to Qc)
   open import Queue.Properties Q
@@ -66,7 +72,6 @@ module Algorithm.Properties
   open import Relation.Nullary.Product using (_×-dec_)
   import Relation.Unary as U
 
-  {-
   D-grows-step :
     ∀ {i j} (r : j ↝S i) →
     let open Internals-ij j (proj₁ r) in
@@ -218,8 +223,9 @@ module Algorithm.Properties
     ∀ {i} (rs : Reachable-with-sets i) →
     let open Helper-sets (proj₂ i) in
     ∀ {m q} (π : Path s m) (e : Edge m q) → (e ◅ π) ∈ D q →
-    ↝.Any (λ { {j} {alg-state _ _ S , helper-sets _ R _ _ _} (hi , eq) →
-             m ≡ proj₁ (dequeue S hi) × π ∈ R m }) rs
+    ↝.Any (λ { {j} {k , ks} (hi , eq) →
+             let open Alg-state-abbrev k; module KS = Helper-sets ks in
+             m ≡ proj₁ (dequeue S hi) × π ∈ KS.R m }) rs
   path-in-D-gives-path-in-R′ rs {m} π e eπ∈Dq =
     ↝.map (λ {j} {k} {r} → f j k r) (∈D→was-added rs π e eπ∈Dq)
     where
@@ -273,6 +279,18 @@ module Algorithm.Properties
   ---------------------------------------------------------------------------
   -- Extractions, Insertions, and number of times the condition holds.
 
+<<<<<<< HEAD
+=======
+  -- The number of times each vertex q is enqueued is less than card (P k q).
+  -- There is a surjection from P k q to Fin (I q).
+  postulate
+    insertions-finite :
+      ∀ {i} → Reachable-with-sets i →
+      let open Alg-state-abbrev (proj₁ i) in
+      let open Helper-sets (proj₂ i) in
+      ∀ q → Surjection (P k q) (PEq.setoid (Fin (I q)))
+
+>>>>>>> origin/master
   x+[y+z]=y+[x+z] : ∀ x y z → x ℕ.+ (y ℕ.+ z) ≡ y ℕ.+ (x ℕ.+ z)
   x+[y+z]=y+[x+z] x y z = begin
     x ℕ.+ (y ℕ.+ z)  ≡⟨ PEq.sym (ℕS.+-assoc x y z) ⟩
@@ -281,6 +299,21 @@ module Algorithm.Properties
     y ℕ.+ (x ℕ.+ z)  ∎
     where open ≡-Reasoning
 
+<<<<<<< HEAD
+=======
+  {-
+  extractions-≤ :
+    ∀ {i} → Reachable-with-sets i →
+    let open Alg-state-abbrev (proj₁ i) in
+    let open Helper-sets (proj₂ i) in
+    ∣ E ∣ ≤ ∣ List.length ∘ all-P k ∣
+  extractions-≤ {_ , helper-sets _ _ _ _ E} ε =
+    PEq.subst (_≤ ∣ List.length ∘ all-P k ∣) (PEq.sym (sum-0 n)) z≤n
+  extractions-≤ (r@(hi , PEq.refl) ◅ rs) = {!!}
+    where open Internals-ij-from-↝ r
+  -}
+
+>>>>>>> origin/master
   extractions-suc :
     ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
     ∣ Eᵢ ∣ ≡ suc ∣ Eⱼ ∣
@@ -302,14 +335,15 @@ module Algorithm.Properties
     open Internals-ij-from-↝ r
     open ≡-Reasoning
 
-  ∣I∣ : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
-        ∣ Iᵢ ∣ ≡ enqueued-# ℕ.+ ∣ Iⱼ ∣
-  ∣I∣ r@(hi , PEq.refl) = begin
-    ∣ Iᵢ ∣  ≡⟨ {!enqueued-#!} ⟩
-    enqueued-# ℕ.+ ∣ Iⱼ ∣  ∎
-    where
-    open Internals-ij-from-↝ r
-    open ≡-Reasoning
+  postulate
+    ∣I∣ : ∀ {i j} (r : j ↝S i) → let open Internals-ij-from-↝ r in
+          ∣ Iᵢ ∣ ≡ enqueued-# ℕ.+ ∣ Iⱼ ∣
+  --∣I∣ r@(hi , PEq.refl) = begin
+  --  ∣ Iᵢ ∣  ≡⟨ {!enqueued-#!} ⟩
+  --  enqueued-# ℕ.+ ∣ Iⱼ ∣  ∎
+  --  where
+  --  open Internals-ij-from-↝ r
+  --  open ≡-Reasoning
 
   1+I=E+S : ∀ {i} (rs : Reachable-with-sets i) →
             let open Alg-state-abbrev (proj₁ i) in
@@ -374,6 +408,7 @@ module Algorithm.Properties
     where
     open Internals-ij-from-↝ r
     open ≡-Reasoning
+<<<<<<< HEAD
   -}
 
   postulate Iq≤Lq : ∀ t → let open St-at t in
@@ -390,6 +425,16 @@ module Algorithm.Properties
 
   postulate Iq-step-bound : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
                             ∀ q → I′ q ≤′ suc (I q)
+=======
+
+  postulate I≤L : ∀ t → let open Helper-sets (proj₂ (σS t IS₀)) in
+                  ∀ q → I q ≤ L q
+
+  {-
+  postulate L-no-suc : ∀ q t state hi → let open Internals-ij (σS t state) hi in
+                       T (not (conditon q)) → Lⱼ q ≡ Lᵢ q
+  -}
+>>>>>>> origin/master
 
   postulate Lq-step-bound : ∀ t state → let open St (σS t state); open St′ (σS (suc t) state) in
                             ∀ q → L′ q ≤′ suc (L q)

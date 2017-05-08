@@ -1,0 +1,143 @@
+\pgfplotsset{every axis legend/.append style=
+  { at={(0,1)}
+  , anchor=south west
+  }
+}
+
+\chapter{Evaluation}
+
+This chapter assesses the performance of the generic single-source shortest-distance algorithm under various conditions.
+
+%\begin{tikzpicture}
+%\begin{axis}[xmode=log, ymode=log]
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data.csv};
+%\end{axis}
+%\end{tikzpicture}
+
+%\begin{tikzpicture}
+%\begin{axis}[xmode=log, ymode=log]
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/dijkstra.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohri.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohriKShortest4.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohriKShortest8.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohriKShortest12.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohriKShortest16.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohriKShortest20.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohrip.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohripKShortest4.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohripKShortest8.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohripKShortest12.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohripKShortest16.csv};
+%\addplot[scatter, only marks] table[x=time, y=alloc, col sep=comma] {data/mohripKShortest20.csv};
+%\end{axis}
+%\end{tikzpicture}
+
+\section{Algorithms for the classical shortest-distance problem}
+
+This section concerns the performance of Mohri's algorithm when finding a shortest distance to each node in a graph.
+I take distances to be from the tropical semiring $\mathbb N \cup \infty$, making the problem amenable for classical shortest-distance algorithms.
+Thus, I use Dijkstra's algorithm as a reference point.
+
+\newcommand{\plot}[2]{%
+  \begin{subfigure}[b]{0.5\textwidth}
+    \begin{tikzpicture}
+      \begin{axis}[xlabel={$n$}, ylabel={#1},
+        use units, y unit=\ifstrcmp{#1}{time}{s}{B}, y unit prefix=\ifstrcmp{#1}{time}{}{Gi},
+        width=7.5cm]
+        \addplot table[x=n, y=#1, col sep=comma] {data/graph-#2-dijkstra.csv};
+        \addplot table[x=n, y=#1, col sep=comma] {data/graph-#2-mohri.csv};
+        \addplot table[x=n, y=#1, col sep=comma] {data/graph-#2-mohrip.csv};
+        \legend{Dijkstra, Mohri (LIFO), Mohri (Dijkstra-style queue)}
+      \end{axis}
+    \end{tikzpicture}
+  \end{subfigure}%
+}
+
+\newcommand{\plottwo}[1]{%
+  \begin{figure}
+    \plot{time}{#1}
+    \plot{alloc}{#1}
+    \caption{Time taken (left) and memory allocated (right) in solving the shortest-distance problem on a \ifstrcmp{#1}{C}{complete randomly weighted}{\ifstrcmp{#1}{U}{complete uniformly weighted}{bimodal randomly weighted}} graph with $n$ vertices.}
+    \label{fig:plot-#1}
+  \end{figure}%
+}
+
+\newcommand{\plotk}[2]{%
+  \begin{subfigure}[b]{0.5\textwidth}
+    \begin{tikzpicture}
+      \begin{axis}[xlabel={$k$}, ylabel={#1},
+        use units, y unit=\ifstrcmp{#1}{time}{s}{B}, y unit prefix=\ifstrcmp{#1}{time}{}{Gi}, scaled y ticks=false,
+        width=7.5cm]
+        \addplot table[x=k, y=#1, col sep=comma] {data/graph-mohriKShortest-#2-400.csv};
+        \addplot table[x=k, y=#1, col sep=comma] {data/graph-mohripKShortest-#2-400.csv};
+        \legend{Mohri (LIFO), Mohri (Dijkstra-style queue)}
+      \end{axis}
+    \end{tikzpicture}
+  \end{subfigure}%
+}
+
+\newcommand{\plotktwo}[1]{%
+  \begin{figure}
+    \plotk{time}{#1}
+    \plotk{alloc}{#1}
+    \caption{Time taken (left) and memory allocated (right) in solving the $k$ shortest-distances problem on a \ifstrcmp{#1}{C}{complete randomly weighted}{\ifstrcmp{#1}{U}{complete uniformly weighted}{bimodal randomly weighted}} graph with 400 vertices.}
+    \label{fig:plot-#1}
+  \end{figure}%
+}
+
+\subsection{Complete graphs}\label{sec:complete-graphs}
+
+The first set of tests concern graphs in which each vertex is connected to every other vertex by an edge of finite distance.
+Furthermore, distances are randomly assigned.
+For each number of vertices $n$, I generate 8 separate graphs, each with edge weights sampled from a different random distribution.
+The time and memory allocation values plotted in Figure \ref{fig:plot-C} are each a mean of the respective statistic from each of these 8 graphs.
+
+Each of the random distributions is geometric, with the parameter set to $1/2^i$ for $i$ from 1 to 8.
+I use the definition of the geometric distribution that includes 0, so given fixed parameter $p \in (0,1]$, $p$ of the sampled values are 0, $p$ of the remainder are 1, and so on.
+The effect of the parameter on the performance of the algorithms will be investigated later.
+
+The data show that, with little useful structure in a highly connected graph, having a sophisticated queueing discipline provides only minor benefits over a simple LIFO stack.
+
+\plottwo{C}
+
+\subsection{Uniform-weighted complete graphs}
+
+In this set of tests, each vertex is connected to each vertex (including itself) by an edge of weight 1.
+The results for these are shown in Figure \ref{fig:plot-U}.
+Given that there is no parameter to vary, each data point of these is the result of a single test.
+
+The data show that the queueing discipline for Mohri's algorithm has basically no effect on performance.
+This makes sense when we consider that no queueing discipline can distinguish between the vertices in a helpful way.
+It is, to an extent, surprising that the overhead costs of maintaining a priority queue are minimal.
+%This suggests that the cost of the semiring operations is dominating the running time and memory allocation.
+
+\plottwo{U}
+
+\subsection{Bimodal graphs}
+
+The final kind of graphs I test is graphs where vertices are split into two separate groups.
+Within each group, each vertex is connected to each vertex by an edge of random weight (from the same distributions explained in Section \ref{sec:complete-graphs}).
+Between the groups, there is only a single edge, from one vertex in the first group to one vertex in the second group.
+The non-existence of an edge is represented by an edge of weight $\infty$.
+This matches the Agda formalisation, where a graph is defined to be a function from pairs of vertices to weights.
+
+The results for these tests is shown in Figure \ref{fig:plot-B}, with the same format as the data in Section \ref{sec:complete-graphs}.
+Here, we can see that the extra structure of bimodal graphs over complete graphs gives a large advantage to the priority queues of Dijkstra's algorithm and the corresponding specialisation of Mohri's algorithm.
+
+\plottwo{B}
+
+\subsection{Effect of the probability distribution}
+
+\section{$k$ shortest distances}
+
+\subsection{Complete graphs}
+
+\plotktwo{C}
+
+\subsection{Uniform-weighted complete graphs}
+
+\plotktwo{U}
+
+\subsection{Bimodal graphs}
+
+\plotktwo{B}

@@ -1,0 +1,78 @@
+name:                haskell
+version:             0.1.0.0
+synopsis:            .
+description:         .
+homepage:            https://github.com/laMudri/cst2-project#readme
+license:             BSD3
+license-file:        LICENSE
+author:              James Wood
+maintainer:          jdw74@cam.ac.uk
+copyright:           2017 James Wood
+category:            Web
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Types Mohri MohriPriority Dijkstra KSemiring KSemiring.Conversion Mohri.KShortest
+  build-depends:       base >= 4.7 && < 5
+                     , MonadRandom
+                     , boxes
+                     , psqueues
+                     , array
+                     , containers
+  default-language:    Haskell2010
+
+executable exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , haskell
+                     , psqueues
+                     , array
+                     , containers
+  default-language:    Haskell2010
+
+executable gen-graphs
+  hs-source-dirs:      gen
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , haskell
+                     , MonadRandom
+                     , array
+                     , containers
+  default-language:    Haskell2010
+
+executable process-prof
+  hs-source-dirs:      process-prof
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , haskell
+  default-language:    Haskell2010
+
+executable to-agda
+  hs-source-dirs:      to-agda
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , haskell
+                     , containers
+                     , filepath
+  default-language:    Haskell2010
+
+test-suite haskell-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , haskell
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/laMudri/cst2-project

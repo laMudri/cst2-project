@@ -85,7 +85,11 @@ module Algorithm.Theorem1
   Lq≤Pₖq ℕ.zero q = z≤n
   Lq≤Pₖq (suc t) q with σS t IS₀ | inspect (σS t) IS₀
   ... | (state′ , hs′) | [ eq ] with Has-items? (Alg-state-abbrev.S state′)
+<<<<<<< HEAD
   ...   | no ¬hi = PEq.subst (λ x → Helper-sets.L x q ≤ List.length (all-P k q)) (PEq.cong proj₂ eq) (Lq≤Pₖq t q)
+=======
+  ...   | no ¬hi = {!PEq.subst (λ x → Helper-sets.L x q ≤ List.length (all-P k q)) (PEq.cong proj₂ eq) (L≤Pₖq q t)!}
+>>>>>>> origin/master
   ...   | yes hi with suc (Helper-sets.L hs′ q) ℕ.≤? List.length (all-P k q)
   ...     | yes Lq<Pₖq = begin
     appWhen conditon suc Lⱼ q  ≤⟨ {!Lq-increase t IS₀ q!} ⟩

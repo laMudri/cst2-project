@@ -1,0 +1,65 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+%\usepackage{cite}
+%\usepackage{hyperref}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{enumitem}
+
+\begin{document}
+\title{Progress report -- Formalising a semiring framework for shortest-distance problems}
+\author{James Wood -- jdw74@cam.ac.uk}
+\maketitle
+
+\begin{itemize}
+  \item Supervisors:
+    \begin{itemize}
+      \item Dominic Mulligan (dominic.p.mulligan@googlemail.com)
+      \item Matthew Daggitt (mld46@cam.ac.uk)
+    \end{itemize}
+  \item Director of Studies: Alastair Beresford (arb33@cam.ac.uk)
+  \item Overseers
+    \begin{itemize}
+      \item Robert Watson (robert.watson@cl.cam.ac.uk)
+      \item Hatice Gunes (hatice.gunes@cl.cam.ac.uk)
+    \end{itemize}
+\end{itemize}
+
+\section{Introduction}
+The intent of this project was to reproduce the algorithm and proofs given in \cite{Mohri02} in the proof assistant Agda\cite{Norell07}.
+The original aim was to cover everything up to theorem 1, establishing that the first algorithm given always terminates, and does so with the correct result.
+The algorithm is essentially a generalised version of the Dijkstra and Bellman-Ford algorithms for calculating shortest distances in a weighted graph.
+It is parametric in queue discipline of the queue used to hold the next vertices to be explored.
+It also has particularly loose restrictions on the weights in the graph.
+Specifically, if the algorithm is to be run on a graph $G$, the weights must come from a set that forms a semiring which is $k$-closed on $G$, for some natural number $k$.
+A semiring is an algebraic structure on which 0, 1, addition ($\oplus$), and multiplication ($\otimes$) are well-behaved, and it is $k$-closed on $G$ if, for any possible path through $G$, going round a loop more than $k$ times does not produce shorter distances.
+A simple example uses non-negative numbers extended with $\infty$, setting 0 to $\infty$, 1 to $0$, $\oplus$ to binary minimum, and $\otimes$ to $+$.
+
+In full generality, a distance needn't correspond to any particular path.
+The paper gives the example of computing the $k$ shortest distances and $k$ distinct shortest distances using the same algorithm.
+These clearly don't correspond to single paths, given that a single distance summarises $k$ different distances.
+This makes the algorithm difficult to reason about in an intuitive way.
+
+\section{Progress}
+The start of the project ran to schedule.
+I formalised section 1 of the paper, dealing with definitions and proofs about semirings.
+I then formalised some of the notions that would be needed for working with graphs, including most of the definitions in section 2.
+After this, I found a way of expressing the algorithm given in section 3, and started proving lemmas about it.
+
+The lemmas about the algorithm took longer than expected to prove.
+One reason for this was that the proofs given in the paper sometimes make reference to state kept track of implicitly by the reader, like the number of times a vertex has been extracted from the queue so far.
+It took me some time to work out how to incorporate this into my formalisation.
+Over the Christmas vacation, I only managed to prove one of the five remaining lemmas, after some significant rewriting of the algorithm.
+I had planned to prove all of them.
+
+Following this, my plan for the next two weeks is to focus on proving the main theorem, under the assumptions that the lemmas hold.
+This theorem establishes that the algorithm, when run with all the preconditions holding, always terminates, and does so with the correct answer.
+I will not do any extensions, and any spare time will be spent on proving any lemmas I have assumed.
+Work on the performance evaluation will be pushed back to the week beginning on 2017-02-20.
+The evaluation consists of writing an unverified Haskell implementation of the algorithm (a direct translation of what I've already written), and generating/finding test graphs on which to run both of the algorithms.
+When this is done, I will pick up the original plan, and start writing the dissertation.
+
+\bibliography{bib}
+\bibliographystyle{plain}
+
+\end{document}

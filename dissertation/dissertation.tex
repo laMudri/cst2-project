@@ -1,0 +1,147 @@
+% Template for a Computer Science Tripos Part II project dissertation
+\documentclass[12pt,a4paper,twoside,openright]{report}
+\usepackage[pdfborder={0 0 0}]{hyperref}    % turns references into hyperlinks
+\usepackage[margin=25mm]{geometry}  % adjusts page layout
+\usepackage{graphicx}  % allows inclusion of PDF, PNG and JPG images
+\usepackage{listings}
+%\usepackage{minted}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{verbatim}
+\usepackage{docmute}   % only needed to allow inclusion of proposal.tex
+\usepackage{import}
+\usepackage{clrscode3e}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{etextools}
+\usepackage{bbding}
+\usepackage{subcaption}
+
+\usepgfplotslibrary{units}
+\usetikzlibrary{pgfplots.units}
+
+\renewcommand{\gets}{\leftarrow}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+
+\usepackage{latex/agda}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{bbm}
+\usepackage[greek,english]{babel}
+\usepackage{textcomp}
+\usepackage{textgreek}
+\usepackage{autofe}
+
+\DeclareUnicodeCharacter{"2237}{::}
+\DeclareUnicodeCharacter{"220E}{\RectangleBold}
+\DeclareUnicodeCharacter{"25C5}{\ensuremath{\vartriangleleft}}
+\DeclareUnicodeCharacter{"02E1}{\textsuperscript{l}}
+
+\usepackage{amstext}
+\usepackage{stmaryrd}
+\usepackage{polytable}
+
+\input{lhs-preamble}
+%include polycode.fmt
+
+\raggedbottom                           % try to avoid widows and orphans
+\sloppy
+\clubpenalty1000%
+\widowpenalty1000%
+
+\renewcommand{\baselinestretch}{1.1}    % adjust line spacing to make
+                                        % more readable
+
+\newcommand{\mytitle}{On the correctness and performance of a shortest distance algorithm}
+\newcommand{\qed}{\RectangleBold}
+
+\begin{document}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Title
+
+
+\pagestyle{empty}
+
+\rightline{\LARGE \textbf{James Wood}}
+
+\vspace*{60mm}
+\begin{center}
+\Huge
+\textbf{\mytitle} \\[5mm]
+Computer Science Tripos -- Part II \\[5mm]
+Robinson College \\[5mm]
+\today  % today's date
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Proforma, table of contents and list of figures
+
+\pagestyle{plain}
+
+\chapter*{Proforma}
+
+{\large
+\begin{tabularx}{\linewidth}{lX}
+Name:               & \bf James D. Wood \\
+College:            & \bf Robinson College \\
+Project Title:      & \bf \mytitle \\
+Examination:        & \bf Computer Science Tripos -- Part II, July 2017  \\
+Word Count:         & \bf ? \\
+Project Originator: & Dr Dominic Mulligan \\
+Supervisors:        & Dr Dominic Mulligan and Mr Matthew Daggitt \\
+\end{tabularx}
+}
+
+
+\section*{Original Aims of the Project}
+
+\section*{Work Completed}
+
+\section*{Special Difficulties}
+
+\newpage
+\section*{Declaration}
+
+I, James Wood of Robinson College, being a candidate for Part II of the Computer Science Tripos [or the Diploma in Computer Science], hereby declare that this dissertation and the work described in it are my own work, unaided except as may be specified below, and that the dissertation does not contain material that has already been used to any substantial extent for a comparable purpose.
+
+\bigskip
+\leftline{Signed}
+
+\medskip
+\leftline{Date}
+
+\tableofcontents
+
+\listoffigures
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% now for the chapters
+
+\pagestyle{headings}
+
+\include{Introduction}
+
+\include{./latex/Preparation}
+%\include{./lhs/Preparation}
+
+\include{./latex/Implementation}
+
+\include{Evaluation}
+
+\include{Conclusion}
+
+%
+
+\bibliography{../bib.bib}
+\bibliographystyle{plain}
+
+\chapter{Project Proposal}
+
+\input{propbody.tex}
+
+\end{document}

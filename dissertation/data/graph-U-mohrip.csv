@@ -1,0 +1,9 @@
+graph type,n,p,algorithm,time,alloc
+U,50,1,mohrip,0.010,0.02126
+U,100,1,mohrip,0.077,0.16296
+U,150,1,mohrip,0.363,0.54244
+U,200,1,mohrip,0.862,1.27702
+U,250,1,mohrip,1.723,2.48404
+U,300,1,mohrip,3.031,4.28087
+U,350,1,mohrip,4.861,6.78483
+U,400,1,mohrip,7.059,10.11328

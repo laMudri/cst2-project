@@ -5,6 +5,8 @@ module Main where
 
   open import Category.Monad
 
+  open import Coinduction
+
   open import Data.Bool using (Bool; false; true; T)
   open import Data.Fin using (Fin; zero; suc)
   open import Data.Fin.Properties as FinP using ()
@@ -28,136 +30,13 @@ module Main where
   map₂ f ma mb = ma >>= λ a → mb >>= λ b → return (f a b)
     where open RawMonad Maybe.monad
 
-  K : Semiring _ _
-  K = record
-    { Carrier = Maybe ℕ
-    ; _≈_ = Maybe.Eq _≡_
-    ; _+_ = _T⊓_
-    ; _*_ = _T+_
-    ; 0# = nothing
-    ; 1# = just 0
-    ; isSemiring = record
-      { isSemiringWithoutAnnihilatingZero = record
-        { +-isCommutativeMonoid = record
-          { isSemigroup = record
-            { isEquivalence = isEquivalence
-            ; assoc = λ { (just x) (just y) (just z) → just (⊓-assoc x y z)
-                        ; (just x) (just y) nothing → just PEq.refl
-                        ; (just x) nothing (just z) → just PEq.refl
-                        ; (just x) nothing nothing → just PEq.refl
-                        ; nothing (just y) (just z) → just PEq.refl
-                        ; nothing (just y) nothing → just PEq.refl
-                        ; nothing nothing (just z) → just PEq.refl
-                        ; nothing nothing nothing → nothing
-                        }
-            ; ∙-cong = λ { (just eqx) (just eqy) → just (⊓-cong eqx eqy)
-                         ; (just eqx) nothing → just eqx
-                         ; nothing (just eqy) → just eqy
-                         ; nothing nothing → nothing
-                         }
-            }
-          ; identityˡ = λ { (just x) → just PEq.refl ; nothing → nothing }
-          ; comm = λ { (just x) (just y) → just (⊓-comm x y)
-                     ; (just x) nothing → just PEq.refl
-                     ; nothing (just y) → just PEq.refl
-                     ; nothing nothing → nothing
-                     }
-          }
-        ; *-isMonoid = record
-          { isSemigroup = record
-            { isEquivalence = isEquivalence
-            ; assoc = λ { (just x) (just y) (just z) → just (+-assoc x y z)
-                        ; (just x) (just y) nothing → nothing
-                        ; (just x) nothing z → nothing
-                        ; nothing y z → nothing
-                        }
-            ; ∙-cong = λ { (just eqx) (just eqy) → just (+-cong eqx eqy)
-                         ; (just x≈y) nothing → nothing
-                         ; nothing eqy → nothing
-                         }
-            }
-          ; identity = (λ { (just x) → just (proj₁ +-identity x)
-                          ; nothing → nothing })
-                     , (λ { (just x) → just (proj₂ +-identity x)
-                          ; nothing → nothing })
-          }
-        ; distrib = (λ { (just x) (just y) (just z) → just (distrib-l x y z)
-                       ; (just x) (just y) nothing → just PEq.refl
-                       ; (just x) nothing (just z) → just PEq.refl
-                       ; (just x) nothing nothing → nothing
-                       ; nothing y z → nothing
-                       })
-                  , (λ { (just x) (just y) (just z) → just (distrib-r x y z)
-                       ; (just x) (just y) nothing → just PEq.refl
-                       ; (just x) nothing (just z) → just PEq.refl
-                       ; nothing (just y) (just z) → nothing
-                       ; nothing (just y) nothing → nothing
-                       ; nothing nothing (just z) → nothing
-                       ; x nothing nothing → nothing
-                       })
-        }
-      ; zero = (λ x → nothing) , rzero
-      }
-    }
-    module K where
-    open Setoid (Maybe.setoid (PEq.setoid ℕ))
-    open CommutativeSemiringWithoutOne ⊔-⊓-0-commutativeSemiringWithoutOne
-      using ()
-      renaming ( *-isSemigroup to ⊓-isSemigroup; *-comm to ⊓-comm
-               ; *-assoc to ⊓-assoc; *-cong to ⊓-cong)
-    open CommutativeSemiring commutativeSemiring
-      using (+-isMonoid; +-identity; +-assoc; +-cong; +-comm)
-
-    _T⊓_ _T+_ : Maybe ℕ → Maybe ℕ → Maybe ℕ
-    just x T⊓ just y = just (x ⊓ y)
-    just x T⊓ nothing = just x
-    nothing T⊓ just y = just y
-    nothing T⊓ nothing = nothing
-
-    just x T+ just y = just (x + y)
-    just x T+ nothing = nothing
-    nothing T+ y = nothing
-
-    rzero : ∀ x → Maybe.Eq _≡_ (x T+ nothing) nothing
-    rzero (just x) = nothing
-    rzero nothing = nothing
-
-    distrib-l : ∀ x y z → x + y ⊓ z ≡ (x + y) ⊓ (x + z)
-    distrib-l ℕ.zero y z = PEq.refl
-    distrib-l (ℕ.suc x) y z = PEq.cong ℕ.suc (distrib-l x y z)
-
-    open ≡-Reasoning
-
-    distrib-r : ∀ x y z → y ⊓ z + x ≡ (y + x) ⊓ (z + x)
-    distrib-r x y z = begin
-      y ⊓ z + x          ≡⟨ +-comm (y ⊓ z) x ⟩
-      x + y ⊓ z          ≡⟨ distrib-l x y z ⟩
-      (x + y) ⊓ (x + z)  ≡⟨ ⊓-cong (+-comm x y) (+-comm x z) ⟩
-      (y + x) ⊓ (z + x)  ∎
+  open import Semiring.Instances using (module Nat)
+  open Nat
   open K using (_T⊓_; _T+_)
 
   open Semiring K hiding (zero)
   open import Semiring.Definitions K
   open import Sum K
-
-  0-T⊓ : ∀ y → just 0 T⊓ y ≡ just 0
-  0-T⊓ (just y) = PEq.refl
-  0-T⊓ nothing = PEq.refl
-
-  closed : _Closed 1
-  closed = record
-    { closed = λ a → record
-      { closed = reflexive (0-T⊓ ((a T+ just 0) T⊓ nothing))
-      }
-    }
-
-  De : Decidable
-  De (just x) (just y) with x ≟ y
-  De (just x) (just y) | yes p = yes (just p)
-  De (just x) (just y) | no ¬p = no (λ { (just x≈y) → ¬p x≈y })
-  De (just x) nothing = no (λ ())
-  De nothing (just y) = no (λ ())
-  De nothing nothing = yes nothing
 
   open import Graph K
 
@@ -171,6 +50,7 @@ module Main where
      2
   -}
 
+  {-
   G : Graph 3
   G zero zero = nothing
   G zero (suc zero) = just 2
@@ -183,17 +63,19 @@ module Main where
   G (suc zero) (suc (suc j)) = just 1
   G (suc (suc i)) (suc zero) = just 1
   G (suc (suc i)) (suc (suc j)) = nothing
+  -}
+  open import TestData
 
   open import Graph.Definitions {K = K} G
 
   closedOnG : 1 ClosedOnG
   closedOnG c = _Closed.closed closed (path-weight c)
 
-  Q = stack (FinP.decSetoid 3)
+  Q = stack (FinP.decSetoid 50)
   open QueueDiscipline Q
 
   open import Algorithm K De Q G zero
-  open import Algorithm.Theorem1 K De Q G zero closedOnG
+  --open import Algorithm.Theorem1 K De Q G zero closedOnG
 
   {-
   {-# NON_TERMINATING #-}
@@ -203,19 +85,26 @@ module Main where
   run i | no _ = i
   -}
 
+  open import Arguments
   open import IO
   open import IO.Primitive as Prim using ()
   open import Computation
+  open import Data.List using (List; []; _∷_; length)
   open import Data.Nat.Show as ℕS using ()
   open import Data.String hiding (show)
-  open import Data.Vec hiding (_++_)
+  open import Data.Vec hiding (_++_; toList)
 
   show : ∀ {n} → Vec (Maybe ℕ) n → String
-  show [] = "\n"
+  show [] = ""
   show (just x ∷ xs) = ℕS.show x ++ "\n" ++ show xs
   show (nothing ∷ xs) = "∞\n" ++ show xs
 
   {-# NON_TERMINATING #-}
   main : Prim.IO ⊤
   main = run $
-    putStr (show (Alg-state-abbrev.d (proj₁ (Terminates-result terminates))))
+    ♯ getArgs IO.>>= λ
+    { [] → ♯ putStrLn "Not enough arguments."
+    ; (x ∷ xs) →
+      --♯ putStr (show (Alg-state-abbrev.d (σ (length (toList x)) I₀)))
+      ♯ putStr (show (Alg-state-abbrev.d (σ 10000 I₀)))
+    }

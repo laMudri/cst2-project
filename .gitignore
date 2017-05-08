@@ -9,3 +9,5 @@ jalc.ps
 *.pdf
 *.agdai
 .#*
+*.hi
+*.o
